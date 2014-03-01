@@ -7,14 +7,14 @@ import java.util.List;
  *
  * @author Matthias Bromisch
  */
-public class UsingTaskElement extends AbstractElement{
+public class UsingTask extends AbstractElement{
     private List<Element> elements = new ArrayList<Element>();
     
-    public UsingTaskElement(){
+    public UsingTask(){
         super("UsingTask");
     }
     
-    public void add(ParameterGroupElement parameterGroupElement){
+    public void add(ParameterGroup parameterGroupElement){
         elements.add(parameterGroupElement);
     }
 }

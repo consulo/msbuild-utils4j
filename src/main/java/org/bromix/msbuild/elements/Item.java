@@ -12,8 +12,8 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class ItemElement extends AbstractElement{
-    List<ItemMetadataElement> metadataList = new ArrayList<ItemMetadataElement>();
+public class Item extends AbstractElement{
+    List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
     
     private String include = ""; // required
     private String exclude = ""; // optional
@@ -27,7 +27,7 @@ public class ItemElement extends AbstractElement{
      * @remark a ItemGroupDefinition seems to ignore the required Include attribute.
      * @param name 
      */
-    public ItemElement(String name){
+    public Item(String name){
         super(name);
     }
     
@@ -36,16 +36,16 @@ public class ItemElement extends AbstractElement{
      * @param name
      * @param include 
      */
-    public ItemElement(String name, String include){
+    public Item(String name, String include){
         super(name);
         this.include = include;
     }
     
-    public void add(ItemMetadataElement itemMetadata){
-        metadataList.add(itemMetadata);
+    public void addMetadata(ItemMetadata metadata){
+        metadataList.add(metadata);
     }
     
-    public List<ItemMetadataElement> getMetadataList(){
+    public List<ItemMetadata> getMetadataList(){
         return Collections.unmodifiableList(metadataList);
     }
     

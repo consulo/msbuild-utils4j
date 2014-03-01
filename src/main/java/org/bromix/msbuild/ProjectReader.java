@@ -3,14 +3,14 @@ package org.bromix.msbuild;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.bromix.msbuild.elements.ImportElement;
-import org.bromix.msbuild.elements.ImportGroupElement;
-import org.bromix.msbuild.elements.ItemDefinitionGroupElement;
-import org.bromix.msbuild.elements.ItemElement;
-import org.bromix.msbuild.elements.ItemGroupElement;
-import org.bromix.msbuild.elements.ItemMetadataElement;
-import org.bromix.msbuild.elements.PropertyElement;
-import org.bromix.msbuild.elements.PropertyGroupElement;
+import org.bromix.msbuild.elements.Import;
+import org.bromix.msbuild.elements.ImportGroup;
+import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.Item;
+import org.bromix.msbuild.elements.ItemGroup;
+import org.bromix.msbuild.elements.ItemMetadata;
+import org.bromix.msbuild.elements.Property;
+import org.bromix.msbuild.elements.PropertyGroup;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -94,7 +94,7 @@ public class ProjectReader {
                 throw new ProjectIOException(message);
             }
             else if(element.getName().equalsIgnoreCase("Import")){
-                ImportElement _import = readImport(element, namespace);
+                Import _import = readImport(element, namespace);
                 project.add(_import);
             }
             else if(element.getName().equalsIgnoreCase("ImportGroup")){
@@ -129,7 +129,7 @@ public class ProjectReader {
     }
 
     private void readItemGroup(Project project, LocatedElement inElement, Namespace namespace) throws ProjectIOException {
-        ItemGroupElement itemGroup = new ItemGroupElement();
+        ItemGroup itemGroup = new ItemGroup();
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -146,21 +146,21 @@ public class ProjectReader {
         for(Element _element : inElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            ItemElement item = readItem(element, namespace, true);
-            itemGroup.add(item);
+            Item item = readItem(element, namespace, true);
+            itemGroup.addItem(item);
         }
         
         project.add(itemGroup);
     }
 
-    private ItemElement readItem(LocatedElement inElement, Namespace namespace, boolean validateInclude) throws ProjectIOException {
+    private Item readItem(LocatedElement inElement, Namespace namespace, boolean validateInclude) throws ProjectIOException {
         String include = inElement.getAttributeValue("Include");
         if(validateInclude && include.isEmpty()){
             String message = String.format("Missing attribute 'Include' in line '%d'", inElement.getLine());
             throw new ProjectIOException(message);
         }
         
-        ItemElement item = new ItemElement(inElement.getName(), include);
+        Item item = new Item(inElement.getName(), include);
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -192,15 +192,15 @@ public class ProjectReader {
         for(Element _element : inElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            ItemMetadataElement itemMetadata = readItemMetadata(element, namespace);
-            item.add(itemMetadata);
+            ItemMetadata itemMetadata = readItemMetadata(element, namespace);
+            item.addMetadata(itemMetadata);
         }
         
         return item;
     }
 
     private void readItemDefinitionGroup(Project project, LocatedElement inElement, Namespace namespace) throws ProjectIOException {
-        ItemDefinitionGroupElement itemDefinitionGroup = new ItemDefinitionGroupElement();
+        ItemDefinition itemDefinitionGroup = new ItemDefinition();
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -221,15 +221,15 @@ public class ProjectReader {
         for(Element _element : inElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            ItemElement item = readItem(element, namespace, false);
-            itemDefinitionGroup.add(item);
+            Item item = readItem(element, namespace, false);
+            itemDefinitionGroup.addItem(item);
         }
         
         project.add(itemDefinitionGroup);
     }
 
     private void readPropertyGroup(Project project, LocatedElement inElement, Namespace namespace) throws ProjectIOException {
-        PropertyGroupElement propertyGroup = new PropertyGroupElement();
+        PropertyGroup propertyGroup = new PropertyGroup();
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -249,21 +249,21 @@ public class ProjectReader {
         for(Element _element : inElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            PropertyElement property = readProperty(element, namespace);
-            propertyGroup.add(property);
+            Property property = readProperty(element, namespace);
+            propertyGroup.addProperty(property);
         }
      
         project.add(propertyGroup);
     }
 
-    private ImportElement readImport(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
+    private Import readImport(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
         String project = inElement.getAttributeValue("Project");
         if(project.isEmpty()){
             String message = String.format("Missing attribute 'Project' in line '%d'", inElement.getLine());
             throw new ProjectIOException(message);
         }
         
-        ImportElement _import = new ImportElement(project);
+        Import _import = new Import(project);
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -287,7 +287,7 @@ public class ProjectReader {
     }
 
     private void readImportGroup(Project project, LocatedElement inElement, Namespace namespace) throws ProjectIOException {
-        ImportGroupElement importGroup = new ImportGroupElement();
+        ImportGroup importGroup = new ImportGroup();
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -307,17 +307,17 @@ public class ProjectReader {
         for(Element _element : inElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            ImportElement _import = readImport(element, namespace);
-            importGroup.add(_import);
+            Import _import = readImport(element, namespace);
+            importGroup.addImport(_import);
         }
      
         project.add(importGroup);
     }
 
-    private ItemMetadataElement readItemMetadata(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
+    private ItemMetadata readItemMetadata(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
         String name = inElement.getName();
         String value = inElement.getText();
-        ItemMetadataElement itemMetadata = new ItemMetadataElement(name, value);
+        ItemMetadata itemMetadata = new ItemMetadata(name, value);
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -337,10 +337,10 @@ public class ProjectReader {
         return itemMetadata;
     }
 
-    private PropertyElement readProperty(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
+    private Property readProperty(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
         String name = inElement.getName();
         String value = inElement.getText();
-        PropertyElement property = new PropertyElement(name, value);
+        Property property = new Property(name, value);
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){

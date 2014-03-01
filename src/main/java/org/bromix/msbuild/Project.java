@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.elements.ChooseElement;
 import org.bromix.msbuild.elements.Element;
-import org.bromix.msbuild.elements.ImportElement;
-import org.bromix.msbuild.elements.ImportGroupElement;
-import org.bromix.msbuild.elements.ItemDefinitionGroupElement;
-import org.bromix.msbuild.elements.ItemGroupElement;
-import org.bromix.msbuild.elements.ProjectExtensionsElement;
-import org.bromix.msbuild.elements.PropertyGroupElement;
-import org.bromix.msbuild.elements.TargetElement;
-import org.bromix.msbuild.elements.UsingTaskElement;
+import org.bromix.msbuild.elements.Import;
+import org.bromix.msbuild.elements.ImportGroup;
+import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.ItemGroup;
+import org.bromix.msbuild.elements.ProjectExtensions;
+import org.bromix.msbuild.elements.PropertyGroup;
+import org.bromix.msbuild.elements.Target;
+import org.bromix.msbuild.elements.UsingTask;
 
 /**
  * Implementation of a MSBuild-Project.
@@ -111,35 +111,35 @@ public class Project {
         elements.add(chooseElement);
     }
     
-    public void add(ImportElement importElement){
+    public void add(Import importElement){
         elements.add(importElement);
     }
     
-    public void add(ImportGroupElement importGroupElement){
+    public void add(ImportGroup importGroupElement){
         elements.add(importGroupElement);
     }
     
-    public void add(ItemGroupElement itemGroup){
+    public void add(ItemGroup itemGroup){
         elements.add(itemGroup);
     }
     
-    public void add(ItemDefinitionGroupElement element){
+    public void add(ItemDefinition element){
         elements.add(element);
     }
     
-    public void add(ProjectExtensionsElement projectExtensionsElement){
+    public void add(ProjectExtensions projectExtensionsElement){
         elements.add(projectExtensionsElement);
     }
     
-    public void add(PropertyGroupElement propertyGroupElement){
+    public void add(PropertyGroup propertyGroupElement){
         elements.add(propertyGroupElement);
     }
     
-    public void add(TargetElement targetElement){
+    public void add(Target targetElement){
         elements.add(targetElement);
     }
     
-    public void add(UsingTaskElement usingTaskElement){
+    public void add(UsingTask usingTaskElement){
         elements.add(usingTaskElement);
     }
 }

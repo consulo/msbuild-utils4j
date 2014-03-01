@@ -8,18 +8,18 @@ import java.util.List;
  *
  * @author Matthias Bromisch
  */
-public class PropertyGroupElement extends AbstractConditionalElement{
-    private List<PropertyElement> properties = new ArrayList<PropertyElement>();
+public class PropertyGroup extends AbstractConditionalElement{
+    private final List<Property> properties = new ArrayList<Property>();
     
-    public PropertyGroupElement(){
+    public PropertyGroup(){
         super("PropertyGroup");
     }
     
-    public void add(PropertyElement property){
+    public void addProperty(Property property){
         properties.add(property);
     }
     
-    public List<PropertyElement> getProperties(){
+    public List<Property> getProperties(){
         return Collections.unmodifiableList(properties);
     }
 }

@@ -4,8 +4,8 @@ package org.bromix.msbuild.elements;
  *
  * @author Matthias Bromisch
  */
-public class OnErrorElement extends AbstractElement{
-    public OnErrorElement(){
+public class OnError extends AbstractElement{
+    public OnError(){
         super("OnError");
     }
 }

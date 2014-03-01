@@ -14,11 +14,11 @@ public class ChooseElement extends AbstractElement{
         super("Choose");
     }
     
-    public void add(OtherwiseElement otherwiseElement){
+    public void add(Otherwise otherwiseElement){
         elements.add(otherwiseElement);
     }
     
-    public void add(WhenElement whenElement){
+    public void add(When whenElement){
         elements.add(whenElement);
     }
 }

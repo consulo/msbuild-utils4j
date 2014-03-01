@@ -7,18 +7,18 @@ import java.util.List;
  *
  * @author Matthias Bromisch
  */
-public class ParameterGroupElement extends AbstractElement{
+public class ParameterGroup extends AbstractElement{
     private final List<Element> elements = new ArrayList<Element>();
     
-    public ParameterGroupElement(){
+    public ParameterGroup(){
         super("ParameterGroup");
     }
     
-    public void add(ParameterElement parameterElement){
+    public void add(Parameter parameterElement){
         elements.add(parameterElement);
     }
     
-    public void add(TaskBodyElement taskBodyElement){
+    public void add(TaskBody taskBodyElement){
         elements.add(taskBodyElement);
     }
 }

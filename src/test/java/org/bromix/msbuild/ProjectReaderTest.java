@@ -11,14 +11,14 @@ import java.net.URI;
 import java.util.List;
 import junit.framework.TestCase;
 import org.bromix.msbuild.elements.Element;
-import org.bromix.msbuild.elements.ImportElement;
-import org.bromix.msbuild.elements.ImportGroupElement;
-import org.bromix.msbuild.elements.ItemDefinitionGroupElement;
-import org.bromix.msbuild.elements.ItemElement;
-import org.bromix.msbuild.elements.ItemGroupElement;
-import org.bromix.msbuild.elements.ItemMetadataElement;
-import org.bromix.msbuild.elements.PropertyElement;
-import org.bromix.msbuild.elements.PropertyGroupElement;
+import org.bromix.msbuild.elements.Import;
+import org.bromix.msbuild.elements.ImportGroup;
+import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.Item;
+import org.bromix.msbuild.elements.ItemGroup;
+import org.bromix.msbuild.elements.ItemMetadata;
+import org.bromix.msbuild.elements.Property;
+import org.bromix.msbuild.elements.PropertyGroup;
 
 /**
  *
@@ -59,21 +59,21 @@ public class ProjectReaderTest extends TestCase {
         
         // ItemGroup (ProjectConfigurations)
         Element element = elements.get(0);
-        testItemGroupProjectConfigurations((ItemGroupElement)element);
+        testItemGroupProjectConfigurations((ItemGroup)element);
         
         // PropertyGroup (Globals)
         element = elements.get(1);
-        testPropertyGroupGlobals((PropertyGroupElement)element);
+        testPropertyGroupGlobals((PropertyGroup)element);
         
         // ignore Import (Index 2)
         
         // PropertyGroup (Configuration=Debug|Win32)
         element = elements.get(3);
-        testPropertyGroupConfiguration((PropertyGroupElement)element, true);
+        testPropertyGroupConfiguration((PropertyGroup)element, true);
         
         // PropertyGroup (Configuration=Release|Win32)
         element = elements.get(4);
-        testPropertyGroupConfiguration((PropertyGroupElement)element, false);
+        testPropertyGroupConfiguration((PropertyGroup)element, false);
         
         // ignore Import (Index 5)
         
@@ -81,11 +81,11 @@ public class ProjectReaderTest extends TestCase {
         
         // ImportGroup (LocalAppDataPlatform=Debug|Win32)
         element = elements.get(7);
-        testImportGroupLocalAppDataPlatform((ImportGroupElement)element, true);
+        testImportGroupLocalAppDataPlatform((ImportGroup)element, true);
         
         // ImportGroup (LocalAppDataPlatform=Release|Win32)
         element = elements.get(8);
-        testImportGroupLocalAppDataPlatform((ImportGroupElement)element, false);
+        testImportGroupLocalAppDataPlatform((ImportGroup)element, false);
         
         // ignore PropertyGroup (UserMacros) (Index 9)
         
@@ -93,11 +93,11 @@ public class ProjectReaderTest extends TestCase {
         
         // ItemDefinitionGroup (Debug|Win32)
         element = elements.get(11);
-        testItemDefinitionGroup((ItemDefinitionGroupElement)element, true);
+        testItemDefinitionGroup((ItemDefinition)element, true);
         
         // ItemDefinitionGroup (Release|Win32)
         element = elements.get(12);
-        testItemDefinitionGroup((ItemDefinitionGroupElement)element, false);
+        testItemDefinitionGroup((ItemDefinition)element, false);
         
         // ignore ItemGroup (Index 13)
         
@@ -105,50 +105,50 @@ public class ProjectReaderTest extends TestCase {
         
         // ItemGroup (ClCompile)
         element = elements.get(15);
-        testItemGroupClCompile((ItemGroupElement)element);
+        testItemGroupClCompile((ItemGroup)element);
         
         // ignore the rest
     }
     
-    private void testItemGroupProjectConfigurations(ItemGroupElement itemGroup){
-        List<ItemElement> items = itemGroup.getItems();
+    private void testItemGroupProjectConfigurations(ItemGroup itemGroup){
+        List<Item> items = itemGroup.getItems();
         assertEquals(2, items.size());
         
-        for(ItemElement item : items){
-            List<ItemMetadataElement> metadataList = item.getMetadataList();
+        for(Item item : items){
+            List<ItemMetadata> metadataList = item.getMetadataList();
             assertEquals(2, metadataList.size());
         }
     }
 
-    private void testPropertyGroupGlobals(PropertyGroupElement propertyGroup) {
-        List<PropertyElement> properties = propertyGroup.getProperties();
+    private void testPropertyGroupGlobals(PropertyGroup propertyGroup) {
+        List<Property> properties = propertyGroup.getProperties();
         assertEquals(3, properties.size());
     }
 
-    private void testPropertyGroupConfiguration(PropertyGroupElement propertyGroup, boolean debug) {
+    private void testPropertyGroupConfiguration(PropertyGroup propertyGroup, boolean debug) {
         if(debug){
-            List<PropertyElement> properties = propertyGroup.getProperties();
+            List<Property> properties = propertyGroup.getProperties();
             assertEquals(3, properties.size());
         }
         else{
-            List<PropertyElement> properties = propertyGroup.getProperties();
+            List<Property> properties = propertyGroup.getProperties();
             assertEquals(4, properties.size());
         }
     }
 
-    private void testImportGroupLocalAppDataPlatform(ImportGroupElement importGroup, boolean debug) {
-        List<ImportElement> imports = importGroup.getImports();
+    private void testImportGroupLocalAppDataPlatform(ImportGroup importGroup, boolean debug) {
+        List<Import> imports = importGroup.getImports();
         assertEquals(1, imports.size());
     }
 
-    private void testItemDefinitionGroup(ItemDefinitionGroupElement itemDefinitionGroup, boolean debug) {
+    private void testItemDefinitionGroup(ItemDefinition itemDefinitionGroup, boolean debug) {
         if(debug){
-            List<ItemElement> items = itemDefinitionGroup.getItems();
+            List<Item> items = itemDefinitionGroup.getItems();
             assertEquals(2, items.size());
             
             // ClCompile
-            ItemElement item = items.get(0);
-            List<ItemMetadataElement> metadataList = item.getMetadataList();
+            Item item = items.get(0);
+            List<ItemMetadata> metadataList = item.getMetadataList();
             assertEquals(4, metadataList.size());
             
             // Link
@@ -157,12 +157,12 @@ public class ProjectReaderTest extends TestCase {
             assertEquals(2, metadataList.size());
         }
         else{
-            List<ItemElement> items = itemDefinitionGroup.getItems();
+            List<Item> items = itemDefinitionGroup.getItems();
             assertEquals(2, items.size());
             
             // ClCompile
-            ItemElement item = items.get(0);
-            List<ItemMetadataElement> metadataList = item.getMetadataList();
+            Item item = items.get(0);
+            List<ItemMetadata> metadataList = item.getMetadataList();
             assertEquals(6, metadataList.size());
             
             // Link
@@ -172,14 +172,14 @@ public class ProjectReaderTest extends TestCase {
         }
     }
 
-    private void testItemGroupClCompile(ItemGroupElement itemGroup) {
-        List<ItemElement> items = itemGroup.getItems();
+    private void testItemGroupClCompile(ItemGroup itemGroup) {
+        List<Item> items = itemGroup.getItems();
         assertEquals(1, items.size());
         
         // PrecompiledHeader
-        ItemElement item = items.get(0);
+        Item item = items.get(0);
         
-        List<ItemMetadataElement> metadataList = item.getMetadataList();
+        List<ItemMetadata> metadataList = item.getMetadataList();
         assertEquals(2, metadataList.size());
     }
 }

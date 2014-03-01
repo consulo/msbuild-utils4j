@@ -12,18 +12,18 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class ItemGroupElement extends AbstractElement{
-    private List<ItemElement> items = new ArrayList<ItemElement>();
+public class ItemGroup extends AbstractElement{
+    private final List<Item> items = new ArrayList<Item>();
     
-    public ItemGroupElement(){
+    public ItemGroup(){
         super("ItemGroup");
     }
     
-    public void add(ItemElement item){
+    public void addItem(Item item){
         items.add(item);
     }
     
-    public List<ItemElement> getItems(){
+    public List<Item> getItems(){
         return Collections.unmodifiableList(items);
     }
 }

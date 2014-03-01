@@ -7,14 +7,14 @@ import java.util.List;
  *
  * @author Matthias Bromisch
  */
-public class TaskElement extends AbstractElement{
-    private List<Element> elements = new ArrayList<Element>();
+public class Task extends AbstractElement{
+    private final List<Element> elements = new ArrayList<Element>();
     
-    public TaskElement(String name){
+    public Task(String name){
         super(name);
     }
     
-    public void add(OutputElement outputElement){
+    public void add(Output outputElement){
         elements.add(outputElement);
     }
 }

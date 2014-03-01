@@ -7,26 +7,26 @@ import java.util.List;
  *
  * @author Matthias Bromisch
  */
-public class TargetElement extends AbstractElement{
-    private List<Element> elements = new ArrayList<Element>();
+public class Target extends AbstractElement{
+    private final List<Element> elements = new ArrayList<Element>();
     
-    public TargetElement(){
+    public Target(){
         super("Target");
     }
     
-    public void add(TaskElement taskElement){
+    public void add(Task taskElement){
         elements.add(taskElement);
     }
     
-    public void add(PropertyGroupElement propertyGroupElement){
+    public void add(PropertyGroup propertyGroupElement){
         elements.add(propertyGroupElement);
     }
     
-    public void add(ItemGroupElement itemGroupElement){
+    public void add(ItemGroup itemGroupElement){
         elements.add(itemGroupElement);
     }
     
-    public void add(OnErrorElement onErrorElement){
+    public void add(OnError onErrorElement){
         elements.add(onErrorElement);
     }
 }

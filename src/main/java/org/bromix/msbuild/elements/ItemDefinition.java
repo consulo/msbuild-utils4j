@@ -12,18 +12,18 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class ItemDefinitionGroupElement extends AbstractConditionalElement{
-    private List<ItemElement> items = new ArrayList<ItemElement>();
+public class ItemDefinition extends AbstractConditionalElement{
+    private final List<Item> items = new ArrayList<Item>();
     
-    public ItemDefinitionGroupElement(){
+    public ItemDefinition(){
         super("ItemDefinitionGroup");
     }
     
-    public void add(ItemElement item){
+    public void addItem(Item item){
         items.add(item);
     }
     
-    public List<ItemElement> getItems(){
+    public List<Item> getItems(){
         return Collections.unmodifiableList(items);
     }
 }

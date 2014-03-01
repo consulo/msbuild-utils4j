@@ -4,10 +4,10 @@ package org.bromix.msbuild.elements;
  *
  * @author Matthias Bromisch
  */
-public class ItemMetadataElement extends AbstractConditionalElement{
+public class ItemMetadata extends AbstractConditionalElement{
     private final String value;
     
-    public ItemMetadataElement(String name, String value){
+    public ItemMetadata(String name, String value){
         super(name);
         this.value = value;
     }

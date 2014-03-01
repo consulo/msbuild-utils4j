@@ -4,8 +4,8 @@ package org.bromix.msbuild.elements;
  *
  * @author Matthias Bromisch
  */
-public class ParameterElement extends AbstractElement{
-    public ParameterElement(String name){
+public class Parameter extends AbstractElement{
+    public Parameter(String name){
         super(name);
     }
 }

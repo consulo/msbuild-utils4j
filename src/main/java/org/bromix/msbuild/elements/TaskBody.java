@@ -4,8 +4,8 @@ package org.bromix.msbuild.elements;
  *
  * @author Matthias Bromisch
  */
-public class TaskBodyElement extends AbstractElement{
-    public TaskBodyElement(){
+public class TaskBody extends AbstractElement{
+    public TaskBody(){
         super("TaskBody");
     }
 }

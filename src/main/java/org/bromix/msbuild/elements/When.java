@@ -7,22 +7,22 @@ import java.util.List;
  *
  * @author Matthias Bromisch
  */
-public class OtherwiseElement extends AbstractElement{
-    List<Element> elements = new ArrayList<Element>();
+public class When extends AbstractElement{
+    private List<Element> elements = new ArrayList<Element>();
     
-    public OtherwiseElement(){
-        super("Otherwise");
+    public When(){
+        super("When");
     }
     
     public void add(ChooseElement chooseElement){
         elements.add(chooseElement);
     }
     
-    public void add(ItemGroupElement itemGroupElement){
+    public void add(ItemGroup itemGroupElement){
         elements.add(itemGroupElement);
     }
     
-    public void add(PropertyGroupElement propertyGroupElement){
+    public void add(PropertyGroup propertyGroupElement){
         elements.add(propertyGroupElement);
     }
 }
