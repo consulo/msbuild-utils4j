@@ -1,6 +1,7 @@
 package org.bromix.msbuild.elements;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,13 +13,17 @@ import java.util.List;
  * @author Matthias Bromisch
  */
 public class ItemGroupElement extends AbstractElement{
-    private List<Element> elements = new ArrayList<Element>();
+    private List<ItemElement> items = new ArrayList<ItemElement>();
     
     public ItemGroupElement(){
         super("ItemGroup");
     }
     
-    public void add(ItemElement itemElement){
-        elements.add(itemElement);
+    public void add(ItemElement item){
+        items.add(item);
+    }
+    
+    public List<ItemElement> getItems(){
+        return Collections.unmodifiableList(items);
     }
 }

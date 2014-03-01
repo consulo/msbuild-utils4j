@@ -9,6 +9,7 @@ import org.bromix.msbuild.elements.ItemDefinitionGroupElement;
 import org.bromix.msbuild.elements.ItemElement;
 import org.bromix.msbuild.elements.ItemGroupElement;
 import org.bromix.msbuild.elements.ItemMetadataElement;
+import org.bromix.msbuild.elements.PropertyElement;
 import org.bromix.msbuild.elements.PropertyGroupElement;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -18,7 +19,6 @@ import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.located.LocatedElement;
 import org.jdom2.located.LocatedJDOMFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -245,6 +245,13 @@ public class ProjectReader {
                 throw new ProjectIOException(message);
             }
         }
+        
+        for(Element _element : inElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            PropertyElement property = readProperty(element, namespace);
+            propertyGroup.add(property);
+        }
      
         project.add(propertyGroup);
     }
@@ -257,6 +264,24 @@ public class ProjectReader {
         }
         
         ImportElement _import = new ImportElement(project);
+        
+        //Read and validate the attributes
+        for(Attribute attr : inElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("Label")){
+                _import.setLabel(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Condition")){
+                Condition condition = new Condition(attr.getValue());
+                _import.setCondition(condition);
+            }
+            else if(attr.getName().equalsIgnoreCase("Project")){
+                // do nothing
+            }
+            else{
+                String message = String.format("Unsupported attribute '%s' in line '%d'", attr.getName(), inElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
         
         return _import;
     }
@@ -278,12 +303,21 @@ public class ProjectReader {
                 throw new ProjectIOException(message);
             }
         }
+        
+        for(Element _element : inElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            ImportElement _import = readImport(element, namespace);
+            importGroup.add(_import);
+        }
      
         project.add(importGroup);
     }
 
     private ItemMetadataElement readItemMetadata(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
-        ItemMetadataElement itemMetadata = new ItemMetadataElement(null, null);
+        String name = inElement.getName();
+        String value = inElement.getText();
+        ItemMetadataElement itemMetadata = new ItemMetadataElement(name, value);
         
         //Read and validate the attributes
         for(Attribute attr : inElement.getAttributes()){
@@ -299,7 +333,30 @@ public class ProjectReader {
                 throw new ProjectIOException(message);
             }
         }
-     
+        
         return itemMetadata;
+    }
+
+    private PropertyElement readProperty(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
+        String name = inElement.getName();
+        String value = inElement.getText();
+        PropertyElement property = new PropertyElement(name, value);
+        
+        //Read and validate the attributes
+        for(Attribute attr : inElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("Label")){
+                property.setLabel(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Condition")){
+                Condition condition = new Condition(attr.getValue());
+                property.setCondition(condition);
+            }
+            else{
+                String message = String.format("Unsupported attribute '%s' in line '%d'", attr.getName(), inElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+     
+        return property;
     }
 }

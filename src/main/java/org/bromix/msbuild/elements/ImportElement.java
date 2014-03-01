@@ -4,11 +4,12 @@ package org.bromix.msbuild.elements;
  *
  * @author Matthias Bromisch
  */
-public class ImportElement extends AbstractElement{
+public class ImportElement extends AbstractConditionalElement{
     private String project = ""; // required
     
     public ImportElement(String project){
         super("Import");
+        this.project = project;
     }
     
     /**

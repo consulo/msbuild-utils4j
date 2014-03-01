@@ -1,6 +1,7 @@
 package org.bromix.msbuild;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.elements.ChooseElement;
 import org.bromix.msbuild.elements.Element;
@@ -100,6 +101,10 @@ public class Project {
      */
     public String getTreatAsLocalProperty(){
         return treatAsLocalProperty;
+    }
+    
+    public List<Element> getChildren(){
+        return Collections.unmodifiableList(elements);
     }
     
     public void add(ChooseElement chooseElement){
