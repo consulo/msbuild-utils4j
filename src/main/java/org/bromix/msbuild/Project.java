@@ -35,8 +35,8 @@ public class Project {
         elements.add(itemGroup);
     }
     
-    public void add(ProjectExtensionsElement projectExtensions){
-        elements.add(projectExtensions);
+    public void add(ProjectExtensionsElement projectExtensionsElement){
+        elements.add(projectExtensionsElement);
     }
     
     public void add(PropertyGroupElement propertyGroupElement){
