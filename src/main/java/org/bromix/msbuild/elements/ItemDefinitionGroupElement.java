@@ -14,18 +14,8 @@ import java.util.List;
 public class ItemDefinitionGroupElement extends AbstractConditionalElement{
     private List<Element> elements = new ArrayList<Element>();
     
-    private String label = "";
-    
     public ItemDefinitionGroupElement(){
         super("ItemDefinitionGroup");
-    }
-    
-    public void setLabel(String label){
-        this.label = label;
-    }
-    
-    public String getLabel(){
-        return label;
     }
     
     public void add(ItemElement itemElement){

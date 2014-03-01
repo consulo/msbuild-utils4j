@@ -6,6 +6,7 @@ package org.bromix.msbuild.elements;
  */
 public abstract class AbstractElement implements Element{
     private String name = "";
+    private String label = "";
     
     /**
      * Default constructor to create an element with the given name.
@@ -17,5 +18,13 @@ public abstract class AbstractElement implements Element{
     
     public String getName(){
         return name;
+    }
+    
+    public void setLabel(String label){
+        this.label = label;
+    }
+    
+    public String getLabel(){
+        return label;
     }
 }

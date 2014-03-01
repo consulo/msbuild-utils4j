@@ -13,4 +13,16 @@ public interface Element {
      * @return name of the element
      */
     public String getName();
+    
+    /**
+     * Sets the label of the element
+     * @param label 
+     */
+    public void setLabel(String label);
+    
+    /**
+     * Returns the label of the element.
+     * @return 
+     */
+    public String getLabel();
 }
