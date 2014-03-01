@@ -4,35 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Implement a ItemDefinitionGroup-Element.
+ * 
+ * For more information visit:
+ * http://msdn.microsoft.com/en-us/library/bb629392.aspx
+ * 
  * @author Matthias Bromisch
  */
-public class PropertyGroupElement extends AbstractConditionalElement{
+public class ItemDefinitionGroupElement extends AbstractConditionalElement{
     private List<Element> elements = new ArrayList<Element>();
     
     private String label = "";
     
-    public PropertyGroupElement(){
-        super("PropertyGroup");
+    public ItemDefinitionGroupElement(){
+        super("ItemDefinitionGroup");
     }
     
-    /**
-     * Set the label of the PropertyGroup.
-     * @param label 
-     */
     public void setLabel(String label){
         this.label = label;
     }
     
-    /**
-     * Returns the label of the PropertyGroup.
-     * @return 
-     */
     public String getLabel(){
         return label;
     }
     
-    public void add(PropertyElement propertyElement){
-        elements.add(propertyElement);
+    public void add(ItemElement itemElement){
+        elements.add(itemElement);
     }
 }

@@ -42,6 +42,7 @@ public class ProjectReaderTest extends TestCase {
         System.out.println("read");
         ProjectReader instance = new ProjectReader();
         Project project = instance.read(projectFile);
+        int x=0;
     }
     
 }

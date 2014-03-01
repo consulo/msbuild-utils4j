@@ -21,6 +21,20 @@ public class ItemElement extends AbstractElement{
     private String removeMetadata = ""; // optional
     private String keepDuplicates = ""; // optional
     
+    /**
+     * This constructor is for ItemGroupDefinitions.
+     * @remark a ItemGroupDefinition seems to ignore the required Include attribute.
+     * @param name 
+     */
+    public ItemElement(String name){
+        super(name);
+    }
+    
+    /**
+     * Default constructor for Items belonging to a ItemGroup.
+     * @param name
+     * @param include 
+     */
     public ItemElement(String name, String include){
         super(name);
         this.include = include;

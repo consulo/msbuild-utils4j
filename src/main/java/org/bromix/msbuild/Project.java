@@ -6,6 +6,7 @@ import org.bromix.msbuild.elements.ChooseElement;
 import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.ImportElement;
 import org.bromix.msbuild.elements.ImportGroupElement;
+import org.bromix.msbuild.elements.ItemDefinitionGroupElement;
 import org.bromix.msbuild.elements.ItemGroupElement;
 import org.bromix.msbuild.elements.ProjectExtensionsElement;
 import org.bromix.msbuild.elements.PropertyGroupElement;
@@ -115,6 +116,10 @@ public class Project {
     
     public void add(ItemGroupElement itemGroup){
         elements.add(itemGroup);
+    }
+    
+    public void add(ItemDefinitionGroupElement element){
+        elements.add(element);
     }
     
     public void add(ProjectExtensionsElement projectExtensionsElement){
