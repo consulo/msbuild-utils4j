@@ -8,6 +8,7 @@ import org.bromix.msbuild.elements.ImportGroupElement;
 import org.bromix.msbuild.elements.ItemDefinitionGroupElement;
 import org.bromix.msbuild.elements.ItemElement;
 import org.bromix.msbuild.elements.ItemGroupElement;
+import org.bromix.msbuild.elements.ItemMetadataElement;
 import org.bromix.msbuild.elements.PropertyGroupElement;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -191,7 +192,8 @@ public class ProjectReader {
         for(Element _element : inElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            
+            ItemMetadataElement itemMetadata = readItemMetadata(element, namespace);
+            item.add(itemMetadata);
         }
         
         return item;
@@ -278,5 +280,26 @@ public class ProjectReader {
         }
      
         project.add(importGroup);
+    }
+
+    private ItemMetadataElement readItemMetadata(LocatedElement inElement, Namespace namespace) throws ProjectIOException {
+        ItemMetadataElement itemMetadata = new ItemMetadataElement(null, null);
+        
+        //Read and validate the attributes
+        for(Attribute attr : inElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("Label")){
+                itemMetadata.setLabel(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Condition")){
+                Condition condition = new Condition(attr.getValue());
+                itemMetadata.setCondition(condition);
+            }
+            else{
+                String message = String.format("Unsupported attribute '%s' in line '%d'", attr.getName(), inElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+     
+        return itemMetadata;
     }
 }

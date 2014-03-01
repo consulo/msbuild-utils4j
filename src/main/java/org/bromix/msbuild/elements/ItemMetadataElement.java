@@ -4,7 +4,7 @@ package org.bromix.msbuild.elements;
  *
  * @author Matthias Bromisch
  */
-public class ItemMetadataElement extends AbstractElement{
+public class ItemMetadataElement extends AbstractConditionalElement{
     private final String value;
     
     public ItemMetadataElement(String name, String value){
