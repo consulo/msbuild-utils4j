@@ -9,17 +9,23 @@ import java.util.List;
  * @author Matthias Bromisch
  */
 public class ImportGroup extends AbstractConditionalElement{
-    private final List<Import> imports = new ArrayList<Import>();
-    
     public ImportGroup(){
         super("ImportGroup");
     }
     
-    public void addImport(Import _import){
-        imports.add(_import);
+    public void add(Import _import){
+        elements.add(_import);
     }
     
     public List<Import> getImports(){
+        List<Import> imports = new ArrayList<Import>();
+        
+        for(Element element : elements){
+            if(element instanceof Import){
+                imports.add((Import)element);
+            }
+        }
+        
         return Collections.unmodifiableList(imports);
     }
 }

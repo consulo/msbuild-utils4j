@@ -3,11 +3,11 @@ package org.bromix.msbuild;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.bromix.msbuild.elements.ChooseElement;
+import org.bromix.msbuild.elements.Choose;
 import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
-import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ProjectExtensions;
 import org.bromix.msbuild.elements.PropertyGroup;
@@ -107,8 +107,8 @@ public class Project {
         return Collections.unmodifiableList(elements);
     }
     
-    public void add(ChooseElement chooseElement){
-        elements.add(chooseElement);
+    public void add(Choose choose){
+        elements.add(choose);
     }
     
     public void add(Import importElement){
@@ -123,7 +123,7 @@ public class Project {
         elements.add(itemGroup);
     }
     
-    public void add(ItemDefinition element){
+    public void add(ItemDefinitionGroup element){
         elements.add(element);
     }
     

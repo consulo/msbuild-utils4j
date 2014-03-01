@@ -1,12 +1,17 @@
 package org.bromix.msbuild.elements;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * @author Matthias Bromisch
  */
 public abstract class AbstractElement implements Element{
-    private String name = "";
-    private String label = "";
+    protected List<Element> elements = new ArrayList<Element>(); 
+    protected String name = "";
+    protected String label = "";
     
     /**
      * Default constructor to create an element with the given name.
@@ -26,5 +31,9 @@ public abstract class AbstractElement implements Element{
     
     public String getLabel(){
         return label;
+    }
+    
+    public List<Element> getChildren(){
+        return Collections.unmodifiableList(elements);
     }
 }

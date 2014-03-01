@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
-import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.Item;
 import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ItemMetadata;
@@ -93,11 +93,11 @@ public class ProjectReaderTest extends TestCase {
         
         // ItemDefinitionGroup (Debug|Win32)
         element = elements.get(11);
-        testItemDefinitionGroup((ItemDefinition)element, true);
+        testItemDefinitionGroup((ItemDefinitionGroup)element, true);
         
         // ItemDefinitionGroup (Release|Win32)
         element = elements.get(12);
-        testItemDefinitionGroup((ItemDefinition)element, false);
+        testItemDefinitionGroup((ItemDefinitionGroup)element, false);
         
         // ignore ItemGroup (Index 13)
         
@@ -141,7 +141,7 @@ public class ProjectReaderTest extends TestCase {
         assertEquals(1, imports.size());
     }
 
-    private void testItemDefinitionGroup(ItemDefinition itemDefinitionGroup, boolean debug) {
+    private void testItemDefinitionGroup(ItemDefinitionGroup itemDefinitionGroup, boolean debug) {
         if(debug){
             List<Item> items = itemDefinitionGroup.getItems();
             assertEquals(2, items.size());

@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import java.util.List;
+
 /**
  * This interface represents the base of each element.
  * Every element has at least a name (xml-tag). Also we use the interface for
@@ -25,4 +27,10 @@ public interface Element {
      * @return 
      */
     public String getLabel();
+    
+    /**
+     * Returns a list of all children of the element.
+     * @return 
+     */
+    public List<Element> getChildren();
 }

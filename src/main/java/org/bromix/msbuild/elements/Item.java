@@ -13,8 +13,6 @@ import java.util.List;
  * @author Matthias Bromisch
  */
 public class Item extends AbstractElement{
-    List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
-    
     private String include = ""; // required
     private String exclude = ""; // optional
     private String remove = ""; // optional
@@ -41,11 +39,19 @@ public class Item extends AbstractElement{
         this.include = include;
     }
     
-    public void addMetadata(ItemMetadata metadata){
-        metadataList.add(metadata);
+    public void add(ItemMetadata metadata){
+        elements.add(metadata);
     }
     
     public List<ItemMetadata> getMetadataList(){
+        List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
+        
+        for(Element element : elements){
+            if(element instanceof ItemMetadata){
+                metadataList.add((ItemMetadata)element);
+            }
+        }
+        
         return Collections.unmodifiableList(metadataList);
     }
     
