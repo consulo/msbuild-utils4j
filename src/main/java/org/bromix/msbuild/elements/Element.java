@@ -9,7 +9,7 @@ package org.bromix.msbuild.elements;
  */
 public interface Element {
     /**
-     * Returns the name of the element
+     * Returns the name of the element.
      * @return name of the element
      */
     public String getName();
