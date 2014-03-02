@@ -11,9 +11,18 @@ import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.Item;
 import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ItemMetadata;
+import org.bromix.msbuild.elements.OnError;
 import org.bromix.msbuild.elements.Otherwise;
+import org.bromix.msbuild.elements.Output;
+import org.bromix.msbuild.elements.Parameter;
+import org.bromix.msbuild.elements.ParameterGroup;
+import org.bromix.msbuild.elements.ProjectExtensions;
 import org.bromix.msbuild.elements.Property;
 import org.bromix.msbuild.elements.PropertyGroup;
+import org.bromix.msbuild.elements.Target;
+import org.bromix.msbuild.elements.Task;
+import org.bromix.msbuild.elements.TaskBody;
+import org.bromix.msbuild.elements.UsingTask;
 import org.bromix.msbuild.elements.When;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -110,8 +119,8 @@ public class ProjectReader {
                 project.add(itemGroup);
             }
             else if(element.getName().equalsIgnoreCase("ProjectExtensions")){
-                String message = String.format("Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-                throw new ProjectIOException(message);
+                ProjectExtensions projectExtensions = readProjectExtensions(element);
+                project.add(projectExtensions);
             }
             else if(element.getName().equalsIgnoreCase("PropertyGroup")){
                 PropertyGroup propertyGroup = readPropertyGroup(element);
@@ -122,12 +131,12 @@ public class ProjectReader {
                 project.add(itemDefinitionGroup);
             }
             else if(element.getName().equalsIgnoreCase("Target")){
-                String message = String.format("Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-                throw new ProjectIOException(message);
+                Target target = readTarget(element);
+                project.add(target);
             }
             else if(element.getName().equalsIgnoreCase("UsingTask")){
-                String message = String.format("Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-                throw new ProjectIOException(message);
+                UsingTask usingTask = readUsingTask(element);
+                project.add(usingTask);
             }
             else{
                 String message = String.format("Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
@@ -435,5 +444,268 @@ public class ProjectReader {
         }
         
         return when;
+    }
+
+    private Target readTarget(LocatedElement targetElement) throws ProjectIOException {
+        String name = targetElement.getAttributeValue("Name", "");
+        if(name.isEmpty()){
+            String message = String.format("(Target) Missing attribute 'Name' in line '%d'", targetElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        targetElement.removeAttribute("Name");
+        
+        Target target = new Target(name);
+        readBaseElement(target, targetElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : targetElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("Inputs")){
+                target.setInputs(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Outputs")){
+                target.setOutputs(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Returns")){
+                target.setReturns(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("KeepDuplicateOutputs")){
+                target.setKeepDuplicateOutputs(Boolean.parseBoolean(attr.getValue()));
+            }
+            else if(attr.getName().equalsIgnoreCase("BeforeTargets")){
+                target.setBeforeTargets(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("AfterTargets")){
+                target.setAfterTargets(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("DependsOnTargets")){
+                target.setDependsOnTargets(attr.getValue());
+            }
+            else{
+                String message = String.format("(Target) Unsupported attribute '%s' in line '%d'", attr.getName(), targetElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+        
+        // read elements
+        for(Element _element : targetElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            if(element.getName().equalsIgnoreCase("Task")){
+                Task task = readTask(element);
+                target.add(task);
+            }
+            else if(element.getName().equalsIgnoreCase("PropertyGroup")){
+                PropertyGroup propertyGroup = readPropertyGroup(element);
+                target.add(propertyGroup);
+            }
+            else if(element.getName().equalsIgnoreCase("ItemGroup")){
+                ItemGroup itemGroup = readItemGroup(element);
+                target.add(itemGroup);
+            }
+            else if(element.getName().equalsIgnoreCase("OnError")){
+                OnError onError = readOnError(element);
+                target.add(onError);
+            }
+            else{
+                String message = String.format("(Target) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+        
+        return target;
+    }
+
+    private Task readTask(LocatedElement taskElement) {
+        /*
+        For more information:
+        http://msdn.microsoft.com/en-us/library/7z253716.aspx
+        
+        We need to implement each task and derive from the current Task element.
+        */
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private OnError readOnError(LocatedElement onErrorElement) throws ProjectIOException {
+        String executeTargets = onErrorElement.getAttributeValue("ExecuteTargets", "");
+        if(executeTargets.isEmpty()){
+            String message = String.format("(OnError) Missing attribute 'ExecuteTargets' in line '%d'", onErrorElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        onErrorElement.removeAttribute("ExecuteTargets");
+        
+        OnError onError = new OnError(executeTargets);
+        readBaseElement(onError, onErrorElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : onErrorElement.getAttributes()){
+            String message = String.format("(OnError) Unsupported attribute '%s' in line '%d'", attr.getName(), onErrorElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        
+        // read elements
+        for(Element _element : onErrorElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            String message = String.format("(OnError) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
+            throw new ProjectIOException(message);
+        }
+        
+        return onError;
+    }
+    
+    private Output readOutput(LocatedElement outputElement) throws ProjectIOException{
+        String taskParameter = outputElement.getAttributeValue("TaskParameter", "");
+        if(taskParameter.isEmpty()){
+            String message = String.format("(Output) Missing attribute 'TaskParameter' in line '%d'", outputElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        outputElement.removeAttribute("TaskParameter");
+        
+        Output output = new Output(taskParameter);
+        
+        // read elements
+        for(Element _element : outputElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            String message = String.format("(Output) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
+            throw new ProjectIOException(message);
+        }
+        
+        return output;
+    }
+    
+    private ParameterGroup readParameterGroup(LocatedElement parameterGroupElement) throws ProjectIOException{
+        ParameterGroup parameterGroup = new ParameterGroup();
+        readBaseElement(parameterGroup, parameterGroupElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : parameterGroupElement.getAttributes()){
+            String message = String.format("(ParameterGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), parameterGroupElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        
+        // read elements
+        for(Element _element : parameterGroupElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            Parameter parameter = readParameter(element);
+            parameterGroup.add(parameter);
+        }
+        
+        return parameterGroup;
+    }
+    
+    private Parameter readParameter(LocatedElement parameterElement) throws ProjectIOException{
+        String name = parameterElement.getName();
+        Parameter parameter = new Parameter(name);
+        readBaseElement(parameter, parameterElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : parameterElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("ParameterType")){
+                parameter.setParameterType(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Output")){
+                parameter.setOutput(Boolean.parseBoolean(attr.getValue()));
+            }
+            else if(attr.getName().equalsIgnoreCase("Required")){
+                parameter.setRequired(Boolean.parseBoolean(attr.getValue()));
+            }
+            else{
+                String message = String.format("(Parameter) Unsupported attribute '%s' in line '%d'", attr.getName(), parameterElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+        
+        // read elements
+        for(Element _element : parameterElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            String message = String.format("(Parameter) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
+            throw new ProjectIOException(message);
+        }
+        
+        return parameter;
+    }
+
+    private ProjectExtensions readProjectExtensions(LocatedElement projectExtensionsElement) {
+        ProjectExtensions projectExtensions = new ProjectExtensions();
+        readBaseElement(projectExtensions, projectExtensionsElement);
+        
+        return projectExtensions;
+    }
+
+    private UsingTask readUsingTask(LocatedElement usingTaskElement) throws ProjectIOException {
+        String taskName = usingTaskElement.getAttributeValue("TaskName", "");
+        if(taskName.isEmpty()){
+            String message = String.format("(UsingTask) Missing attribute 'TaskName' in line '%d'", usingTaskElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        usingTaskElement.removeAttribute("TaskName");
+        
+        UsingTask usingTask = new UsingTask(taskName);
+        readBaseElement(usingTask, usingTaskElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : usingTaskElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("AssemblyName")){
+                usingTask.setAssemblyName(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("AssemblyFile")){
+                usingTask.setAssemblyFile(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("TaskFactory")){
+                usingTask.setTaskFactory(attr.getValue());
+            }
+            else{
+                String message = String.format("(UsingTask) Unsupported attribute '%s' in line '%d'", attr.getName(), usingTaskElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+        
+        // read elements
+        for(Element _element : usingTaskElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            if(element.getName().equalsIgnoreCase("ParameterGroup")){
+                ParameterGroup parameterGroup = readParameterGroup(element);
+                usingTask.add(parameterGroup);
+            }
+            else if(element.getName().equalsIgnoreCase("TaskBody")){
+                TaskBody taskBody = readTaskBody(element);
+                usingTask.add(taskBody);
+            }
+            else{
+                String message = String.format("(UsingTask) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+        
+        return usingTask;
+    }
+
+    private TaskBody readTaskBody(LocatedElement taskBodyElement) throws ProjectIOException {
+        TaskBody taskBody = new TaskBody();
+        readBaseElement(taskBody, taskBodyElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : taskBodyElement.getAttributes()){
+            if(attr.getName().equalsIgnoreCase("Evaluate")){
+                taskBody.setEvaluate(Boolean.parseBoolean(attr.getValue()));
+            }
+            else{
+                String message = String.format("(TaskBody) Unsupported attribute '%s' in line '%d'", attr.getName(), taskBodyElement.getLine());
+                throw new ProjectIOException(message);
+            }
+        }
+        
+        // read elements
+        for(Element _element : taskBodyElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            // not finished
+        }
+        
+        return taskBody;
     }
 }

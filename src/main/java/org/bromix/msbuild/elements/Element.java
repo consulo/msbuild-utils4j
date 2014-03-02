@@ -14,7 +14,7 @@ public interface Element {
      * Returns the name of the element.
      * @return name of the element
      */
-    public String getName();
+    public String getElementName();
     
     /**
      * Sets the label of the element

@@ -111,35 +111,35 @@ public class Project {
         elements.add(choose);
     }
     
-    public void add(Import importElement){
-        elements.add(importElement);
+    public void add(Import _import){
+        elements.add(_import);
     }
     
-    public void add(ImportGroup importGroupElement){
-        elements.add(importGroupElement);
+    public void add(ImportGroup importGroup){
+        elements.add(importGroup);
     }
     
     public void add(ItemGroup itemGroup){
         elements.add(itemGroup);
     }
     
-    public void add(ItemDefinitionGroup element){
-        elements.add(element);
+    public void add(ItemDefinitionGroup itemDefinitionGroup){
+        elements.add(itemDefinitionGroup);
     }
     
-    public void add(ProjectExtensions projectExtensionsElement){
-        elements.add(projectExtensionsElement);
+    public void add(ProjectExtensions projectExtensions){
+        elements.add(projectExtensions);
     }
     
-    public void add(PropertyGroup propertyGroupElement){
-        elements.add(propertyGroupElement);
+    public void add(PropertyGroup propertyGroup){
+        elements.add(propertyGroup);
     }
     
-    public void add(Target targetElement){
-        elements.add(targetElement);
+    public void add(Target target){
+        elements.add(target);
     }
     
-    public void add(UsingTask usingTaskElement){
-        elements.add(usingTaskElement);
+    public void add(UsingTask usingTask){
+        elements.add(usingTask);
     }
 }

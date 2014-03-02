@@ -10,19 +10,19 @@ import java.util.List;
  */
 public abstract class AbstractElement implements Element{
     protected List<Element> elements = new ArrayList<Element>(); 
-    protected String name = "";
+    protected String elementName = "";
     protected String label = "";
     
     /**
      * Default constructor to create an element with the given name.
-     * @param name name of the element
+     * @param elementName name of the element
      */
-    public AbstractElement(String name){
-        this.name = name;
+    public AbstractElement(String elementName){
+        this.elementName = elementName;
     }
     
-    public String getName(){
-        return name;
+    public String getElementName(){
+        return elementName;
     }
     
     public void setLabel(String label){
