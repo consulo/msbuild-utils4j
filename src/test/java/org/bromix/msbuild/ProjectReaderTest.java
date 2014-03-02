@@ -48,8 +48,8 @@ public class ProjectReaderTest extends TestCase {
      * Test of read method, of class ProjectReader.
      * @throws java.lang.Exception
      */
-    public void testReadStructureElementCount() throws Exception {
-        System.out.println("read (structure: validate element count)");
+    public void testBasicStructureOfElements() throws Exception {
+        System.out.println("read and test the basic structure");
         ProjectReader instance = new ProjectReader();
         Project project = instance.read(projectFile);
         
@@ -59,55 +59,91 @@ public class ProjectReaderTest extends TestCase {
         
         // ItemGroup (ProjectConfigurations)
         Element element = elements.get(0);
+        assertEquals("ItemGroup", element.getElementName());
         testItemGroupProjectConfigurations((ItemGroup)element);
         
         // PropertyGroup (Globals)
         element = elements.get(1);
+        assertEquals("PropertyGroup", element.getElementName());
+        assertEquals("Globals", element.getLabel());
         testPropertyGroupGlobals((PropertyGroup)element);
         
-        // ignore Import (Index 2)
+        // Import (Index 2)
+        element = elements.get(2);
+        assertEquals("Import", element.getElementName());
         
         // PropertyGroup (Configuration=Debug|Win32)
         element = elements.get(3);
+        assertEquals("PropertyGroup", element.getElementName());
         testPropertyGroupConfiguration((PropertyGroup)element, true);
         
         // PropertyGroup (Configuration=Release|Win32)
         element = elements.get(4);
+        assertEquals("PropertyGroup", element.getElementName());
         testPropertyGroupConfiguration((PropertyGroup)element, false);
         
-        // ignore Import (Index 5)
+        // Import (Index 5)
+        element = elements.get(5);
+        assertEquals("Import", element.getElementName());
         
-        // ignore ImportGroup (ExtensionSettings) (Index 6)
+        // ImportGroup (ExtensionSettings) (Index 6)
+        element = elements.get(6);
+        assertEquals("ImportGroup", element.getElementName());
+        assertEquals("ExtensionSettings", element.getLabel());
         
         // ImportGroup (LocalAppDataPlatform=Debug|Win32)
         element = elements.get(7);
+        assertEquals("ImportGroup", element.getElementName());
+        assertEquals("PropertySheets", element.getLabel());
         testImportGroupLocalAppDataPlatform((ImportGroup)element, true);
         
         // ImportGroup (LocalAppDataPlatform=Release|Win32)
         element = elements.get(8);
+        assertEquals("ImportGroup", element.getElementName());
+        assertEquals("PropertySheets", element.getLabel());
         testImportGroupLocalAppDataPlatform((ImportGroup)element, false);
         
-        // ignore PropertyGroup (UserMacros) (Index 9)
+        // PropertyGroup (UserMacros) (Index 9)
+        element = elements.get(9);
+        assertEquals("PropertyGroup", element.getElementName());
+        assertEquals("UserMacros", element.getLabel());
         
-        // ignore PropertyGroup (Index 10)
+        // PropertyGroup (Index 10)
+        element = elements.get(10);
+        assertEquals("PropertyGroup", element.getElementName());
+        assertEquals("", element.getLabel());
         
         // ItemDefinitionGroup (Debug|Win32)
         element = elements.get(11);
+        assertEquals("ItemDefinitionGroup", element.getElementName());
         testItemDefinitionGroup((ItemDefinitionGroup)element, true);
         
         // ItemDefinitionGroup (Release|Win32)
         element = elements.get(12);
+        assertEquals("ItemDefinitionGroup", element.getElementName());
         testItemDefinitionGroup((ItemDefinitionGroup)element, false);
         
-        // ignore ItemGroup (Index 13)
+        // ItemGroup (Index 13)
+        element = elements.get(13);
+        assertEquals("ItemGroup", element.getElementName());
         
-        // ignore ItemGroup (Index 14)
+        // ItemGroup (Index 14)
+        element = elements.get(14);
+        assertEquals("ItemGroup", element.getElementName());
         
         // ItemGroup (ClCompile)
         element = elements.get(15);
+        assertEquals("ItemGroup", element.getElementName());
         testItemGroupClCompile((ItemGroup)element);
         
-        // ignore the rest
+        // Import (Index 16)
+        element = elements.get(16);
+        assertEquals("Import", element.getElementName());
+        
+        // ImportGroup (ExtensionTargets) (Index 17)
+        element = elements.get(17);
+        assertEquals("ImportGroup", element.getElementName());
+        assertEquals("ExtensionTargets", element.getLabel());
     }
     
     private void testItemGroupProjectConfigurations(ItemGroup itemGroup){
@@ -115,6 +151,7 @@ public class ProjectReaderTest extends TestCase {
         assertEquals(2, items.size());
         
         for(Item item : items){
+            assertEquals("ProjectConfiguration", item.getElementName());
             List<ItemMetadata> metadataList = item.getMetadataList();
             assertEquals(2, metadataList.size());
         }
