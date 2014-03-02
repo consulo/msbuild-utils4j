@@ -36,6 +36,7 @@ public class ProjectReaderTest extends TestCase {
         super.setUp();
         
         URI uri = this.getClass().getResource("/vs2010/SomeStaticLib/SomeStaticLib.vcxproj").toURI();
+        //URI uri = this.getClass().getResource("/vs2010/CsStaticLib/CsStaticLib.csproj").toURI();
         projectFile = new File(uri);
     }
     

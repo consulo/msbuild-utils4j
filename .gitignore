@@ -2,3 +2,5 @@
 /src/test/resources/vs2010/vs2010.sdf
 /src/test/resources/vs2010/vs2010.opensdf
 /src/test/resources/vs2010/vs2010.suo
+/src/test/resources/vs2010/CsStaticLib/bin/Debug/
+/src/test/resources/vs2010/CsStaticLib/obj/Debug/
