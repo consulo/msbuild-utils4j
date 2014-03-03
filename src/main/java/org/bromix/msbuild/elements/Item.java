@@ -21,15 +21,6 @@ public class Item extends AbstractElement{
     private String keepDuplicates = ""; // optional
     
     /**
-     * This constructor is for ItemGroupDefinitions.
-     * @remark a ItemGroupDefinition seems to ignore the required Include attribute.
-     * @param name 
-     */
-    public Item(String name){
-        super(name);
-    }
-    
-    /**
      * Default constructor for Items belonging to a ItemGroup.
      * @param name
      * @param include 

@@ -9,6 +9,7 @@ import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.Item;
+import org.bromix.msbuild.elements.ItemDefinition;
 import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ItemMetadata;
 import org.bromix.msbuild.elements.OnError;
@@ -161,16 +162,16 @@ public class ProjectReader {
         for(Element _element : itemGroupElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            Item item = readItem(element, true);
+            Item item = readItem(element);
             itemGroup.add(item);
         }
         
         return itemGroup;
     }
 
-    private Item readItem(LocatedElement itemElement, boolean validateInclude) throws ProjectIOException {
+    private Item readItem(LocatedElement itemElement) throws ProjectIOException {
         String include = itemElement.getAttributeValue("Include");
-        if(validateInclude && include.isEmpty()){
+        if(include.isEmpty()){
             String message = String.format("(Item) Missing attribute 'Include' in line '%d'", itemElement.getLine());
             throw new ProjectIOException(message);
         }
@@ -227,7 +228,7 @@ public class ProjectReader {
         for(Element _element : itemDefinitionGroupElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
             
-            Item item = readItem(element, false);
+            ItemDefinition item = readItemDefinition(element);
             itemDefinitionGroup.add(item);
         }
         
@@ -707,5 +708,26 @@ public class ProjectReader {
         }
         
         return taskBody;
+    }
+
+    private ItemDefinition readItemDefinition(LocatedElement itemDefinitionElement) throws ProjectIOException {
+        ItemDefinition itemDefinition = new ItemDefinition(itemDefinitionElement.getName());
+        readBaseElement(itemDefinition, itemDefinitionElement);
+        
+        //Read and validate the attributes
+        for(Attribute attr : itemDefinitionElement.getAttributes()){
+            String message = String.format("(ItemDefinition) Unsupported attribute '%s' in line '%d'", attr.getName(), itemDefinitionElement.getLine());
+            throw new ProjectIOException(message);
+        }
+        
+        // read elements
+        for(Element _element : itemDefinitionElement.getChildren()){
+            LocatedElement element = (LocatedElement)_element;
+            
+            ItemMetadata itemMetadata = readItemMetadata(element);
+            itemDefinition.add(itemMetadata);
+        }
+        
+        return itemDefinition;
     }
 }

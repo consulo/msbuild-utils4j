@@ -15,6 +15,7 @@ import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.Item;
+import org.bromix.msbuild.elements.ItemDefinition;
 import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ItemMetadata;
 import org.bromix.msbuild.elements.Property;
@@ -181,11 +182,11 @@ public class ProjectReaderTest extends TestCase {
 
     private void testItemDefinitionGroup(ItemDefinitionGroup itemDefinitionGroup, boolean debug) {
         if(debug){
-            List<Item> items = itemDefinitionGroup.getItems();
+            List<ItemDefinition> items = itemDefinitionGroup.getItems();
             assertEquals(2, items.size());
             
             // ClCompile
-            Item item = items.get(0);
+            ItemDefinition item = items.get(0);
             List<ItemMetadata> metadataList = item.getMetadataList();
             assertEquals(4, metadataList.size());
             
@@ -195,11 +196,11 @@ public class ProjectReaderTest extends TestCase {
             assertEquals(2, metadataList.size());
         }
         else{
-            List<Item> items = itemDefinitionGroup.getItems();
+            List<ItemDefinition> items = itemDefinitionGroup.getItems();
             assertEquals(2, items.size());
             
             // ClCompile
-            Item item = items.get(0);
+            ItemDefinition item = items.get(0);
             List<ItemMetadata> metadataList = item.getMetadataList();
             assertEquals(6, metadataList.size());
             
