@@ -3,7 +3,13 @@ msbuild-utils4j
 
 Library for reading and creating MSBuild projects (eg Visual Studio)
 
+- [MSBuild](http://msdn.microsoft.com/en-us/library/dd393574.aspx)
+    - [MSBuild Reference](http://msdn.microsoft.com/en-us/library/0k6kkbsd.aspx)
+    - [MSBuild Concepts](http://msdn.microsoft.com/en-us/library/dd637714.aspx)
+
+
 ## Examples
+
 ### Read a project file
 ```Java
 // read the project from file
