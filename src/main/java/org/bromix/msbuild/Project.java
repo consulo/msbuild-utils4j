@@ -23,7 +23,7 @@ import org.bromix.msbuild.elements.UsingTask;
  * @author Matthias Bromisch
  */
 public class Project {
-    private List<Element> elements = new ArrayList<Element>();
+    private final List<Element> elements = new ArrayList<Element>();
     
     private String defaultTargets = ""; // optional
     private String initialTargets = ""; // optional

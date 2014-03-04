@@ -1,7 +1,10 @@
 package org.bromix.msbuild;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import org.bromix.msbuild.elements.Choose;
 import org.bromix.msbuild.elements.Conditionable;
@@ -39,13 +42,35 @@ import org.jdom2.located.LocatedJDOMFactory;
  * @author Matthias Bromisch
  */
 public class ProjectReader {
+    /**
+     * Reads the project from the given file.
+     * @param file
+     * @return instance of the project
+     * @throws ProjectIOException 
+     */
     public Project read(File file) throws ProjectIOException{
+        InputStream inStream = null;
+        try {
+            inStream = new FileInputStream(file);
+        } catch (FileNotFoundException ex) {
+            throw new ProjectIOException(ex);
+        }
         
+        return read(inStream);
+    }
+    
+    /**
+     * Reads the project from the given stream.
+     * @param inStream
+     * @return instance of the project.
+     * @throws ProjectIOException 
+     */
+    public Project read(InputStream inStream) throws ProjectIOException{
         SAXBuilder builder = new SAXBuilder();
         builder.setJDOMFactory(new LocatedJDOMFactory());
         Document document = null;
         try {
-            document = builder.build(file);
+            document = builder.build(inStream);
         } catch (JDOMException ex) {
             throw new ProjectIOException(ex);
         } catch (IOException ex) {
