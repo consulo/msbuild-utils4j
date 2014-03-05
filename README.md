@@ -29,7 +29,7 @@ for(Element element : children){
 // get a list of all children (Elements)
 List<Element> children = project.getChildren();
 for(Element element : children){
-    if(element instanceof ItemGroup){
+    if(element.getElementType()==Element.Type.ItemGroup){
         ItemGroup itemGroup = (ItemGroup)element;
         
         String label = itemGroup.getLabel();
