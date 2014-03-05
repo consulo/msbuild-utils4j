@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Condition;
+
 /**
  * Implementation of Target element.
  * 
@@ -8,7 +10,9 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class Target extends AbstractConditionalElement{
+public class Target extends AbstractParentElement implements Conditionable{
+    final private Condition condition;
+    
     private String name = "";
     private String inputs = "";
     private String outputs = "";
@@ -19,8 +23,15 @@ public class Target extends AbstractConditionalElement{
     private String dependsOnTargets = "";
     
     public Target(String name){
-        super("Target");
+        super("Target", Type.Target);
         this.name = name;
+        this.condition = new Condition();
+    }
+    
+    public Target(String name, Condition condition){
+        super("Target", Type.Target);
+        this.name = name;
+        this.condition = condition;
     }
     
     public void setName(String name){
@@ -88,18 +99,22 @@ public class Target extends AbstractConditionalElement{
     }
     
     public void add(Task task){
-        elements.add(task);
+        children.add(task);
     }
     
     public void add(PropertyGroup propertyGroup){
-        elements.add(propertyGroup);
+        children.add(propertyGroup);
     }
     
     public void add(ItemGroup itemGroup){
-        elements.add(itemGroup);
+        children.add(itemGroup);
     }
     
     public void add(OnError onError){
-        elements.add(onError);
+        children.add(onError);
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

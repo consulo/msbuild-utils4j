@@ -1,36 +1,71 @@
 package org.bromix.msbuild.elements;
 
-import java.util.List;
-
 /**
- * This interface represents the base of each element.
- * Every element has at least a name (xml-tag). Also we use the interface for
- * list operations if a class uses children of elements.
+ * Superclass for MSBuild elements.
  * 
  * @author Matthias Bromisch
  */
-public interface Element {
+public abstract class Element {
+    public enum Type{
+        Project,
+        Choose,
+        Otherwise,
+        When,
+        ItemGroup,
+        Item,
+        ItemMetadata,
+        PropertyGroup,
+        Property,
+        ImportGroup,
+        Import,
+        ItemDefinitionGroup,
+        ItemDefinition,
+        ProjectExtension,
+        Target,
+        Task,
+        Output,
+        OnError,
+        UsingTask,
+        ParameterGroup,
+        Parameter,
+        TaskBody,
+    };
+    
+    protected String elementName;
+    protected String label = "";
+    protected Element.Type elementType; 
+    
+    /**
+     * Create a new element instance of a particular type.
+     * @param elementName name of the element (xml tag name).
+     * @param elementType particular type
+     */
+    protected Element(String elementName, Element.Type elementType){
+        this.elementName = elementName;
+        this.elementType = elementType;
+    }
+    
     /**
      * Returns the name of the element.
      * @return name of the element
      */
-    public String getElementName();
+    public String getElementName(){
+        return elementName;
+    }
     
     /**
-     * Sets the label of the element
-     * @param label 
-     */
-    public void setLabel(String label);
-    
-    /**
-     * Returns the label of the element.
+     * Each element has an enumerated type expressing the type of element.
      * @return 
      */
-    public String getLabel();
+    public Element.Type getElementType(){
+        return elementType;
+    }
     
-    /**
-     * Returns a list of all children of the element.
-     * @return 
-     */
-    public List<Element> getChildren();
+    public String getLabel(){
+        return label;
+    }
+    
+    public void setLabel(String label){
+        this.label = label;
+    }
 }

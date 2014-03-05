@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Condition;
+
 /**
  * Implementation of TaskBody element.
  * 
@@ -8,11 +10,26 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class TaskBody extends AbstractElement{
+public class TaskBody extends AbstractParentElement implements Conditionable{
+    final private Condition condition;
     private boolean evaluate = false;
     
     public TaskBody(){
-        super("TaskBody");
+        super("TaskBody", Type.TaskBody);
+        this.condition = new Condition();
+    }
+    
+    public TaskBody(Condition condition){
+        super("TaskBody", Type.TaskBody);
+        this.condition = condition;
+    }
+    
+    public void add(ParameterGroup parameterGroup){
+        children.add(parameterGroup);
+    }
+    
+    public void add(TaskBody taskBody){
+        children.add(taskBody);
     }
     
     public void setEvaluate(boolean enabled){
@@ -21,5 +38,9 @@ public class TaskBody extends AbstractElement{
     
     public boolean getEvaluate(){
         return evaluate;
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

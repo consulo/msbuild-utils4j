@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Condition;
+
 /**
  * Implementation of OnError element.
  * 
@@ -8,12 +10,20 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class OnError extends AbstractConditionalElement{
+public class OnError extends Element implements Conditionable{
+    final private Condition condition;
     private String executeTargets = ""; // required
     
     public OnError(String executeTargets){
-        super("OnError");
+        super("OnError", Type.OnError);
         this.executeTargets = executeTargets;
+        this.condition = new Condition();
+    }
+    
+    public OnError(String executeTargets, Condition condition){
+        super("OnError", Type.OnError);
+        this.executeTargets = executeTargets;
+        this.condition = condition;
     }
     
     /**
@@ -30,5 +40,9 @@ public class OnError extends AbstractConditionalElement{
      */
     public String getExecuteTargets(){
         return executeTargets;
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

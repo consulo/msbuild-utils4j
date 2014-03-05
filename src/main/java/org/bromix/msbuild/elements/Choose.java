@@ -8,16 +8,16 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class Choose extends AbstractElement{
+public class Choose extends AbstractParentElement{
     public Choose(){
-        super("Choose");
+        super("Choose", Type.Choose);
     }
     
     public void add(Otherwise otherwise){
-        elements.add(otherwise);
+        children.add(otherwise);
     }
     
     public void add(When when){
-        elements.add(when);
+        children.add(when);
     }
 }

@@ -3,6 +3,7 @@ package org.bromix.msbuild.elements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bromix.msbuild.Condition;
 
 /**
  * Implement a ItemDefinitionGroup-Element.
@@ -12,24 +13,36 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class ItemDefinitionGroup extends AbstractConditionalElement{
+public class ItemDefinitionGroup extends AbstractParentElement implements Conditionable{
+    final private Condition condition;
+    
     public ItemDefinitionGroup(){
-        super("ItemDefinitionGroup");
+        super("ItemDefinitionGroup", Type.ItemDefinitionGroup);
+        this.condition = new Condition();
+    }
+    
+    public ItemDefinitionGroup(Condition condition){
+        super("ItemDefinitionGroup", Type.ItemDefinitionGroup);
+        this.condition = condition;
     }
     
     public void add(ItemDefinition item){
-        elements.add(item);
+        children.add(item);
     }
     
     public List<ItemDefinition> getItems(){
         List<ItemDefinition> items = new ArrayList<ItemDefinition>();
         
-        for(Element element : elements){
-            if(element instanceof ItemDefinition){
+        for(Element element : children){
+            if(element.getElementType()==Type.ItemDefinition){
                 items.add((ItemDefinition)element);
             }
         }
         
         return Collections.unmodifiableList(items);
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

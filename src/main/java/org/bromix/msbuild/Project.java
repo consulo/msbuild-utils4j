@@ -1,8 +1,6 @@
 package org.bromix.msbuild;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.bromix.msbuild.elements.AbstractParentElement;
 import org.bromix.msbuild.elements.Choose;
 import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
@@ -15,20 +13,22 @@ import org.bromix.msbuild.elements.Target;
 import org.bromix.msbuild.elements.UsingTask;
 
 /**
- * Implementation of a MSBuild-Project.
+ * Implementation of a MSBuild element.
  * 
  * For more information visit:
  * http://msdn.microsoft.com/en-us/library/bcxfsh87.aspx
  * 
  * @author Matthias Bromisch
  */
-public class Project {
-    private final List<Element> elements = new ArrayList<Element>();
-    
+public class Project extends AbstractParentElement{
     private String defaultTargets = ""; // optional
     private String initialTargets = ""; // optional
     private String toolsVersion = ""; // optional
     private String treatAsLocalProperty = ""; // optional
+    
+    public Project(){
+        super("Project", Element.Type.Project);
+    }
     
     /**
      * Sets the default target or targets.
@@ -103,43 +103,39 @@ public class Project {
         return treatAsLocalProperty;
     }
     
-    public List<Element> getChildren(){
-        return Collections.unmodifiableList(elements);
-    }
-    
     public void add(Choose choose){
-        elements.add(choose);
+        children.add(choose);
     }
     
     public void add(Import _import){
-        elements.add(_import);
+        children.add(_import);
     }
     
     public void add(ImportGroup importGroup){
-        elements.add(importGroup);
+        children.add(importGroup);
     }
     
     public void add(ItemGroup itemGroup){
-        elements.add(itemGroup);
+        children.add(itemGroup);
     }
     
     public void add(ItemDefinitionGroup itemDefinitionGroup){
-        elements.add(itemDefinitionGroup);
+        children.add(itemDefinitionGroup);
     }
     
     public void add(ProjectExtensions projectExtensions){
-        elements.add(projectExtensions);
+        children.add(projectExtensions);
     }
     
     public void add(PropertyGroup propertyGroup){
-        elements.add(propertyGroup);
+        children.add(propertyGroup);
     }
     
     public void add(Target target){
-        elements.add(target);
+        children.add(target);
     }
     
     public void add(UsingTask usingTask){
-        elements.add(usingTask);
+        children.add(usingTask);
     }
 }

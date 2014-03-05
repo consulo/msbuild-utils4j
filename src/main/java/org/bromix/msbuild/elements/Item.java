@@ -3,6 +3,7 @@ package org.bromix.msbuild.elements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bromix.msbuild.Condition;
 
 /**
  * Implementation of an Item-Element.
@@ -12,7 +13,9 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class Item extends AbstractElement{
+public class Item extends AbstractParentElement implements Conditionable{
+    private final Condition condition;
+    
     private String include = ""; // required
     private String exclude = ""; // optional
     private String remove = ""; // optional
@@ -20,25 +23,34 @@ public class Item extends AbstractElement{
     private String removeMetadata = ""; // optional
     private String keepDuplicates = ""; // optional
     
+    
+    public Item(String name, String include){
+        super(name, Type.Item);
+        this.include = include;
+        this.condition = new Condition();
+    }
+    
     /**
      * Default constructor for Items belonging to a ItemGroup.
      * @param name
      * @param include 
+     * @param condition 
      */
-    public Item(String name, String include){
-        super(name);
+    public Item(String name, String include, Condition condition){
+        super(name, Type.Item);
         this.include = include;
+        this.condition = condition;
     }
     
     public void add(ItemMetadata metadata){
-        elements.add(metadata);
+        children.add(metadata);
     }
     
     public List<ItemMetadata> getMetadataList(){
         List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
         
-        for(Element element : elements){
-            if(element instanceof ItemMetadata){
+        for(Element element : children){
+            if(element.getElementType()==Type.ItemMetadata){
                 metadataList.add((ItemMetadata)element);
             }
         }
@@ -141,5 +153,9 @@ public class Item extends AbstractElement{
      */
     public String getKeepDuplicates(){
         return keepDuplicates;
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

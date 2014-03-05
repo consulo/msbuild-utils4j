@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Condition;
+
 /**
  * Implementation of UsingTask element.
  * 
@@ -8,16 +10,24 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class UsingTask extends AbstractConditionalElement{
+public class UsingTask extends AbstractParentElement implements Conditionable{
+    final private Condition condition;
+    
     private String taskName = "";
     private String assemblyName = "";
     private String assemblyFile = "";
     private String taskFactory = "";
     
     public UsingTask(String taskName){
-        super("UsingTask");
-        
+        super("UsingTask", Type.UsingTask);
         this.taskName = taskName;
+        this.condition = new Condition();
+    }
+    
+    public UsingTask(String taskName, Condition condition){
+        super("UsingTask", Type.UsingTask);
+        this.taskName = taskName;
+        this.condition = condition;
     }
     
     public String getTaskName(){
@@ -51,10 +61,14 @@ public class UsingTask extends AbstractConditionalElement{
     }
     
     public void add(ParameterGroup parameterGroup){
-        elements.add(parameterGroup);
+        children.add(parameterGroup);
     }
     
     public void add(TaskBody taskBody){
-        elements.add(taskBody);
+        children.add(taskBody);
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

@@ -8,8 +8,8 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class ProjectExtensions extends AbstractElement{
+public class ProjectExtensions extends Element{
     public ProjectExtensions(){
-        super("ProjectExtensions");
+        super("ProjectExtensions", Type.ProjectExtension);
     }
 }

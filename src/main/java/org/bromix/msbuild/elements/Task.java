@@ -3,6 +3,7 @@ package org.bromix.msbuild.elements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bromix.msbuild.Condition;
 
 /**
  * Implementation of Task element.
@@ -12,24 +13,36 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class Task extends AbstractConditionalElement{
+public class Task extends AbstractParentElement implements Conditionable{
+    protected Condition condition;
+    
     public Task(String name){
-        super(name);
+        super(name, Type.Task);
+        this.condition = new Condition();
+    }
+    
+    public Task(String name, Condition condition){
+        super(name, Type.Task);
+        this.condition = condition;
     }
     
     public void add(Output output){
-        elements.add(output);
+        children.add(output);
     }
     
     public List<Output> getOutputs(){
         List<Output> outputs = new ArrayList<Output>();
         
-        for(Element element : elements){
-            if(element instanceof Output){
+        for(Element element : children){
+            if(element.getElementType()==Type.Output){
                 outputs.add((Output)element);
             }
         }
         
         return Collections.unmodifiableList(outputs);
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

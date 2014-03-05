@@ -174,15 +174,21 @@ public class ProjectReader {
     }
 
     private ItemGroup readItemGroup(LocatedElement itemGroupElement) throws ProjectIOException {
-        ItemGroup itemGroup = new ItemGroup();
-        readBaseElement(itemGroup, itemGroupElement);
-        
         //Read and validate the attributes
+        ItemGroup itemGroup = new ItemGroup(new Condition(itemGroupElement.getAttributeValue("Condition", "")));
         for(Attribute attr : itemGroupElement.getAttributes()){
-            String message = String.format("(ItemGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), itemGroupElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Label")){
+                itemGroup.setLabel(attr.getValue());
+            }
+            else{
+                String message = String.format("(ItemGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), itemGroupElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
-     
+        
         // read items
         for(Element _element : itemGroupElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
@@ -200,15 +206,18 @@ public class ProjectReader {
             String message = String.format("(Item) Missing attribute 'Include' in line '%d'", itemElement.getLine());
             throw new ProjectIOException(message);
         }
-        itemElement.removeAttribute("Include");
         
-        Item item = new Item(itemElement.getName(), include);
-        readBaseElement(item, itemElement);
-        
+        Item item = new Item(itemElement.getName(), include, new Condition(itemElement.getAttributeValue("Condition", "")));
         //Read and validate the attributes
         for(Attribute attr : itemElement.getAttributes()){
             if(attr.getName().equalsIgnoreCase("Exclude")){
                 item.setExclude(attr.getValue());
+            }
+            else if(attr.getName().equalsIgnoreCase("Include")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
             }
             else if(attr.getName().equalsIgnoreCase("Remove")){
                 item.setRemove(attr.getValue());
@@ -240,13 +249,17 @@ public class ProjectReader {
     }
 
     private ItemDefinitionGroup readItemDefinitionGroup(LocatedElement itemDefinitionGroupElement) throws ProjectIOException {
-        ItemDefinitionGroup itemDefinitionGroup = new ItemDefinitionGroup();
-        readBaseElement(itemDefinitionGroup, itemDefinitionGroupElement);
+        ItemDefinitionGroup itemDefinitionGroup = new ItemDefinitionGroup(new Condition(itemDefinitionGroupElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : itemDefinitionGroupElement.getAttributes()){
-            String message = String.format("(ItemDefinitionGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), itemDefinitionGroupElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                //do nothing
+            }
+            else{
+                String message = String.format("(ItemDefinitionGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), itemDefinitionGroupElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
      
         // read items
@@ -261,14 +274,22 @@ public class ProjectReader {
     }
 
     private PropertyGroup readPropertyGroup(LocatedElement propertyGroupElement) throws ProjectIOException {
-        PropertyGroup propertyGroup = new PropertyGroup();
-        readBaseElement(propertyGroup, propertyGroupElement);
+        PropertyGroup propertyGroup = new PropertyGroup(new Condition(propertyGroupElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : propertyGroupElement.getAttributes()){
-            String message = String.format("(PropertyGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), propertyGroupElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Label")){
+                propertyGroup.setLabel(attr.getValue());
+            }
+            else{
+                String message = String.format("(PropertyGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), propertyGroupElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
+        
         
         for(Element _element : propertyGroupElement.getChildren()){
             LocatedElement element = (LocatedElement)_element;
@@ -286,28 +307,43 @@ public class ProjectReader {
             String message = String.format("(Import) Missing attribute 'Project' in line '%d'", importElement.getLine());
             throw new ProjectIOException(message);
         }
-        importElement.removeAttribute("Project");
-        
-        Import _import = new Import(project);
-        readBaseElement(_import, importElement);
+        Import _import = new Import(project, new Condition(importElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : importElement.getAttributes()){
-            String message = String.format("(Import) Unsupported attribute '%s' in line '%d'", attr.getName(), importElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Project")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Label")){
+                _import.setLabel(attr.getValue());
+            }
+            else{
+                String message = String.format("(Import) Unsupported attribute '%s' in line '%d'", attr.getName(), importElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
         
         return _import;
     }
 
     private ImportGroup readImportGroup(LocatedElement importGroupElement) throws ProjectIOException {
-        ImportGroup importGroup = new ImportGroup();
-        readBaseElement(importGroup, importGroupElement);
+        ImportGroup importGroup = new ImportGroup(new Condition(importGroupElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : importGroupElement.getAttributes()){
-            String message = String.format("(ImportGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), importGroupElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Label")){
+                importGroup.setLabel(attr.getValue());
+            }
+            else{
+                String message = String.format("(ImportGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), importGroupElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
         
         for(Element _element : importGroupElement.getChildren()){
@@ -323,13 +359,17 @@ public class ProjectReader {
     private ItemMetadata readItemMetadata(LocatedElement itemMetadataElement) throws ProjectIOException {
         String name = itemMetadataElement.getName();
         String value = itemMetadataElement.getText();
-        ItemMetadata itemMetadata = new ItemMetadata(name, value);
-        readBaseElement(itemMetadata, itemMetadataElement);
+        ItemMetadata itemMetadata = new ItemMetadata(name, value, new Condition(itemMetadataElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : itemMetadataElement.getAttributes()){
-            String message = String.format("(ItemMetaData) Unsupported attribute '%s' in line '%d'", attr.getName(), itemMetadataElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else{
+                String message = String.format("(ItemMetaData) Unsupported attribute '%s' in line '%d'", attr.getName(), itemMetadataElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
         
         return itemMetadata;
@@ -338,13 +378,17 @@ public class ProjectReader {
     private Property readProperty(LocatedElement propertyElement) throws ProjectIOException {
         String name = propertyElement.getName();
         String value = propertyElement.getText();
-        Property property = new Property(name, value);
-        readBaseElement(property, propertyElement);
+        Property property = new Property(name, value, new Condition(propertyElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : propertyElement.getAttributes()){
-            String message = String.format("(Property) Unsupported attribute '%s' in line '%d'", attr.getName(), propertyElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else{
+                String message = String.format("(Property) Unsupported attribute '%s' in line '%d'", attr.getName(), propertyElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
      
         return property;
@@ -352,7 +396,6 @@ public class ProjectReader {
 
     private Choose readChoose(LocatedElement chooseElement) throws ProjectIOException {
         Choose choose = new Choose();
-        readBaseElement(choose, chooseElement);
         
         // read and validate attributes
         for(Attribute attr : chooseElement.getAttributes()){
@@ -381,30 +424,8 @@ public class ProjectReader {
         return choose;
     }
     
-    private void readBaseElement(org.bromix.msbuild.elements.Element element, LocatedElement xmlElement){
-        String label = xmlElement.getAttributeValue("Label", "");
-        if(!label.isEmpty()){
-            element.setLabel(label);
-            xmlElement.removeAttribute("Label");
-        }
-        
-        if(element instanceof Conditionable){
-            Conditionable conditionable = (Conditionable)element;
-            
-            String condition = xmlElement.getAttributeValue("Condition", "");
-            if(!condition.isEmpty()){
-                conditionable.setCondition(new Condition(condition));
-                xmlElement.removeAttribute("Condition");
-            }
-            else{
-                conditionable.setCondition(new Condition());
-            }
-        }
-    }
-
     private Otherwise readOtherwise(LocatedElement otherwiseElement) throws ProjectIOException {
         Otherwise otherwise = new Otherwise();
-        readBaseElement(otherwise, otherwiseElement);
         
         // read and validate attributes
         for(Attribute attr : otherwiseElement.getAttributes()){
@@ -438,13 +459,17 @@ public class ProjectReader {
     }
 
     private When readWhen(LocatedElement whenElement) throws ProjectIOException {
-        When when = new When();
-        readBaseElement(when, whenElement);
+        When when = new When(new Condition(whenElement.getAttributeValue("Condition", "")));
         
         // read and validate attributes
         for(Attribute attr : whenElement.getAttributes()){
-            String message = String.format("(When) Unsupported attribute '%s' in line '%d'", attr.getName(), whenElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else{
+                String message = String.format("(When) Unsupported attribute '%s' in line '%d'", attr.getName(), whenElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
         
         // read children
@@ -478,14 +503,15 @@ public class ProjectReader {
             String message = String.format("(Target) Missing attribute 'Name' in line '%d'", targetElement.getLine());
             throw new ProjectIOException(message);
         }
-        targetElement.removeAttribute("Name");
         
-        Target target = new Target(name);
-        readBaseElement(target, targetElement);
+        Target target = new Target(name, new Condition(targetElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : targetElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Inputs")){
+            if(attr.getName().equalsIgnoreCase("Name")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Inputs")){
                 target.setInputs(attr.getValue());
             }
             else if(attr.getName().equalsIgnoreCase("Outputs")){
@@ -557,15 +583,18 @@ public class ProjectReader {
             String message = String.format("(OnError) Missing attribute 'ExecuteTargets' in line '%d'", onErrorElement.getLine());
             throw new ProjectIOException(message);
         }
-        onErrorElement.removeAttribute("ExecuteTargets");
         
-        OnError onError = new OnError(executeTargets);
-        readBaseElement(onError, onErrorElement);
+        OnError onError = new OnError(executeTargets, new Condition(onErrorElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : onErrorElement.getAttributes()){
-            String message = String.format("(OnError) Unsupported attribute '%s' in line '%d'", attr.getName(), onErrorElement.getLine());
-            throw new ProjectIOException(message);
+            if(attr.getName().equalsIgnoreCase("ExecuteTargets")){
+                // do nothing
+            }
+            else{
+                String message = String.format("(OnError) Unsupported attribute '%s' in line '%d'", attr.getName(), onErrorElement.getLine());
+                throw new ProjectIOException(message);
+            }
         }
         
         // read elements
@@ -602,7 +631,6 @@ public class ProjectReader {
     
     private ParameterGroup readParameterGroup(LocatedElement parameterGroupElement) throws ProjectIOException{
         ParameterGroup parameterGroup = new ParameterGroup();
-        readBaseElement(parameterGroup, parameterGroupElement);
         
         //Read and validate the attributes
         for(Attribute attr : parameterGroupElement.getAttributes()){
@@ -624,7 +652,6 @@ public class ProjectReader {
     private Parameter readParameter(LocatedElement parameterElement) throws ProjectIOException{
         String name = parameterElement.getName();
         Parameter parameter = new Parameter(name);
-        readBaseElement(parameter, parameterElement);
         
         //Read and validate the attributes
         for(Attribute attr : parameterElement.getAttributes()){
@@ -656,8 +683,6 @@ public class ProjectReader {
 
     private ProjectExtensions readProjectExtensions(LocatedElement projectExtensionsElement) {
         ProjectExtensions projectExtensions = new ProjectExtensions();
-        readBaseElement(projectExtensions, projectExtensionsElement);
-        
         return projectExtensions;
     }
 
@@ -667,14 +692,15 @@ public class ProjectReader {
             String message = String.format("(UsingTask) Missing attribute 'TaskName' in line '%d'", usingTaskElement.getLine());
             throw new ProjectIOException(message);
         }
-        usingTaskElement.removeAttribute("TaskName");
         
-        UsingTask usingTask = new UsingTask(taskName);
-        readBaseElement(usingTask, usingTaskElement);
+        UsingTask usingTask = new UsingTask(taskName, new Condition(usingTaskElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : usingTaskElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("AssemblyName")){
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("AssemblyName")){
                 usingTask.setAssemblyName(attr.getValue());
             }
             else if(attr.getName().equalsIgnoreCase("AssemblyFile")){
@@ -711,12 +737,14 @@ public class ProjectReader {
     }
 
     private TaskBody readTaskBody(LocatedElement taskBodyElement) throws ProjectIOException {
-        TaskBody taskBody = new TaskBody();
-        readBaseElement(taskBody, taskBodyElement);
+        TaskBody taskBody = new TaskBody(new Condition(taskBodyElement.getAttributeValue("Condition", "")));
         
         //Read and validate the attributes
         for(Attribute attr : taskBodyElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Evaluate")){
+            if(attr.getName().equalsIgnoreCase("Condition")){
+                // do nothing
+            }
+            else if(attr.getName().equalsIgnoreCase("Evaluate")){
                 taskBody.setEvaluate(Boolean.parseBoolean(attr.getValue()));
             }
             else{
@@ -737,7 +765,6 @@ public class ProjectReader {
 
     private ItemDefinition readItemDefinition(LocatedElement itemDefinitionElement) throws ProjectIOException {
         ItemDefinition itemDefinition = new ItemDefinition(itemDefinitionElement.getName());
-        readBaseElement(itemDefinition, itemDefinitionElement);
         
         //Read and validate the attributes
         for(Attribute attr : itemDefinitionElement.getAttributes()){

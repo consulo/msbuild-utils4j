@@ -8,13 +8,13 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
-public class Parameter extends AbstractElement{
+public class Parameter extends Element{
     private String parameterType = "";
     private boolean output = false;
     private boolean required = false;
     
     public Parameter(String name){
-        super(name);
+        super(name, Type.Parameter);
     }
     
     public void setParameterType(String parameterType){
@@ -34,7 +34,7 @@ public class Parameter extends AbstractElement{
     }
     
     public void setRequired(boolean enabled){
-        this.required = required;
+        this.required = enabled;
     }
     
     public boolean getRequired(){
