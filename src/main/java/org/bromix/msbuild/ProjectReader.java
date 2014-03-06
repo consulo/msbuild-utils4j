@@ -5,9 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.bromix.msbuild.elements.Choose;
-import org.bromix.msbuild.elements.Conditionable;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.ItemDefinitionGroup;
@@ -28,6 +31,8 @@ import org.bromix.msbuild.elements.Task;
 import org.bromix.msbuild.elements.TaskBody;
 import org.bromix.msbuild.elements.UsingTask;
 import org.bromix.msbuild.elements.When;
+import org.bromix.msbuild.elements.annotations.ElementAttribute;
+import org.bromix.msbuild.elements.annotations.ElementDefinition;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -36,12 +41,33 @@ import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.located.LocatedElement;
 import org.jdom2.located.LocatedJDOMFactory;
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.MethodParameterScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 /**
  *
  * @author Matthias Bromisch
  */
 public class ProjectReader {
+    private final Set<Class<?>> elementDefinitions;
+    
+    public ProjectReader(){
+        //Reflections reflections = new Reflections("org.bromix.msbuild");
+        
+        Reflections reflections = new Reflections(new ConfigurationBuilder()
+                .filterInputsBy(new FilterBuilder().includePackage("org.bromix.msbuild"))
+                .setUrls(ClasspathHelper.forPackage("org.bromix.msbuild"))
+                .setScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner())
+        );
+        elementDefinitions = reflections.getTypesAnnotatedWith(ElementDefinition.class);
+        int x =0;
+    }
+    
     /**
      * Reads the project from the given file.
      * @param file
@@ -98,7 +124,195 @@ public class ProjectReader {
         */
         Namespace namespace = root.getNamespace();
         
-        return readProject(root);
+        Object obj = _read(root);
+        return (Project)obj;
+        //return readProject(root);
+    }
+    
+    private Class _getElementClass(LocatedElement element) throws ProjectIOException{
+        for(Class cls : elementDefinitions){
+            ElementDefinition elementDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
+            if(elementDefinition!=null && element.getName().equalsIgnoreCase(elementDefinition.name())){
+                return cls;
+            }
+        }
+        
+        throw new ProjectIOException(String.format("Could not find class for element '%s'", element.getName()));
+    }
+    
+    private List<Field> _getFields(Class cls){
+        List<Field> fields = new ArrayList<Field>();
+        
+        while(cls!=null){
+            fields.addAll(Arrays.asList(cls.getDeclaredFields()));
+            cls = cls.getSuperclass();
+        }
+        
+        return fields;
+    }
+    
+    private Object _read(LocatedElement element) throws ProjectIOException{
+        Class elementClass = _getElementClass(element);
+        return _read(elementClass, element);
+    }
+    
+    private Object _read(Class elementClass, LocatedElement element) throws ProjectIOException{
+        Object elementObject;
+        try {
+            elementObject = elementClass.newInstance();
+        } catch (InstantiationException ex) {
+            throw new ProjectIOException(ex);
+        } catch (IllegalAccessException ex) {
+            throw new ProjectIOException(ex);
+        }
+        
+        List<Field> fields = _getFields(elementClass);
+        for(Field field : fields){
+            ElementAttribute elementAttribute = (ElementAttribute)field.getAnnotation(ElementAttribute.class);
+            if(elementAttribute!=null){
+                boolean isAccessible = field.isAccessible();
+                field.setAccessible(true);
+                
+                String name = field.getName();
+                name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                if(elementAttribute.name()!=null && !elementAttribute.name().isEmpty()){
+                    name = elementAttribute.name();
+                }
+                String value = element.getAttributeValue(name, "");
+                if(elementAttribute.required() && value.isEmpty()){
+                    throw new ProjectIOException("Missing attribute");
+                }
+                
+                Object valueObject = null;
+                
+                if(field.getType().isAssignableFrom(String.class)){
+                    valueObject = value;
+                }
+                else if(field.getType().isAssignableFrom(Condition.class)){
+                    valueObject = new Condition(value);   
+                }
+                
+                try {
+                    field.set(elementObject, valueObject);
+                } catch (IllegalArgumentException ex) {
+                    throw new ProjectIOException(ex);
+                } catch (IllegalAccessException ex) {
+                    throw new ProjectIOException(ex);
+                }
+                
+                
+                field.setAccessible(isAccessible);
+            }
+        }
+        
+        ElementDefinition elementDefinition = (ElementDefinition)elementClass.getAnnotation(ElementDefinition.class);
+        List<String> childNames = new ArrayList<String>();
+        Class onlyChild = null;
+        for(Class cls : elementDefinition.children()){
+            onlyChild = cls;
+            ElementDefinition childElementDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
+            if(childElementDefinition!=null && !childElementDefinition.name().isEmpty()){
+                childNames.add(childElementDefinition.name());
+            }
+        }
+        
+        for(Element child : element.getChildren()){
+            if(childNames.isEmpty()){
+                Object childObject = _read(onlyChild, (LocatedElement)child);
+            }
+            else if(childNames.indexOf(child.getName())!=-1){
+                Object childObject = _read((LocatedElement)child);
+            }
+            else
+                throw new ProjectIOException("Unknown element");
+        }
+        
+        return elementObject;
+        
+//        List<String> Attributes = new ArrayList<String>();
+//        Annotation[][] annos = constructorMethod.getParameterAnnotations();
+//        Class[] parameterTypes = constructorMethod.getParameterTypes();
+//        Object arglist[] = new Object[parameterTypes.length];
+//        for(int i=0;i<arglist.length;i++){
+//            Class param = parameterTypes[i];
+//            ElementAttribute elementAttribute = (ElementAttribute)param.getDeclaringClass().getAnnotation(ElementAttribute.class);
+//            if(elementAttribute==null){
+//                throw new ProjectIOException("Missing attribute annotation");
+//            }
+//        }
+//        
+//        return null;
+//        Class cls;
+//        try {
+//            cls = elementFactory.getClassByName(element.getName());
+//        } catch (ClassNotFoundException ex) {
+//            throw new ProjectIOException(ex);
+//        }
+//        
+//        return _read(element, cls);
+    }
+    
+    private Object _read(LocatedElement element, Class cls) throws ProjectIOException{
+//        // first find the method to creatae the element
+//        Method createMethod = null;
+//        for(Method method : cls.getMethods()){
+//            if(method.isAnnotationPresent(ElementConstructor.class)){
+//                createMethod = method;
+//                break;
+//            }
+//        }
+//        if(createMethod==null){
+//            throw new ProjectIOException(String.format("Could not find '%' for '%s'", ElementConstructor.class.getName(), element.getName()));
+//        }
+//        
+//        // collect the annotion
+//        ElementConstructor createAnnotion = (ElementConstructor)createMethod.getAnnotation(ElementConstructor.class);
+//        
+//        if(!cls.isAnnotationPresent(ElementDefinition.class)){
+//            throw new ProjectIOException(String.format("Could not find '%' for '%s'", ElementDefinition.class.getName(), element.getName()));
+//        }
+//        ElementDefinition infoAnnotation = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
+       
+//        List<String> values = new ArrayList<String>();
+//        for(String attr : createAnnotion.mappedElementAttributes()){
+//            String value = element.getAttributeValue(attr);
+//            if(value==null){
+//                throw new ProjectIOException(String.format("Missing attribute"));
+//            }
+//            values.add(value);
+//        }
+        
+//        Class<?>[] parameterTypes = createMethod.getParameterTypes();
+//        Object arglist[] = new Object[parameterTypes.length];
+//        for(int i=0;i<arglist.length;i++){
+//            Class param = parameterTypes[i];
+//            if(param.isAssignableFrom(String.class)){
+//                arglist[i] = values.get(i);
+//            }
+//        }
+//        Object retobj;
+//        try {
+//            retobj = createMethod.invoke(null, arglist);
+//        } catch (IllegalAccessException ex) {
+//            throw new ProjectIOException(ex);
+//        } catch (IllegalArgumentException ex) {
+//            throw new ProjectIOException(ex);
+//        } catch (InvocationTargetException ex) {
+//            throw new ProjectIOException(ex);
+//        }
+        
+//        List<String> _children = Arrays.asList(infoAnnotation.children());
+//        for(Element _element : element.getChildren()){
+//            LocatedElement element2 = (LocatedElement)_element;
+//            if(_children.indexOf(_element.getName())!=-1){
+//                Object obj2 = _read(element2);
+//            }
+//            else{
+//                throw new ProjectIOException(String.format("Unsupported element '%s'", _element.getName()));
+//            }
+//        }
+        
+        return null;
     }
     
     private Project readProject(LocatedElement projectElement) throws ProjectIOException{
