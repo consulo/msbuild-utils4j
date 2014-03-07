@@ -1,8 +1,9 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.elements.annotations.ElementAttribute;
-import org.bromix.msbuild.elements.annotations.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
 
 /**
  * Implementation of ItemMetadata element.
@@ -13,7 +14,9 @@ import org.bromix.msbuild.elements.annotations.ElementDefinition;
  * @author Matthias Bromisch
  */
 
-@ElementDefinition
+@ElementDefinition(
+        childrenType = ChildrenType.NONE
+)
 public class ItemMetadata extends Element implements Conditionable{
     @ElementAttribute
     private String value = "";

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implementation of PropertyGroup element.
@@ -13,12 +15,17 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+
+@ElementDefinition(
+        childrenType = ElementDefinition.ChildrenType.ONE_TYPE,
+        childrenTypes = {Property.class}
+)
 public class PropertyGroup extends AbstractParentElement implements Conditionable{
-    private final Condition condition;
+    @ElementAttribute
+    private Condition condition = new Condition();
     
     public PropertyGroup(){
         super("PropertyGroup", Type.PropertyGroup);
-        this.condition = new Condition();
     }
     
     public PropertyGroup(Condition condition){

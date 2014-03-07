@@ -7,33 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import org.bromix.msbuild.elements.Choose;
-import org.bromix.msbuild.elements.Import;
-import org.bromix.msbuild.elements.ImportGroup;
-import org.bromix.msbuild.elements.ItemDefinitionGroup;
-import org.bromix.msbuild.elements.Item;
-import org.bromix.msbuild.elements.ItemDefinition;
-import org.bromix.msbuild.elements.ItemGroup;
-import org.bromix.msbuild.elements.ItemMetadata;
-import org.bromix.msbuild.elements.OnError;
-import org.bromix.msbuild.elements.Otherwise;
-import org.bromix.msbuild.elements.Output;
-import org.bromix.msbuild.elements.Parameter;
-import org.bromix.msbuild.elements.ParameterGroup;
-import org.bromix.msbuild.elements.ProjectExtensions;
-import org.bromix.msbuild.elements.Property;
-import org.bromix.msbuild.elements.PropertyGroup;
-import org.bromix.msbuild.elements.Target;
-import org.bromix.msbuild.elements.Task;
-import org.bromix.msbuild.elements.TaskBody;
-import org.bromix.msbuild.elements.UsingTask;
-import org.bromix.msbuild.elements.When;
-import org.bromix.msbuild.elements.annotations.ElementAttribute;
-import org.bromix.msbuild.elements.annotations.ElementDefinition;
-import org.jdom2.Attribute;
+import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementList;
+import org.bromix.msbuild.reflection.ElementName;
+import org.bromix.msbuild.reflection.ReflectionHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -41,33 +20,12 @@ import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.located.LocatedElement;
 import org.jdom2.located.LocatedJDOMFactory;
-import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
-import org.reflections.scanners.MethodParameterScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 
 /**
  *
  * @author Matthias Bromisch
  */
 public class ProjectReader {
-    private final Set<Class<?>> elementDefinitions;
-    
-    public ProjectReader(){
-        //Reflections reflections = new Reflections("org.bromix.msbuild");
-        
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .filterInputsBy(new FilterBuilder().includePackage("org.bromix.msbuild"))
-                .setUrls(ClasspathHelper.forPackage("org.bromix.msbuild"))
-                .setScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner())
-        );
-        elementDefinitions = reflections.getTypesAnnotatedWith(ElementDefinition.class);
-        int x =0;
-    }
-    
     /**
      * Reads the project from the given file.
      * @param file
@@ -103,19 +61,14 @@ public class ProjectReader {
             throw new ProjectIOException(ex);
         }
         
-        List<Namespace> list = document.getNamespacesInScope();
-        list = document.getNamespacesIntroduced();
-        
-        /*
-        At this point we teste LocatedElement and cast it.
-        */
+        // At this point we test the support for LocatedElement
         Element _root = document.getRootElement();
         LocatedElement root = null;
         if(_root instanceof LocatedElement){
             root = (LocatedElement)_root;
         }
         if(root==null){
-            throw new RuntimeException("Could not cast to LocatedElement");
+            throw new RuntimeException("class LocatedElement not supported");
         }
         
         /*
@@ -123,40 +76,32 @@ public class ProjectReader {
         Namespace = http://schemas.microsoft.com/developer/msbuild/2003
         */
         Namespace namespace = root.getNamespace();
-        
-        Object obj = _read(root);
-        return (Project)obj;
-        //return readProject(root);
-    }
-    
-    private Class _getElementClass(LocatedElement element) throws ProjectIOException{
-        for(Class cls : elementDefinitions){
-            ElementDefinition elementDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
-            if(elementDefinition!=null && element.getName().equalsIgnoreCase(elementDefinition.name())){
-                return cls;
-            }
+        if(!namespace.getURI().equalsIgnoreCase("http://schemas.microsoft.com/developer/msbuild/2003")){
+            throw new ProjectIOException(String.format("Unsupported namespace '%s'", namespace.toString()));
         }
         
-        throw new ProjectIOException(String.format("Could not find class for element '%s'", element.getName()));
-    }
-    
-    private List<Field> _getFields(Class cls){
-        List<Field> fields = new ArrayList<Field>();
-        
-        while(cls!=null){
-            fields.addAll(Arrays.asList(cls.getDeclaredFields()));
-            cls = cls.getSuperclass();
+        // test the root element for '<Project>'
+        if(!root.getName().equalsIgnoreCase("Project")){
+            throw new ProjectIOException(String.format("'Project' expected at line '%d'", root.getLine()));
         }
         
-        return fields;
+        Object obj = readElement(root);
+        if(obj.getClass().isAssignableFrom(Project.class)){
+            return (Project)obj;
+        }
+        
+        throw new ProjectIOException("Something went really wrong!");
     }
     
-    private Object _read(LocatedElement element) throws ProjectIOException{
-        Class elementClass = _getElementClass(element);
-        return _read(elementClass, element);
+    private Object readElement(LocatedElement element) throws ProjectIOException{
+        Class elementClass = ReflectionHelper.findClassForElement(element.getName());
+        if(elementClass==null){
+            throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", element.getName(), element.getLine()));
+        }
+        return readElement(element, elementClass);
     }
     
-    private Object _read(Class elementClass, LocatedElement element) throws ProjectIOException{
+    private Object readElement(LocatedElement element, Class elementClass) throws ProjectIOException{
         Object elementObject;
         try {
             elementObject = elementClass.newInstance();
@@ -166,834 +111,163 @@ public class ProjectReader {
             throw new ProjectIOException(ex);
         }
         
-        List<Field> fields = _getFields(elementClass);
-        for(Field field : fields){
-            ElementAttribute elementAttribute = (ElementAttribute)field.getAnnotation(ElementAttribute.class);
-            if(elementAttribute!=null){
-                boolean isAccessible = field.isAccessible();
-                field.setAccessible(true);
-                
-                String name = field.getName();
-                name = name.substring(0, 1).toUpperCase() + name.substring(1);
-                if(elementAttribute.name()!=null && !elementAttribute.name().isEmpty()){
-                    name = elementAttribute.name();
-                }
-                String value = element.getAttributeValue(name, "");
-                if(elementAttribute.required() && value.isEmpty()){
-                    throw new ProjectIOException("Missing attribute");
-                }
-                
-                Object valueObject = null;
-                
-                if(field.getType().isAssignableFrom(String.class)){
-                    valueObject = value;
-                }
-                else if(field.getType().isAssignableFrom(Condition.class)){
-                    valueObject = new Condition(value);   
-                }
-                
-                try {
-                    field.set(elementObject, valueObject);
-                } catch (IllegalArgumentException ex) {
-                    throw new ProjectIOException(ex);
-                } catch (IllegalAccessException ex) {
-                    throw new ProjectIOException(ex);
-                }
-                
-                
-                field.setAccessible(isAccessible);
-            }
-        }
+        readElementName(elementObject, element);
         
-        ElementDefinition elementDefinition = (ElementDefinition)elementClass.getAnnotation(ElementDefinition.class);
-        List<String> childNames = new ArrayList<String>();
-        Class onlyChild = null;
-        for(Class cls : elementDefinition.children()){
-            onlyChild = cls;
-            ElementDefinition childElementDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
-            if(childElementDefinition!=null && !childElementDefinition.name().isEmpty()){
-                childNames.add(childElementDefinition.name());
-            }
-        }
+        readElementAttributes(elementObject, element);
         
-        for(Element child : element.getChildren()){
-            if(childNames.isEmpty()){
-                Object childObject = _read(onlyChild, (LocatedElement)child);
-            }
-            else if(childNames.indexOf(child.getName())!=-1){
-                Object childObject = _read((LocatedElement)child);
-            }
-            else
-                throw new ProjectIOException("Unknown element");
-        }
+        readChildren(elementObject, element);
         
         return elementObject;
-        
-//        List<String> Attributes = new ArrayList<String>();
-//        Annotation[][] annos = constructorMethod.getParameterAnnotations();
-//        Class[] parameterTypes = constructorMethod.getParameterTypes();
-//        Object arglist[] = new Object[parameterTypes.length];
-//        for(int i=0;i<arglist.length;i++){
-//            Class param = parameterTypes[i];
-//            ElementAttribute elementAttribute = (ElementAttribute)param.getDeclaringClass().getAnnotation(ElementAttribute.class);
-//            if(elementAttribute==null){
-//                throw new ProjectIOException("Missing attribute annotation");
-//            }
-//        }
-//        
-//        return null;
-//        Class cls;
-//        try {
-//            cls = elementFactory.getClassByName(element.getName());
-//        } catch (ClassNotFoundException ex) {
-//            throw new ProjectIOException(ex);
-//        }
-//        
-//        return _read(element, cls);
     }
     
-    private Object _read(LocatedElement element, Class cls) throws ProjectIOException{
-//        // first find the method to creatae the element
-//        Method createMethod = null;
-//        for(Method method : cls.getMethods()){
-//            if(method.isAnnotationPresent(ElementConstructor.class)){
-//                createMethod = method;
-//                break;
-//            }
-//        }
-//        if(createMethod==null){
-//            throw new ProjectIOException(String.format("Could not find '%' for '%s'", ElementConstructor.class.getName(), element.getName()));
-//        }
-//        
-//        // collect the annotion
-//        ElementConstructor createAnnotion = (ElementConstructor)createMethod.getAnnotation(ElementConstructor.class);
-//        
-//        if(!cls.isAnnotationPresent(ElementDefinition.class)){
-//            throw new ProjectIOException(String.format("Could not find '%' for '%s'", ElementDefinition.class.getName(), element.getName()));
-//        }
-//        ElementDefinition infoAnnotation = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
-       
-//        List<String> values = new ArrayList<String>();
-//        for(String attr : createAnnotion.mappedElementAttributes()){
-//            String value = element.getAttributeValue(attr);
-//            if(value==null){
-//                throw new ProjectIOException(String.format("Missing attribute"));
-//            }
-//            values.add(value);
-//        }
-        
-//        Class<?>[] parameterTypes = createMethod.getParameterTypes();
-//        Object arglist[] = new Object[parameterTypes.length];
-//        for(int i=0;i<arglist.length;i++){
-//            Class param = parameterTypes[i];
-//            if(param.isAssignableFrom(String.class)){
-//                arglist[i] = values.get(i);
-//            }
-//        }
-//        Object retobj;
-//        try {
-//            retobj = createMethod.invoke(null, arglist);
-//        } catch (IllegalAccessException ex) {
-//            throw new ProjectIOException(ex);
-//        } catch (IllegalArgumentException ex) {
-//            throw new ProjectIOException(ex);
-//        } catch (InvocationTargetException ex) {
-//            throw new ProjectIOException(ex);
-//        }
-        
-//        List<String> _children = Arrays.asList(infoAnnotation.children());
-//        for(Element _element : element.getChildren()){
-//            LocatedElement element2 = (LocatedElement)_element;
-//            if(_children.indexOf(_element.getName())!=-1){
-//                Object obj2 = _read(element2);
-//            }
-//            else{
-//                throw new ProjectIOException(String.format("Unsupported element '%s'", _element.getName()));
-//            }
-//        }
-        
-        return null;
+    private void readElementName(Object elementObject, LocatedElement element) throws ProjectIOException{
+        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementName.class);
+        if(!fields.isEmpty()){
+            Field field = fields.get(0);
+            
+            boolean isAccessible = field.isAccessible();
+            field.setAccessible(true);
+
+            // we use an object for the value and validate each type we know and need
+            Object valueObject = null;
+            if(field.getType().isAssignableFrom(String.class)){
+                valueObject = element.getName();
+            }
+
+            try {
+                field.set(elementObject, valueObject);
+            } catch (IllegalArgumentException ex) {
+                throw new ProjectIOException(ex);
+            } catch (IllegalAccessException ex) {
+                throw new ProjectIOException(ex);
+            }
+            
+            field.setAccessible(isAccessible);
+        }
+        else{
+            throw new ProjectIOException(String.format("Missing '%s' annotation in '%s'", ElementName.class.getSimpleName(), elementObject.getClass().getSimpleName()));
+        }
+    }
+
+    private void readElementAttributes(Object elementObject, LocatedElement element) throws ProjectIOException {
+        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementAttribute.class);
+        for(Field field : fields){
+            // enter the field :)
+            ElementAttribute elementAttribute = (ElementAttribute)field.getAnnotation(ElementAttribute.class);
+            boolean isAccessible = field.isAccessible();
+            field.setAccessible(true);
+
+            // build the name of the attribute (based on the field name)
+            String attributeName = field.getName();
+            // normalize the filename to camelcase
+            attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+            // use the binding instead
+            if(elementAttribute.bind()!=null && !elementAttribute.bind().isEmpty()){
+                attributeName = elementAttribute.bind();
+            }
+            String attributeValue = element.getAttributeValue(attributeName, "");
+            
+            // is the attribute required?
+            if(elementAttribute.required() && attributeValue.isEmpty()){
+                throw new ProjectIOException(String.format("Missing attribute '%s' for element '%s' at line '%d'", attributeName, element.getName(), element.getLine()));
+            }
+
+            // we use an object for the value and validate each type we know and need
+            Object valueObject = null;
+            if(field.getType().isAssignableFrom(String.class)){
+                valueObject = attributeValue;
+            }
+            else if(field.getType().isAssignableFrom(Condition.class)){
+                valueObject = new Condition(attributeValue);   
+            }
+
+            try {
+                field.set(elementObject, valueObject);
+            } catch (IllegalArgumentException ex) {
+                throw new ProjectIOException(ex);
+            } catch (IllegalAccessException ex) {
+                throw new ProjectIOException(ex);
+            }
+            
+            field.setAccessible(isAccessible);
+        }
     }
     
-    private Project readProject(LocatedElement projectElement) throws ProjectIOException{
-        Project project = new Project();
+    private List<org.bromix.msbuild.elements.Element> getChildrenList(Object parentObject) throws ProjectIOException{
+        List<org.bromix.msbuild.elements.Element> list = null;
         
-        //Read and validate the attributes
-        for(Attribute attr : projectElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("DefaultTargets")){
-                project.setDefaultTargets(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("InitialTargets")){
-                project.setInitialTargets(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("ToolsVersion")){
-                project.setToolsVersion(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("TreatAsLocalProperty")){
-                project.setTreatAsLocalProperty(attr.getValue());
-            }
-            else{
-                String message = String.format("Unsupported attribute '%s' in line '%d'", attr.getName(), projectElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read and validate elements
-        for(Element _element : projectElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
+        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(parentObject.getClass(), true, ElementList.class);
+        if(!fields.isEmpty()){
+            Field fieldList = fields.get(0);
+            boolean isAccessible = fieldList.isAccessible();
+            fieldList.setAccessible(true);
             
-            if(element.getName().equalsIgnoreCase("Choose")){
-                Choose choose = readChoose(element);
-                project.add(choose);
+            Object obj=null;
+            try {
+                obj = fieldList.get(parentObject);
+            } catch (IllegalArgumentException ex) {
+                throw new ProjectIOException(ex);
+            } catch (IllegalAccessException ex) {
+                throw new ProjectIOException(ex);
             }
-            else if(element.getName().equalsIgnoreCase("Import")){
-                Import _import = readImport(element);
-                project.add(_import);
-            }
-            else if(element.getName().equalsIgnoreCase("ImportGroup")){
-                ImportGroup importGroup = readImportGroup(element);
-                project.add(importGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("ItemGroup")){
-                ItemGroup itemGroup = readItemGroup(element);
-                project.add(itemGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("ProjectExtensions")){
-                ProjectExtensions projectExtensions = readProjectExtensions(element);
-                project.add(projectExtensions);
-            }
-            else if(element.getName().equalsIgnoreCase("PropertyGroup")){
-                PropertyGroup propertyGroup = readPropertyGroup(element);
-                project.add(propertyGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("ItemDefinitionGroup")){
-                ItemDefinitionGroup itemDefinitionGroup = readItemDefinitionGroup(element);
-                project.add(itemDefinitionGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("Target")){
-                Target target = readTarget(element);
-                project.add(target);
-            }
-            else if(element.getName().equalsIgnoreCase("UsingTask")){
-                UsingTask usingTask = readUsingTask(element);
-                project.add(usingTask);
-            }
-            else{
-                String message = String.format("Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-                throw new ProjectIOException(message);
-            }
+            fieldList.setAccessible(isAccessible);
+            list = (List<org.bromix.msbuild.elements.Element>)obj;
         }
         
-        return project;
+        return list;
     }
 
-    private ItemGroup readItemGroup(LocatedElement itemGroupElement) throws ProjectIOException {
-        //Read and validate the attributes
-        ItemGroup itemGroup = new ItemGroup(new Condition(itemGroupElement.getAttributeValue("Condition", "")));
-        for(Attribute attr : itemGroupElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Label")){
-                itemGroup.setLabel(attr.getValue());
-            }
-            else{
-                String message = String.format("(ItemGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), itemGroupElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
+    private void readChildren(Object parentObject, LocatedElement parentElement) throws ProjectIOException {
+        ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
+        List<org.bromix.msbuild.elements.Element> childrenList = getChildrenList(parentObject);
         
-        // read items
-        for(Element _element : itemGroupElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
+        if(parentDefinition.childrenType()==ElementDefinition.ChildrenType.MULTIPLE_TYPES){
+            // collect all valid child names
+            List<String> childNames = new ArrayList<String>();
+            for(Class cls : parentDefinition.childrenTypes()){
+                ElementDefinition childDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
+                if(childDefinition!=null){
+                    String childName = cls.getSimpleName();
+                    childName = childName.substring(0, 1).toUpperCase()+childName.substring(1);
+                    if(childDefinition.bind()!=null && !childDefinition.bind().isEmpty()){
+                        childName = childDefinition.bind();
+                    }
+                    childNames.add(childName);
+                }
+            }
             
-            Item item = readItem(element);
-            itemGroup.add(item);
+            // read sub elements
+            for(Element _element : parentElement.getChildren()){
+                LocatedElement childElement = (LocatedElement)_element;
+                
+                if(childNames.indexOf(childElement.getName())!=-1){
+                    Class childClass = ReflectionHelper.findClassForElement(childElement.getName());
+                    if(childClass==null){
+                        throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
+                    }
+                    Object childObject = readElement(childElement, childClass);
+                    childrenList.add((org.bromix.msbuild.elements.Element)childObject);
+                }
+                else{
+                    throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
+                }
+            }
         }
-        
-        return itemGroup;
-    }
+        else if(parentDefinition.childrenType()==ElementDefinition.ChildrenType.ONE_TYPE && parentDefinition.childrenTypes().length>0){
+            Class childClass  = parentDefinition.childrenTypes()[0];
+            ElementDefinition childDefinition = (ElementDefinition)childClass.getAnnotation(ElementDefinition.class);
+            if(childDefinition!=null){
+                // read sub elements
+                for(Element _element : parentElement.getChildren()){
+                    LocatedElement childElement = (LocatedElement)_element;
 
-    private Item readItem(LocatedElement itemElement) throws ProjectIOException {
-        String include = itemElement.getAttributeValue("Include");
-        if(include.isEmpty()){
-            String message = String.format("(Item) Missing attribute 'Include' in line '%d'", itemElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        Item item = new Item(itemElement.getName(), include, new Condition(itemElement.getAttributeValue("Condition", "")));
-        //Read and validate the attributes
-        for(Attribute attr : itemElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Exclude")){
-                item.setExclude(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("Include")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Remove")){
-                item.setRemove(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("KeepMetadata")){
-                item.setKeepMetadata(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("RemoveMetadata")){
-                item.setRemoveMetadata(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("KeepDuplicates")){
-                item.setKeepDuplicates(attr.getValue());
+                    Object childObject = readElement(childElement, childClass);
+                    childrenList.add((org.bromix.msbuild.elements.Element)childObject);
+                }
             }
             else{
-                String message = String.format("(Item) Unsupported attribute '%s' in line '%d'", attr.getName(), itemElement.getLine());
-                throw new ProjectIOException(message);
+                throw new ProjectIOException(String.format("Missing children definition for element '%s' at line '%d'", parentElement.getName(), parentElement.getLine()));
             }
         }
-        
-        // read ItemMetadata
-        for(Element _element : itemElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            ItemMetadata itemMetadata = readItemMetadata(element);
-            item.add(itemMetadata);
-        }
-        
-        return item;
-    }
-
-    private ItemDefinitionGroup readItemDefinitionGroup(LocatedElement itemDefinitionGroupElement) throws ProjectIOException {
-        ItemDefinitionGroup itemDefinitionGroup = new ItemDefinitionGroup(new Condition(itemDefinitionGroupElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : itemDefinitionGroupElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                //do nothing
-            }
-            else{
-                String message = String.format("(ItemDefinitionGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), itemDefinitionGroupElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-     
-        // read items
-        for(Element _element : itemDefinitionGroupElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            ItemDefinition item = readItemDefinition(element);
-            itemDefinitionGroup.add(item);
-        }
-        
-        return itemDefinitionGroup;
-    }
-
-    private PropertyGroup readPropertyGroup(LocatedElement propertyGroupElement) throws ProjectIOException {
-        PropertyGroup propertyGroup = new PropertyGroup(new Condition(propertyGroupElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : propertyGroupElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Label")){
-                propertyGroup.setLabel(attr.getValue());
-            }
-            else{
-                String message = String.format("(PropertyGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), propertyGroupElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        
-        for(Element _element : propertyGroupElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            Property property = readProperty(element);
-            propertyGroup.add(property);
-        }
-     
-        return propertyGroup;
-    }
-
-    private Import readImport(LocatedElement importElement) throws ProjectIOException {
-        String project = importElement.getAttributeValue("Project");
-        if(project.isEmpty()){
-            String message = String.format("(Import) Missing attribute 'Project' in line '%d'", importElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        Import _import = new Import(project, new Condition(importElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : importElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Project")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Label")){
-                _import.setLabel(attr.getValue());
-            }
-            else{
-                String message = String.format("(Import) Unsupported attribute '%s' in line '%d'", attr.getName(), importElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return _import;
-    }
-
-    private ImportGroup readImportGroup(LocatedElement importGroupElement) throws ProjectIOException {
-        ImportGroup importGroup = new ImportGroup(new Condition(importGroupElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : importGroupElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Label")){
-                importGroup.setLabel(attr.getValue());
-            }
-            else{
-                String message = String.format("(ImportGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), importGroupElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        for(Element _element : importGroupElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            Import _import = readImport(element);
-            importGroup.add(_import);
-        }
-     
-        return importGroup;
-    }
-
-    private ItemMetadata readItemMetadata(LocatedElement itemMetadataElement) throws ProjectIOException {
-        String name = itemMetadataElement.getName();
-        String value = itemMetadataElement.getText();
-        ItemMetadata itemMetadata = new ItemMetadata(name, value, new Condition(itemMetadataElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : itemMetadataElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else{
-                String message = String.format("(ItemMetaData) Unsupported attribute '%s' in line '%d'", attr.getName(), itemMetadataElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return itemMetadata;
-    }
-
-    private Property readProperty(LocatedElement propertyElement) throws ProjectIOException {
-        String name = propertyElement.getName();
-        String value = propertyElement.getText();
-        Property property = new Property(name, value, new Condition(propertyElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : propertyElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else{
-                String message = String.format("(Property) Unsupported attribute '%s' in line '%d'", attr.getName(), propertyElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-     
-        return property;
-    }
-
-    private Choose readChoose(LocatedElement chooseElement) throws ProjectIOException {
-        Choose choose = new Choose();
-        
-        // read and validate attributes
-        for(Attribute attr : chooseElement.getAttributes()){
-            String message = String.format("(Choose) Unsupported attribute '%s' in line '%d'", attr.getName(), chooseElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        // read children
-        for(Element _element : chooseElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            if(element.getName().equalsIgnoreCase("Otherwise")){
-                Otherwise otherwise = readOtherwise(element);
-                choose.add(otherwise);
-            }
-            else if(element.getName().equalsIgnoreCase("When")){
-                When when = readWhen(element);
-                choose.add(when);
-            }
-            else{
-                String message = String.format("(Choose) Unsupported element '%s' in line '%d'", element.getName(), chooseElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return choose;
-    }
-    
-    private Otherwise readOtherwise(LocatedElement otherwiseElement) throws ProjectIOException {
-        Otherwise otherwise = new Otherwise();
-        
-        // read and validate attributes
-        for(Attribute attr : otherwiseElement.getAttributes()){
-            String message = String.format("(Otherwise) Unsupported attribute '%s' in line '%d'", attr.getName(), otherwiseElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        // read children
-        for(Element _element : otherwiseElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            if(element.getName().equalsIgnoreCase("Choose")){
-                Choose choose = readChoose(element);
-                otherwise.add(choose);
-            }
-            else if(element.getName().equalsIgnoreCase("ItemGroup")){
-                ItemGroup itemGroup = readItemGroup(element);
-                otherwise.add(itemGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("PropertyGroup")){
-                PropertyGroup propertyGroup = readPropertyGroup(element);
-                otherwise.add(propertyGroup);
-            }
-            else{
-                String message = String.format("(Otherwise) Unsupported element '%s' in line '%d'", element.getName(), otherwiseElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return otherwise;
-    }
-
-    private When readWhen(LocatedElement whenElement) throws ProjectIOException {
-        When when = new When(new Condition(whenElement.getAttributeValue("Condition", "")));
-        
-        // read and validate attributes
-        for(Attribute attr : whenElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else{
-                String message = String.format("(When) Unsupported attribute '%s' in line '%d'", attr.getName(), whenElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read children
-        for(Element _element : whenElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            if(element.getName().equalsIgnoreCase("Choose")){
-                Choose choose = readChoose(element);
-                when.add(choose);
-            }
-            else if(element.getName().equalsIgnoreCase("ItemGroup")){
-                ItemGroup itemGroup = readItemGroup(element);
-                when.add(itemGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("PropertyGroup")){
-                PropertyGroup propertyGroup = readPropertyGroup(element);
-                when.add(propertyGroup);
-            }
-            else{
-                String message = String.format("(When) Unsupported element '%s' in line '%d'", element.getName(), whenElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return when;
-    }
-
-    private Target readTarget(LocatedElement targetElement) throws ProjectIOException {
-        String name = targetElement.getAttributeValue("Name", "");
-        if(name.isEmpty()){
-            String message = String.format("(Target) Missing attribute 'Name' in line '%d'", targetElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        Target target = new Target(name, new Condition(targetElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : targetElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Name")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Inputs")){
-                target.setInputs(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("Outputs")){
-                target.setOutputs(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("Returns")){
-                target.setReturns(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("KeepDuplicateOutputs")){
-                target.setKeepDuplicateOutputs(Boolean.parseBoolean(attr.getValue()));
-            }
-            else if(attr.getName().equalsIgnoreCase("BeforeTargets")){
-                target.setBeforeTargets(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("AfterTargets")){
-                target.setAfterTargets(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("DependsOnTargets")){
-                target.setDependsOnTargets(attr.getValue());
-            }
-            else{
-                String message = String.format("(Target) Unsupported attribute '%s' in line '%d'", attr.getName(), targetElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read elements
-        for(Element _element : targetElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            if(element.getName().equalsIgnoreCase("Task")){
-                Task task = readTask(element);
-                target.add(task);
-            }
-            else if(element.getName().equalsIgnoreCase("PropertyGroup")){
-                PropertyGroup propertyGroup = readPropertyGroup(element);
-                target.add(propertyGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("ItemGroup")){
-                ItemGroup itemGroup = readItemGroup(element);
-                target.add(itemGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("OnError")){
-                OnError onError = readOnError(element);
-                target.add(onError);
-            }
-            else{
-                String message = String.format("(Target) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return target;
-    }
-
-    private Task readTask(LocatedElement taskElement) {
-        /*
-        For more information:
-        http://msdn.microsoft.com/en-us/library/7z253716.aspx
-        
-        We need to implement each task and derive from the current Task element.
-        */
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private OnError readOnError(LocatedElement onErrorElement) throws ProjectIOException {
-        String executeTargets = onErrorElement.getAttributeValue("ExecuteTargets", "");
-        if(executeTargets.isEmpty()){
-            String message = String.format("(OnError) Missing attribute 'ExecuteTargets' in line '%d'", onErrorElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        OnError onError = new OnError(executeTargets, new Condition(onErrorElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : onErrorElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("ExecuteTargets")){
-                // do nothing
-            }
-            else{
-                String message = String.format("(OnError) Unsupported attribute '%s' in line '%d'", attr.getName(), onErrorElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read elements
-        for(Element _element : onErrorElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            String message = String.format("(OnError) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        return onError;
-    }
-    
-    private Output readOutput(LocatedElement outputElement) throws ProjectIOException{
-        String taskParameter = outputElement.getAttributeValue("TaskParameter", "");
-        if(taskParameter.isEmpty()){
-            String message = String.format("(Output) Missing attribute 'TaskParameter' in line '%d'", outputElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        outputElement.removeAttribute("TaskParameter");
-        
-        Output output = new Output(taskParameter);
-        
-        // read elements
-        for(Element _element : outputElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            String message = String.format("(Output) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        return output;
-    }
-    
-    private ParameterGroup readParameterGroup(LocatedElement parameterGroupElement) throws ProjectIOException{
-        ParameterGroup parameterGroup = new ParameterGroup();
-        
-        //Read and validate the attributes
-        for(Attribute attr : parameterGroupElement.getAttributes()){
-            String message = String.format("(ParameterGroup) Unsupported attribute '%s' in line '%d'", attr.getName(), parameterGroupElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        // read elements
-        for(Element _element : parameterGroupElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            Parameter parameter = readParameter(element);
-            parameterGroup.add(parameter);
-        }
-        
-        return parameterGroup;
-    }
-    
-    private Parameter readParameter(LocatedElement parameterElement) throws ProjectIOException{
-        String name = parameterElement.getName();
-        Parameter parameter = new Parameter(name);
-        
-        //Read and validate the attributes
-        for(Attribute attr : parameterElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("ParameterType")){
-                parameter.setParameterType(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("Output")){
-                parameter.setOutput(Boolean.parseBoolean(attr.getValue()));
-            }
-            else if(attr.getName().equalsIgnoreCase("Required")){
-                parameter.setRequired(Boolean.parseBoolean(attr.getValue()));
-            }
-            else{
-                String message = String.format("(Parameter) Unsupported attribute '%s' in line '%d'", attr.getName(), parameterElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read elements
-        for(Element _element : parameterElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            String message = String.format("(Parameter) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        return parameter;
-    }
-
-    private ProjectExtensions readProjectExtensions(LocatedElement projectExtensionsElement) {
-        ProjectExtensions projectExtensions = new ProjectExtensions();
-        return projectExtensions;
-    }
-
-    private UsingTask readUsingTask(LocatedElement usingTaskElement) throws ProjectIOException {
-        String taskName = usingTaskElement.getAttributeValue("TaskName", "");
-        if(taskName.isEmpty()){
-            String message = String.format("(UsingTask) Missing attribute 'TaskName' in line '%d'", usingTaskElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        UsingTask usingTask = new UsingTask(taskName, new Condition(usingTaskElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : usingTaskElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("AssemblyName")){
-                usingTask.setAssemblyName(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("AssemblyFile")){
-                usingTask.setAssemblyFile(attr.getValue());
-            }
-            else if(attr.getName().equalsIgnoreCase("TaskFactory")){
-                usingTask.setTaskFactory(attr.getValue());
-            }
-            else{
-                String message = String.format("(UsingTask) Unsupported attribute '%s' in line '%d'", attr.getName(), usingTaskElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read elements
-        for(Element _element : usingTaskElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            if(element.getName().equalsIgnoreCase("ParameterGroup")){
-                ParameterGroup parameterGroup = readParameterGroup(element);
-                usingTask.add(parameterGroup);
-            }
-            else if(element.getName().equalsIgnoreCase("TaskBody")){
-                TaskBody taskBody = readTaskBody(element);
-                usingTask.add(taskBody);
-            }
-            else{
-                String message = String.format("(UsingTask) Unsupported element '%s' in line '%d'", element.getName(), element.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        return usingTask;
-    }
-
-    private TaskBody readTaskBody(LocatedElement taskBodyElement) throws ProjectIOException {
-        TaskBody taskBody = new TaskBody(new Condition(taskBodyElement.getAttributeValue("Condition", "")));
-        
-        //Read and validate the attributes
-        for(Attribute attr : taskBodyElement.getAttributes()){
-            if(attr.getName().equalsIgnoreCase("Condition")){
-                // do nothing
-            }
-            else if(attr.getName().equalsIgnoreCase("Evaluate")){
-                taskBody.setEvaluate(Boolean.parseBoolean(attr.getValue()));
-            }
-            else{
-                String message = String.format("(TaskBody) Unsupported attribute '%s' in line '%d'", attr.getName(), taskBodyElement.getLine());
-                throw new ProjectIOException(message);
-            }
-        }
-        
-        // read elements
-        for(Element _element : taskBodyElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            // not finished
-        }
-        
-        return taskBody;
-    }
-
-    private ItemDefinition readItemDefinition(LocatedElement itemDefinitionElement) throws ProjectIOException {
-        ItemDefinition itemDefinition = new ItemDefinition(itemDefinitionElement.getName());
-        
-        //Read and validate the attributes
-        for(Attribute attr : itemDefinitionElement.getAttributes()){
-            String message = String.format("(ItemDefinition) Unsupported attribute '%s' in line '%d'", attr.getName(), itemDefinitionElement.getLine());
-            throw new ProjectIOException(message);
-        }
-        
-        // read elements
-        for(Element _element : itemDefinitionElement.getChildren()){
-            LocatedElement element = (LocatedElement)_element;
-            
-            ItemMetadata itemMetadata = readItemMetadata(element);
-            itemDefinition.add(itemMetadata);
-        }
-        
-        return itemDefinition;
     }
 }

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.elements.annotations.ElementAttribute;
-import org.bromix.msbuild.elements.annotations.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implementation of an Item-Element.
@@ -16,9 +16,11 @@ import org.bromix.msbuild.elements.annotations.ElementDefinition;
  * @author Matthias Bromisch
  */
 @ElementDefinition(
-        children = { ItemMetadata.class }
+        childrenType = ElementDefinition.ChildrenType.ONE_TYPE,
+        childrenTypes = { ItemMetadata.class }
 )
 public class Item extends AbstractParentElement implements Conditionable{
+    @ElementAttribute
     private Condition condition = new Condition();
     
     @ElementAttribute(required = true)

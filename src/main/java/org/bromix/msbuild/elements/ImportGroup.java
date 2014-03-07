@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implementation of ImportGroup element.
@@ -13,12 +15,16 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        childrenType = ElementDefinition.ChildrenType.ONE_TYPE,
+        childrenTypes = {Import.class}
+)
 public class ImportGroup extends AbstractParentElement implements Conditionable{
-    final private Condition condition;
+    @ElementAttribute
+    private Condition condition = new Condition();
     
     public ImportGroup(){
         super("ImportGroup", Type.ImportGroup);
-        this.condition = new Condition();
     }
     
     public ImportGroup(Condition condition){

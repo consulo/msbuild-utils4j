@@ -1,6 +1,7 @@
 package org.bromix.msbuild.elements;
 
-import org.bromix.msbuild.elements.annotations.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementName;
 
 /**
  * Superclass for MSBuild elements.
@@ -35,7 +36,7 @@ public abstract class Element {
     
     @ElementAttribute
     protected String label = "";
-    
+    @ElementName
     protected String elementName;
     protected Element.Type elementType; 
     
