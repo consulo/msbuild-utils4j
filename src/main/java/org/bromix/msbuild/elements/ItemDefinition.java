@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
@@ -17,11 +17,11 @@ import org.bromix.msbuild.reflection.ElementDefinition;
  * @author Matthias Bromisch
  */
 @ElementDefinition(
-        childrenType = ElementDefinition.ChildrenType.ONE_TYPE,
-        childrenTypes = {ItemMetadata.class}
+        nameMatching = ElementDefinition.NameMatching.VARIABLE,
+        children = {ItemMetadata.class}
 )
 public class ItemDefinition extends AbstractParentElement implements Conditionable{
-    @ElementAttribute
+    @ElementValue
     private Condition condition = new Condition();
     
     public ItemDefinition(){

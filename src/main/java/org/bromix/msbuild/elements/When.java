@@ -1,30 +1,31 @@
 package org.bromix.msbuild.elements;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementValue;
 
 /**
  *
  * @author Matthias Bromisch
  */
-public class When extends Element implements Conditionable{
-    private final List<Element> children = new ArrayList<Element>();
-    private final Condition condition;
+@ElementDefinition(
+        children = {
+            Choose.class,
+            ItemGroup.class,
+            PropertyGroup.class
+        }
+)
+public class When extends AbstractParentElement implements Conditionable{
+    @ElementValue
+    private Condition condition = new Condition();
     
     public When(){
         super("When", Type.When);
-        this.condition = new Condition();
     }
     
     public When(Condition condition){
         super("When", Type.When);
         this.condition = condition;
-    }
-    
-    public List<Element> getChildren(){
-        return Collections.unmodifiableList(children);
     }
     
     public void add(Choose choose){

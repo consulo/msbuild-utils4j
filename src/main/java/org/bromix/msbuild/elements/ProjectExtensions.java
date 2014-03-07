@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.reflection.ElementDefinition;
+
 /**
  * Implementation of ProjectExtensions element.
  * 
@@ -8,6 +10,8 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+)
 public class ProjectExtensions extends Element{
     public ProjectExtensions(){
         super("ProjectExtensions", Type.ProjectExtension);

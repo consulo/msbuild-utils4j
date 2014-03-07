@@ -3,6 +3,7 @@ package org.bromix.msbuild.elements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implemenation of ParameterGroup element.
@@ -12,6 +13,9 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        children = {Parameter.class}
+)
 public class ParameterGroup extends AbstractParentElement{
     public ParameterGroup(){
         super("ParameterGroup", Type.ParameterGroup);

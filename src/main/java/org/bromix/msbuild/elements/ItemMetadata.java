@@ -1,9 +1,8 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
-import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
 
 /**
  * Implementation of ItemMetadata element.
@@ -15,12 +14,12 @@ import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
  */
 
 @ElementDefinition(
-        childrenType = ChildrenType.NONE
+        nameMatching = ElementDefinition.NameMatching.VARIABLE
 )
 public class ItemMetadata extends Element implements Conditionable{
-    @ElementAttribute
+    @ElementValue( valueType = ElementValue.ValueType.ELEMENT_TEXT )
     private String value = "";
-    @ElementAttribute
+    @ElementValue
     private Condition condition = new Condition();
     
     public ItemMetadata(){

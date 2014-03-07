@@ -1,7 +1,7 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
@@ -12,13 +12,11 @@ import org.bromix.msbuild.reflection.ElementDefinition;
  * 
  * @author Matthias Bromisch
  */
-@ElementDefinition(
-        childrenType = ElementDefinition.ChildrenType.NONE
-)
+@ElementDefinition
 public class Import extends Element implements Conditionable{
-    @ElementAttribute( required = true)
+    @ElementValue( required = true)
     private String project = ""; // required
-    @ElementAttribute
+    @ElementValue
     private Condition condition = new Condition();
     
     public Import(){

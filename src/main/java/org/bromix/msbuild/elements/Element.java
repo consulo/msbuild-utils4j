@@ -1,6 +1,6 @@
 package org.bromix.msbuild.elements;
 
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementName;
 
 /**
@@ -34,7 +34,7 @@ public abstract class Element {
         TaskBody,
     };
     
-    @ElementAttribute
+    @ElementValue
     protected String label = "";
     @ElementName
     protected String elementName;

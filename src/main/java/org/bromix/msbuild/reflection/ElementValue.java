@@ -11,7 +11,13 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface ElementAttribute {
+public @interface ElementValue {
+    enum ValueType{
+        ATTRIBUTE,
+        ELEMENT_TEXT
+    };
+    
     String bind() default "";
+    ValueType valueType() default ValueType.ATTRIBUTE;
     boolean required() default false;
 }

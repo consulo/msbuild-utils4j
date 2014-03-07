@@ -11,9 +11,8 @@ import org.bromix.msbuild.elements.ProjectExtensions;
 import org.bromix.msbuild.elements.PropertyGroup;
 import org.bromix.msbuild.elements.Target;
 import org.bromix.msbuild.elements.UsingTask;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
-import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
 
 /**
  * Implementation of a MSBuild element.
@@ -25,23 +24,26 @@ import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
  */
 
 @ElementDefinition(
-        childrenType = ChildrenType.MULTIPLE_TYPES,
-        childrenTypes = {
+        children = {
             ItemGroup.class,
             PropertyGroup.class,
             Import.class,
             ImportGroup.class,
-            ItemDefinitionGroup.class
+            ItemDefinitionGroup.class,
+            Choose.class,
+            ProjectExtensions.class,
+            Target.class,
+            UsingTask.class
         }
 )
 public class Project extends AbstractParentElement{
-    @ElementAttribute
+    @ElementValue
     private String defaultTargets = ""; // optional
-    @ElementAttribute
+    @ElementValue
     private String initialTargets = ""; // optional
-    @ElementAttribute
+    @ElementValue
     private String toolsVersion = ""; // optional
-    @ElementAttribute
+    @ElementValue
     private String treatAsLocalProperty = ""; // optional
     
     public Project(){

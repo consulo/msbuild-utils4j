@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementList;
 import org.bromix.msbuild.reflection.ElementName;
@@ -150,35 +150,51 @@ public class ProjectReader {
     }
 
     private void readElementAttributes(Object elementObject, LocatedElement element) throws ProjectIOException {
-        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementAttribute.class);
+        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementValue.class);
         for(Field field : fields){
             // enter the field :)
-            ElementAttribute elementAttribute = (ElementAttribute)field.getAnnotation(ElementAttribute.class);
+            ElementValue elementValue = (ElementValue)field.getAnnotation(ElementValue.class);
             boolean isAccessible = field.isAccessible();
             field.setAccessible(true);
-
-            // build the name of the attribute (based on the field name)
-            String attributeName = field.getName();
-            // normalize the filename to camelcase
-            attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-            // use the binding instead
-            if(elementAttribute.bind()!=null && !elementAttribute.bind().isEmpty()){
-                attributeName = elementAttribute.bind();
-            }
-            String attributeValue = element.getAttributeValue(attributeName, "");
             
-            // is the attribute required?
-            if(elementAttribute.required() && attributeValue.isEmpty()){
-                throw new ProjectIOException(String.format("Missing attribute '%s' for element '%s' at line '%d'", attributeName, element.getName(), element.getLine()));
+            String value = null;
+            if(elementValue.valueType()==ElementValue.ValueType.ELEMENT_TEXT){
+                 value = element.getValue();
+                 // is the attribute required?
+                if(elementValue.required() && value.isEmpty()){
+                    throw new ProjectIOException(String.format("Missing value for element '%s' at line '%d'", element.getName(), element.getLine()));
+                }
+            }
+            else{
+                // build the name of the attribute (based on the field name)
+                String attributeName = field.getName();
+                // normalize the filename to camelcase
+                attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+                // use the binding instead
+                if(elementValue.bind()!=null && !elementValue.bind().isEmpty()){
+                    attributeName = elementValue.bind();
+                }
+                value = element.getAttributeValue(attributeName, "");
+                
+                // is the attribute required?
+                if(elementValue.required() && value.isEmpty()){
+                    throw new ProjectIOException(String.format("Missing value '%s' for element '%s' at line '%d'", attributeName, element.getName(), element.getLine()));
+                }
             }
 
             // we use an object for the value and validate each type we know and need
             Object valueObject = null;
             if(field.getType().isAssignableFrom(String.class)){
-                valueObject = attributeValue;
+                valueObject = value;
+            }
+            else if(field.getType().isAssignableFrom(boolean.class)){
+                valueObject = Boolean.parseBoolean(value);
+            }
+            else if(field.getType().isAssignableFrom(Boolean.class)){
+                valueObject = Boolean.parseBoolean(value);
             }
             else if(field.getType().isAssignableFrom(Condition.class)){
-                valueObject = new Condition(attributeValue);   
+                valueObject = new Condition(value);   
             }
 
             try {
@@ -214,59 +230,65 @@ public class ProjectReader {
             list = (List<org.bromix.msbuild.elements.Element>)obj;
         }
         
+        if(list==null){
+            throw new ProjectIOException(String.format("Missing '%s' annotation in '%s'", ElementList.class.getSimpleName(), parentObject.getClass().getSimpleName()));
+        }
+        
         return list;
     }
 
     private void readChildren(Object parentObject, LocatedElement parentElement) throws ProjectIOException {
-        ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
-        List<org.bromix.msbuild.elements.Element> childrenList = getChildrenList(parentObject);
-        
-        if(parentDefinition.childrenType()==ElementDefinition.ChildrenType.MULTIPLE_TYPES){
-            // collect all valid child names
+        if(!parentElement.getChildren().isEmpty()){
+            ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
+            
+            // collect all strict and variable children
             List<String> childNames = new ArrayList<String>();
-            for(Class cls : parentDefinition.childrenTypes()){
+            List<Class> childClasses = new ArrayList<Class>();
+            for(Class cls : parentDefinition.children()){
                 ElementDefinition childDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
                 if(childDefinition!=null){
-                    String childName = cls.getSimpleName();
-                    childName = childName.substring(0, 1).toUpperCase()+childName.substring(1);
-                    if(childDefinition.bind()!=null && !childDefinition.bind().isEmpty()){
-                        childName = childDefinition.bind();
+                    if(childDefinition.nameMatching()==ElementDefinition.NameMatching.STRICT){
+                        String childName = cls.getSimpleName();
+                        childName = childName.substring(0, 1).toUpperCase()+childName.substring(1);
+                        if(childDefinition.bind()!=null && !childDefinition.bind().isEmpty()){
+                            childName = childDefinition.bind();
+                        }
+                        childNames.add(childName);
                     }
-                    childNames.add(childName);
+                    else if(childDefinition.nameMatching()==ElementDefinition.NameMatching.VARIABLE){
+                        childClasses.add(cls);
+                    }
                 }
             }
             
-            // read sub elements
+            List<org.bromix.msbuild.elements.Element> childrenList = getChildrenList(parentObject);
+            
+            // try to read the children
             for(Element _element : parentElement.getChildren()){
                 LocatedElement childElement = (LocatedElement)_element;
+                Object childObject = null;
                 
-                if(childNames.indexOf(childElement.getName())!=-1){
+                if(!childNames.isEmpty() && childClasses.isEmpty() && childNames.indexOf(childElement.getName())!=-1){
                     Class childClass = ReflectionHelper.findClassForElement(childElement.getName());
                     if(childClass==null){
                         throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
                     }
-                    Object childObject = readElement(childElement, childClass);
+                    childObject = readElement(childElement, childClass);
+                }
+                else if(childNames.isEmpty() && !childClasses.isEmpty()){
+                    Class childClass = childClasses.get(0);
+                    childObject = readElement(childElement, childClass);
+                }
+                else{
+                    throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
+                }
+                
+                if(childObject!=null){
                     childrenList.add((org.bromix.msbuild.elements.Element)childObject);
                 }
                 else{
                     throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
                 }
-            }
-        }
-        else if(parentDefinition.childrenType()==ElementDefinition.ChildrenType.ONE_TYPE && parentDefinition.childrenTypes().length>0){
-            Class childClass  = parentDefinition.childrenTypes()[0];
-            ElementDefinition childDefinition = (ElementDefinition)childClass.getAnnotation(ElementDefinition.class);
-            if(childDefinition!=null){
-                // read sub elements
-                for(Element _element : parentElement.getChildren()){
-                    LocatedElement childElement = (LocatedElement)_element;
-
-                    Object childObject = readElement(childElement, childClass);
-                    childrenList.add((org.bromix.msbuild.elements.Element)childObject);
-                }
-            }
-            else{
-                throw new ProjectIOException(String.format("Missing children definition for element '%s' at line '%d'", parentElement.getName(), parentElement.getLine()));
             }
         }
     }

@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
-import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
 
 /**
  * Implementation of a ItemGroup element.
@@ -17,11 +16,10 @@ import org.bromix.msbuild.reflection.ElementDefinition.ChildrenType;
  * @author Matthias Bromisch
  */
 @ElementDefinition(
-        childrenType = ChildrenType.ONE_TYPE,
-        childrenTypes = { Item.class }
+        children = { Item.class }
 )
 public class ItemGroup extends AbstractParentElement implements Conditionable{
-    @ElementAttribute
+    @ElementValue
     private final Condition condition;
     
     public ItemGroup(){

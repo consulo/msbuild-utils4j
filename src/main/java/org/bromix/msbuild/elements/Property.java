@@ -1,7 +1,7 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
-import org.bromix.msbuild.reflection.ElementAttribute;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
@@ -14,11 +14,12 @@ import org.bromix.msbuild.reflection.ElementDefinition;
  */
 
 @ElementDefinition(
-        childrenType = ElementDefinition.ChildrenType.NONE
+        nameMatching = ElementDefinition.NameMatching.VARIABLE
 )
 public class Property extends Element implements Conditionable{
+    @ElementValue( valueType = ElementValue.ValueType.ELEMENT_TEXT )
     private String value = "";
-    @ElementAttribute
+    @ElementValue
     private Condition condition = new Condition();
     
     public Property(){   

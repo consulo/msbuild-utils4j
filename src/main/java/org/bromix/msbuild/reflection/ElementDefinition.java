@@ -12,13 +12,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ElementDefinition {
-    enum ChildrenType{
-        NONE,
-        MULTIPLE_TYPES,
-        ONE_TYPE
+    enum NameMatching{
+        STRICT,
+        VARIABLE
     };
     
     String bind() default "";
-    ChildrenType childrenType();
-    Class[] childrenTypes() default {};
+    NameMatching nameMatching() default NameMatching.STRICT;
+    Class[] children() default {};
 }
