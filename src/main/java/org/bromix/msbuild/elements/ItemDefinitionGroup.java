@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementValue;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implement a ItemDefinitionGroup-Element.
@@ -13,12 +15,15 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        children = {ItemDefinition.class}
+)
 public class ItemDefinitionGroup extends AbstractParentElement implements Conditionable{
-    final private Condition condition;
+    @ElementValue
+    private Condition condition = new Condition();
     
     public ItemDefinitionGroup(){
         super("ItemDefinitionGroup", Type.ItemDefinitionGroup);
-        this.condition = new Condition();
     }
     
     public ItemDefinitionGroup(Condition condition){

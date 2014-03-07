@@ -1,6 +1,8 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementValue;
 
 /**
  * Implementation of Output element.
@@ -10,11 +12,21 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+)
 public class Output extends Element implements Conditionable{
-    private final Condition condition;
+    @ElementValue
+    private Condition condition = new Condition();
+    @ElementValue( required = true )
     private String taskParameter = "";
+    @ElementValue
     private String propertyName = "";
+    @ElementValue
     private String itemName = "";
+    
+    public Output(){
+        super("Output", Type.Output);
+    }
     
     public Output(String taskParameter){
         super("Output", Type.Output);

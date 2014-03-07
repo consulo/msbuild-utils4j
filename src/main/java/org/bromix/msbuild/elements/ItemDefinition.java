@@ -3,6 +3,9 @@ package org.bromix.msbuild.elements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementValue;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implementation of ItemDefinition.
@@ -13,7 +16,18 @@ import java.util.List;
  * 
  * @author Matthias Bromisch
  */
-public class ItemDefinition extends AbstractParentElement{
+@ElementDefinition(
+        nameMatching = ElementDefinition.NameMatching.VARIABLE,
+        children = {ItemMetadata.class}
+)
+public class ItemDefinition extends AbstractParentElement implements Conditionable{
+    @ElementValue
+    private Condition condition = new Condition();
+    
+    public ItemDefinition(){
+        super("", Type.ItemDefinition);
+    }
+    
     public ItemDefinition(String name){
         super(name, Type.ItemDefinition);
     }
@@ -32,5 +46,9 @@ public class ItemDefinition extends AbstractParentElement{
         }
         
         return Collections.unmodifiableList(metadataList);
+    }
+
+    public Condition getCondition() {
+        return condition;
     }
 }

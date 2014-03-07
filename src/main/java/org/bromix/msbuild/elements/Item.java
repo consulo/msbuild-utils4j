@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementValue;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementDefinition.NameMatching;
 
 /**
  * Implementation of an Item-Element.
@@ -13,21 +16,35 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        nameMatching = NameMatching.VARIABLE,
+        children = { ItemMetadata.class }
+)
 public class Item extends AbstractParentElement implements Conditionable{
-    private final Condition condition;
+    @ElementValue
+    private Condition condition = new Condition();
     
+    @ElementValue(required = true)
     private String include = ""; // required
+    @ElementValue
     private String exclude = ""; // optional
+    @ElementValue
     private String remove = ""; // optional
+    @ElementValue
     private String keepMetadata = ""; // optional
+    @ElementValue
     private String removeMetadata = ""; // optional
+    @ElementValue
     private String keepDuplicates = ""; // optional
     
+    
+    public Item(){
+        super("", Type.Item);
+    }
     
     public Item(String name, String include){
         super(name, Type.Item);
         this.include = include;
-        this.condition = new Condition();
     }
     
     /**

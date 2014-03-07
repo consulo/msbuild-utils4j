@@ -1,6 +1,8 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementValue;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implemenation of Property element.
@@ -10,14 +12,23 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+
+@ElementDefinition(
+        nameMatching = ElementDefinition.NameMatching.VARIABLE
+)
 public class Property extends Element implements Conditionable{
-    private final String value;
-    private final Condition condition;
+    @ElementValue( valueType = ElementValue.ValueType.ELEMENT_TEXT )
+    private String value = "";
+    @ElementValue
+    private Condition condition = new Condition();
+    
+    public Property(){   
+        super("", Type.Property);
+    }
     
     public Property(String name, String value){
         super(name, Type.Property);
         this.value = value;
-        this.condition = new Condition();
     }
     
     public Property(String name, String value, Condition condition){

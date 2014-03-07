@@ -1,5 +1,8 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementValue;
+
 /**
  * Implementation of Parameter element.
  * 
@@ -8,10 +11,20 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        nameMatching = ElementDefinition.NameMatching.VARIABLE
+)
 public class Parameter extends Element{
+    @ElementValue
     private String parameterType = "";
+    @ElementValue
     private boolean output = false;
+    @ElementValue
     private boolean required = false;
+    
+    public Parameter(){
+        super("", Type.Parameter);
+    }
     
     public Parameter(String name){
         super(name, Type.Parameter);

@@ -1,6 +1,8 @@
 package org.bromix.msbuild.elements;
 
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementValue;
 
 /**
  * Implementation of Target element.
@@ -10,22 +12,41 @@ import org.bromix.msbuild.Condition;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        children = {
+            //Task.class,
+            PropertyGroup.class,
+            ItemGroup.class,
+            OnError.class
+        }
+)
 public class Target extends AbstractParentElement implements Conditionable{
-    final private Condition condition;
-    
+    @ElementValue
+    private Condition condition = new Condition();
+    @ElementValue( required =  true )
     private String name = "";
+    @ElementValue
     private String inputs = "";
+    @ElementValue
     private String outputs = "";
+    @ElementValue
     private String returns = "";
+    @ElementValue
     private boolean keepDuplicateOutputs = false;
+    @ElementValue
     private String beforeTargets = "";
+    @ElementValue
     private String afterTargets = "";
+    @ElementValue
     private String dependsOnTargets = "";
+    
+    public Target(){
+        super("Target", Type.Target);
+    }
     
     public Target(String name){
         super("Target", Type.Target);
         this.name = name;
-        this.condition = new Condition();
     }
     
     public Target(String name, Condition condition){

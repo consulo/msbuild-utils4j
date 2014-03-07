@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.reflection.ElementDefinition;
+
 /**
  * Implementation of Choose element.
  * 
@@ -8,6 +10,12 @@ package org.bromix.msbuild.elements;
  * 
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        children = {
+            Otherwise.class,
+            When.class
+        }
+)
 public class Choose extends AbstractParentElement{
     public Choose(){
         super("Choose", Type.Choose);
