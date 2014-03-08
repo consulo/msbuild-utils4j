@@ -5,10 +5,9 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
 
 /**
- * Implementation of TaskBody element.
+ * Implementation of TaskBody Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ff606253.aspx
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ff606253.aspx">TaskBody Element (MSBuild)</a>
  * 
  * @author Matthias Bromisch
  */

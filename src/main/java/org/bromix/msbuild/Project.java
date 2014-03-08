@@ -15,11 +15,18 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implementation of a MSBuild element.
+ * Implementation of Project Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/bcxfsh87.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/bcxfsh87.aspx">Project Element (MSBuild)</a>
+ * @see ItemGroup
+ * @see PropertyGroup
+ * @see Import
+ * @see ImportGroup
+ * @see ItemDefinitionGroup
+ * @see Choose
+ * @see ProjectExtensions
+ * @see Target
+ * @see UsingTask
  * @author Matthias Bromisch
  */
 
@@ -50,75 +57,34 @@ public class Project extends AbstractParentElement{
         super("Project", Element.Type.Project);
     }
     
-    /**
-     * Sets the default target or targets.
-     * Multiple targets are semi-colon (;) delimited.
-     * @param defaultTargets 
-     */
     public void setDefaultTargets(String defaultTargets){
         this.defaultTargets = defaultTargets;
     }
     
-    /**
-     * Returns the default target or target.
-     * Multiple targets are semi-colon (;) delimited.
-     * @return 
-     */
     public String getDefaultTargets(){
         return defaultTargets;
     }
     
-    /**
-     * Sets the initial target or targets.
-     * Multiple targets are semi-colon (;) delimited.
-     * @param initialTargets 
-     */
     public void setInitialTargets(String initialTargets){
         this.initialTargets = initialTargets;
     }
     
-    /**
-     * returns the initial target or targets.
-     * Multiple targets are semi-colon (;) delimited.
-     * @return 
-     */
     public String getInitialTargets(){
         return initialTargets;
     }
     
-    /**
-     * Sets the tools version.
-     * @remark from the online reference: (The version of the toolset MSBuild uses to determine the values for $(MSBuildBinPath) and $(MSBuildToolsPath).)
-     * @param toolsVersion 
-     */
     public void setToolsVersion(String toolsVersion){
         this.toolsVersion = toolsVersion;
     }
     
-    /**
-     * Returns the tools version.
-     * @return 
-     */
     public String getToolsVersion(){
         return toolsVersion;
     }
     
-    /**
-     * Sets the "TreatAsLocalProperty".
-     * For more information visit:
-     * http://msdn.microsoft.com/en-us/library/bcxfsh87.aspx
-     * @param treatAsLocalProperty 
-     */
     public void setTreatAsLocalProperty(String treatAsLocalProperty){
         this.treatAsLocalProperty = treatAsLocalProperty;
     }
     
-    /**
-     * returns the "TreatAsLocalProperty".
-     * For more information visit:
-     * http://msdn.microsoft.com/en-us/library/bcxfsh87.aspx
-     * @return 
-     */
     public String getTreatAsLocalProperty(){
         return treatAsLocalProperty;
     }

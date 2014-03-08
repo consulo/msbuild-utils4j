@@ -9,7 +9,9 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 
 /**
- *
+ * Implementation of the Condition attribute of MSBuild.
+ * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/7szfhaft.aspx">MSBuild Conditions</a>
  * @author Matthias Bromisch
  */
 public class Condition{
@@ -34,25 +36,39 @@ public class Condition{
 
     /**
      * Default constructor.
-     * Create an empty condition.
+     * This creates an empty condition which will always return <code>true</code>
+     * @see Condition#evaluate()
      */
     public Condition(){
         this.condition = "";
     }
     
     /**
-     * Creates the given condition.
-     * @remark http://msdn.microsoft.com/en-us/library/7szfhaft.aspx
-     * @param condition 
+     * Creates an instance of the given condition.
+     * @param condition expression of a condition.
+     * @see <a href="http://msdn.microsoft.com/en-us/library/7szfhaft.aspx">MSBuild Conditions</a>
+     * @see Condition#evaluate()
      */
     public Condition(String condition){
         this.condition = condition;
     }
     
+    /**
+     * Evaluates this condition
+     * @return <code>true</code> or <code>false</code> based on the condition.
+     * @throws ConditionException
+     */
     public boolean evaluate() throws ConditionException{
         return evaluate(new ConditionContext());
     }
     
+    /**
+     * Evaluates this condition based on the given context.
+     * @param context current context
+     * @return <code>true</code> or <code>false</code> based on the condition.
+     * @throws ConditionException 
+     * @see ConditionContext
+     */
     public boolean evaluate(ConditionContext context) throws ConditionException{
         // allways return true if the condition is empty
         if(condition.isEmpty()){
@@ -90,8 +106,8 @@ public class Condition{
     }
     
     /**
-     * Returns true if the condition is empty otherwise false.
-     * @return true if the condition is empty otherwise false.
+     * Returns <code>true</code> if this condition is empty otherwise <code>false</code>.
+     * @return <code>true</code> if this condition is empty otherwise <code>false</code>.
      */
     public boolean isEmpty(){
         return condition.isEmpty();
@@ -99,19 +115,11 @@ public class Condition{
     
     /**
      * Returns the condition.
-     * @return 
+     * @return
      */
     @Override
     public String toString(){
         return condition;
-    }
-    
-    private static boolean hasTrailingSlash(String text){
-        if(text.endsWith("/")){
-            return true;
-        }
-        
-        return text.endsWith("\\");
     }
     
     /**

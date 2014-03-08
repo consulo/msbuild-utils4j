@@ -5,7 +5,12 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
 
 /**
- *
+ * Implementation of When Element
+ * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ms164289.aspx">When Element (MSBuild)</a>
+ * @see Choose
+ * @see ItemGroup
+ * @see PropertyGroup
  * @author Matthias Bromisch
  */
 @ElementDefinition(

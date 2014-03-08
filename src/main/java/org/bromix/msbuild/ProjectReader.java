@@ -247,7 +247,7 @@ public class ProjectReader {
             for(Class cls : parentDefinition.children()){
                 ElementDefinition childDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
                 if(childDefinition!=null){
-                    if(childDefinition.nameMatching()==ElementDefinition.NameMatching.STRICT){
+                    if(childDefinition.nameMatching()==ElementDefinition.NameMatching.EQUALS){
                         String childName = cls.getSimpleName();
                         childName = childName.substring(0, 1).toUpperCase()+childName.substring(1);
                         if(childDefinition.bind()!=null && !childDefinition.bind().isEmpty()){

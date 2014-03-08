@@ -8,11 +8,11 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implementation of ItemDefinition.
+ * Implementation of ItemDefinition Element.
  * 
- * This doesn't really exists. The reference is a little bit false at this point.
- * Based on the reference children of an ItemDefinitionGroup are based on an
- * Item element.
+ * This kind of element isn't documented. The MSBuild Reference links to an Item
+ * Element for ItemDefinitionGroups. But Item Elements require at least a
+ * 'Include' attribute.
  * 
  * @author Matthias Bromisch
  */
@@ -30,6 +30,11 @@ public class ItemDefinition extends AbstractParentElement implements Conditionab
     
     public ItemDefinition(String name){
         super(name, Type.ItemDefinition);
+    }
+    
+    public ItemDefinition(String name, Condition condition){
+        super(name, Type.ItemDefinition);
+        this.condition = condition;
     }
     
     public void add(ItemMetadata metadata){

@@ -5,9 +5,9 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 /**
  * Implementation of Choose element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ms164282.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ms164282.aspx">Choose Element (MSBuild)</a>
+ * @see Otherwise
+ * @see When
  * @author Matthias Bromisch
  */
 @ElementDefinition(

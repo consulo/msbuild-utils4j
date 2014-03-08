@@ -6,11 +6,10 @@ import java.util.List;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implemenation of ParameterGroup element.
+ * Implemenation of ParameterGroup Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ff606260.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ff606260.aspx">ParameterGroup Element (MSBuild)</a>
+ * @see Parameter
  * @author Matthias Bromisch
  */
 @ElementDefinition(

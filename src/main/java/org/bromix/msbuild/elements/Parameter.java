@@ -4,11 +4,9 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
 
 /**
- * Implementation of Parameter element.
+ * Implementation of Parameter Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ff606257.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ff606257.aspx">Parameter Element (MSBuild)</a>
  * @author Matthias Bromisch
  */
 @ElementDefinition(
@@ -28,6 +26,10 @@ public class Parameter extends Element{
     
     public Parameter(String name){
         super(name, Type.Parameter);
+    }
+    
+    public String getName(){
+        return elementName;
     }
     
     public void setParameterType(String parameterType){

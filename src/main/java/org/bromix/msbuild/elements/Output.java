@@ -5,11 +5,9 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
 
 /**
- * Implementation of Output element.
+ * Implementation of Output Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ms164287.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ms164287.aspx">Output Element (MSBuild)</a>
  * @author Matthias Bromisch
  */
 @ElementDefinition(

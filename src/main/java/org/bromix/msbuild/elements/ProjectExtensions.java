@@ -3,11 +3,9 @@ package org.bromix.msbuild.elements;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implementation of ProjectExtensions element.
+ * Implementation of ProjectExtensions Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ycwcwzs7.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ycwcwzs7.aspx">ProjectExtensions Element (MSBuild)</a>
  * @author Matthias Bromisch
  */
 @ElementDefinition(

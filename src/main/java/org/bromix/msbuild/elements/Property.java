@@ -5,11 +5,9 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implemenation of Property element.
+ * Implemenation of Property Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ms164288.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ms164288.aspx">Property Element (MSBuild)</a>
  * @author Matthias Bromisch
  */
 

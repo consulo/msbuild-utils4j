@@ -8,11 +8,10 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implementation of a ItemGroup element.
+ * Implementation of ItemGroup Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/646dk05y.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/646dk05y.aspx">ItemGroup Element (MSBuild)</a>
+ * @see Item
  * @author Matthias Bromisch
  */
 @ElementDefinition(

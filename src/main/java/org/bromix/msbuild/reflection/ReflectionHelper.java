@@ -14,14 +14,14 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 /**
- *
+ * Class to help with some needed reflections.
  * @author Matthias Bromisch
  */
 final public class ReflectionHelper {
     private static Set<Class<?>> elementDefinitions = null;
     
     /**
-     * Based on the @ElementDefinition annotation this method tries to return
+     * Based on the {@link ElementDefinition} annotation this method tries to return
      * the corresponding class for the given name of the element.
      * @param elementName name of the element
      * @return class corresponding to the element
@@ -48,6 +48,13 @@ final public class ReflectionHelper {
         return null;
     }
     
+    /**
+     * Returns a list of all declared fields of a class.
+     * @param cls Class the collect the fields of.
+     * @param includeSuperClass <code>true</code> if super classes should be included otherwise <code>false</code>
+     * @return list declared fields
+     * @see Field
+     */
     public static List<Field> getDeclearedFields(Class cls, boolean includeSuperClass){
         List<Field> fields = new ArrayList<Field>();
         
@@ -65,6 +72,13 @@ final public class ReflectionHelper {
         return fields;
     }
     
+    /**
+     * Returns a list of declared of fields with the given annotation.
+     * @param cls Class to collect the fields of.
+     * @param includeSuperClass <code>true</code> if super classes should be included.
+     * @param annotationClass
+     * @return list of fields with the given annotation.
+     */
     public static List<Field> getDeclaredFieldsWithAnnotation(Class cls, boolean includeSuperClass, Class annotationClass){
         List<Field> fields = new ArrayList<Field>();
         

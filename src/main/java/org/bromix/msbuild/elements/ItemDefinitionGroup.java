@@ -10,9 +10,8 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 /**
  * Implement a ItemDefinitionGroup-Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/bb629392.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/bb629392.aspx">ItemDefinitionGroup Element (MSBuild)</a>
+ * @see ItemDefinition
  * @author Matthias Bromisch
  */
 @ElementDefinition(

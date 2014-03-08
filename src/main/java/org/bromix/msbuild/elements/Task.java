@@ -4,21 +4,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bromix.msbuild.Condition;
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementDefinition.NameMatching;
+import org.bromix.msbuild.reflection.ElementValue;
 
 /**
  * Implementation of Task element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/77f2hx1s.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/77f2hx1s.aspx">Task Element (MSBuild)</a>
  * @author Matthias Bromisch
  */
+@ElementDefinition(
+        nameMatching = NameMatching.VARIABLE,
+        children = {Output.class}
+)
 public class Task extends AbstractParentElement implements Conditionable{
-    protected Condition condition;
+    @ElementValue
+    private Condition condition = new Condition();
+    
+    public Task(){
+        super("", Type.Task);
+    }
     
     public Task(String name){
         super(name, Type.Task);
-        this.condition = new Condition();
     }
     
     public Task(String name, Condition condition){

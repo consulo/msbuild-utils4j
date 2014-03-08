@@ -6,7 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Used internally for the {@link ProjectReader}.
+ * <p>
+ * The {@link ProjectReader} will use the annotation to find the field for the
+ * internal element name.
  * @author Matthias Bromisch
  */
 @Retention(RetentionPolicy.RUNTIME)

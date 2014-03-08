@@ -5,11 +5,11 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
 
 /**
- * Implementation of UsingTask element.
+ * Implementation of UsingTask Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/t41tzex2.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/t41tzex2.aspx">UsingTask Element (MSBuild)</a>
+ * @see ParameterGroup
+ * @see TaskBody
  * @author Matthias Bromisch
  */
 @ElementDefinition(

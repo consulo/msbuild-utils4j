@@ -5,11 +5,13 @@ import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
 
 /**
- * Implementation of Target element.
- * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/t50z2hka.aspx
- * 
+ * Implementation of Target Element.
+ * <p>
+ * At the moment Task Elements are not completed yet.
+ * @see <a href="http://msdn.microsoft.com/en-us/library/t50z2hka.aspx">Target Element (MSBuild)</a>
+ * @see PropertyGroup
+ * @see ItemGroup
+ * @see OnError
  * @author Matthias Bromisch
  */
 @ElementDefinition(

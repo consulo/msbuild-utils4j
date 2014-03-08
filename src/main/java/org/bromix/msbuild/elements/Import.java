@@ -5,11 +5,9 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implemenation of Import element.
+ * Implemenation of Import Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/92x05xfs.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/92x05xfs.aspx">Import Element (MSBuild)</a>
  * @author Matthias Bromisch
  */
 @ElementDefinition
@@ -34,18 +32,6 @@ public class Import extends Element implements Conditionable{
         this.condition = condition;
     }
     
-    /**
-     * Sets the project.
-     * @param project 
-     */
-    public void setProject(String project){
-        this.project = project;
-    }
-    
-    /**
-     * Returns the project.
-     * @return 
-     */
     public String getProject(){
         return project;
     }

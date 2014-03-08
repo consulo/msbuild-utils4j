@@ -8,11 +8,10 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implementation of PropertyGroup element.
+ * Implementation of PropertyGroup Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/t4w159bs.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/t4w159bs.aspx">PropertyGroup Element (MSBuild)</a>
+ * @see Property
  * @author Matthias Bromisch
  */
 

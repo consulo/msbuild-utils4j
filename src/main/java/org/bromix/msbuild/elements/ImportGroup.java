@@ -8,11 +8,10 @@ import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
- * Implementation of ImportGroup element.
+ * Implementation of ImportGroup Element.
  * 
- * For more information visit:
- * http://msdn.microsoft.com/en-us/library/ff606262.aspx
- * 
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ff606262.aspx">ImportGroup Element ([MSBuild)</a>
+ * @see Import
  * @author Matthias Bromisch
  */
 @ElementDefinition(
