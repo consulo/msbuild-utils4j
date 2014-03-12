@@ -6,9 +6,13 @@
 
 package org.bromix.msbuild;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import org.bromix.msbuild.elements.Element;
@@ -21,6 +25,11 @@ import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ItemMetadata;
 import org.bromix.msbuild.elements.Property;
 import org.bromix.msbuild.elements.PropertyGroup;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.located.LocatedElement;
+import org.jdom2.located.LocatedJDOMFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,182 +54,148 @@ public class ProjectReaderTest {
     @AfterClass
     public static void tearDownClass() {
     }
-
+    
     /**
-     * Test of read method, of class ProjectReader.
-     * @throws java.lang.Exception
+     * Helper method to convert a string into an <code>InputStream</code>.
+     * @param xml part of xml.
+     * @return <code>InputStream</code> of the given string.
+     */
+    private InputStream StringToInputStream(String xml){
+        return new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8")));
+    }
+    
+    private org.jdom2.located.LocatedElement parse(String xml) throws JDOMException, IOException{
+        SAXBuilder builder = new SAXBuilder();
+        builder.setJDOMFactory(new LocatedJDOMFactory());
+        
+        Document document = builder.build(StringToInputStream(xml));
+        
+        return (LocatedElement)document.getRootElement();
+    }
+    
+    /**
+     * Test for reading a Project Element (with only one child element).
+     * @throws ProjectIOException 
      */
     @Test
-    public void testBasicStructureOfElements() throws Exception {
-        System.out.println("read and test the basic structure");
-        ProjectReader instance = new ProjectReader();
-        Project project = instance.read(projectFile);
+    public void testProject() throws ProjectIOException{
+        String xml =
+                "<Project DefaultTargets=\"Build\" ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">" +
+                "   <ItemGroup Label=\"ProjectConfigurations\"/>" +
+                "</Project>";
         
-        // Project
-        List<Element> elements = project.getChildren();
-        assertEquals(18, elements.size());
+        ProjectReader reader = new ProjectReader();
+        Project project = reader.read(StringToInputStream(xml));
         
-        // ItemGroup (ProjectConfigurations)
-        Element element = elements.get(0);
-        assertEquals("ItemGroup", element.getElementName());
-        testItemGroupProjectConfigurations((ItemGroup)element);
-        
-        // PropertyGroup (Globals)
-        element = elements.get(1);
-        assertEquals("PropertyGroup", element.getElementName());
-        assertEquals("Globals", element.getLabel());
-        testPropertyGroupGlobals((PropertyGroup)element);
-        
-        // Import (Index 2)
-        element = elements.get(2);
-        assertEquals("Import", element.getElementName());
-        
-        // PropertyGroup (Configuration=Debug|Win32)
-        element = elements.get(3);
-        assertEquals("PropertyGroup", element.getElementName());
-        testPropertyGroupConfiguration((PropertyGroup)element, true);
-        
-        // PropertyGroup (Configuration=Release|Win32)
-        element = elements.get(4);
-        assertEquals("PropertyGroup", element.getElementName());
-        testPropertyGroupConfiguration((PropertyGroup)element, false);
-        
-        // Import (Index 5)
-        element = elements.get(5);
-        assertEquals("Import", element.getElementName());
-        
-        // ImportGroup (ExtensionSettings) (Index 6)
-        element = elements.get(6);
-        assertEquals("ImportGroup", element.getElementName());
-        assertEquals("ExtensionSettings", element.getLabel());
-        
-        // ImportGroup (LocalAppDataPlatform=Debug|Win32)
-        element = elements.get(7);
-        assertEquals("ImportGroup", element.getElementName());
-        assertEquals("PropertySheets", element.getLabel());
-        testImportGroupLocalAppDataPlatform((ImportGroup)element, true);
-        
-        // ImportGroup (LocalAppDataPlatform=Release|Win32)
-        element = elements.get(8);
-        assertEquals("ImportGroup", element.getElementName());
-        assertEquals("PropertySheets", element.getLabel());
-        testImportGroupLocalAppDataPlatform((ImportGroup)element, false);
-        
-        // PropertyGroup (UserMacros) (Index 9)
-        element = elements.get(9);
-        assertEquals("PropertyGroup", element.getElementName());
-        assertEquals("UserMacros", element.getLabel());
-        
-        // PropertyGroup (Index 10)
-        element = elements.get(10);
-        assertEquals("PropertyGroup", element.getElementName());
-        assertEquals("", element.getLabel());
-        
-        // ItemDefinitionGroup (Debug|Win32)
-        element = elements.get(11);
-        assertEquals("ItemDefinitionGroup", element.getElementName());
-        testItemDefinitionGroup((ItemDefinitionGroup)element, true);
-        
-        // ItemDefinitionGroup (Release|Win32)
-        element = elements.get(12);
-        assertEquals("ItemDefinitionGroup", element.getElementName());
-        testItemDefinitionGroup((ItemDefinitionGroup)element, false);
-        
-        // ItemGroup (Index 13)
-        element = elements.get(13);
-        assertEquals("ItemGroup", element.getElementName());
-        
-        // ItemGroup (Index 14)
-        element = elements.get(14);
-        assertEquals("ItemGroup", element.getElementName());
-        
-        // ItemGroup (ClCompile)
-        element = elements.get(15);
-        assertEquals("ItemGroup", element.getElementName());
-        testItemGroupClCompile((ItemGroup)element);
-        
-        // Import (Index 16)
-        element = elements.get(16);
-        assertEquals("Import", element.getElementName());
-        
-        // ImportGroup (ExtensionTargets) (Index 17)
-        element = elements.get(17);
-        assertEquals("ImportGroup", element.getElementName());
-        assertEquals("ExtensionTargets", element.getLabel());
+        assertEquals("Build", project.getDefaultTargets());
+        assertEquals("4.0", project.getToolsVersion());
+        assertEquals(1, project.getChildren().size());
     }
     
-    private void testItemGroupProjectConfigurations(ItemGroup itemGroup){
-        List<Item> items = itemGroup.getItems();
-        assertEquals(2, items.size());
+    @Test
+    public void testItemGroup() throws IOException, JDOMException, ProjectIOException{
+        String xml =
+                "<ItemGroup Label=\"ProjectConfigurations\">\n" +
+                "    <ProjectConfiguration Include=\"Debug|Win32\"/>\n" +
+                "    <ProjectConfiguration Include=\"Release|Win32\"/>\n" +
+                "</ItemGroup>";
         
-        for(Item item : items){
-            assertEquals("ProjectConfiguration", item.getElementName());
-            List<ItemMetadata> metadataList = item.getMetadataList();
-            assertEquals(2, metadataList.size());
-        }
-    }
-
-    private void testPropertyGroupGlobals(PropertyGroup propertyGroup) {
-        List<Property> properties = propertyGroup.getProperties();
-        assertEquals(3, properties.size());
-    }
-
-    private void testPropertyGroupConfiguration(PropertyGroup propertyGroup, boolean debug) {
-        if(debug){
-            List<Property> properties = propertyGroup.getProperties();
-            assertEquals(3, properties.size());
-        }
-        else{
-            List<Property> properties = propertyGroup.getProperties();
-            assertEquals(4, properties.size());
-        }
-    }
-
-    private void testImportGroupLocalAppDataPlatform(ImportGroup importGroup, boolean debug) {
-        List<Import> imports = importGroup.getImports();
-        assertEquals(1, imports.size());
-    }
-
-    private void testItemDefinitionGroup(ItemDefinitionGroup itemDefinitionGroup, boolean debug) {
-        if(debug){
-            List<ItemDefinition> items = itemDefinitionGroup.getItems();
-            assertEquals(2, items.size());
-            
-            // ClCompile
-            ItemDefinition item = items.get(0);
-            List<ItemMetadata> metadataList = item.getMetadataList();
-            assertEquals(4, metadataList.size());
-            
-            // Link
-            item = items.get(1);
-            metadataList = item.getMetadataList();
-            assertEquals(2, metadataList.size());
-        }
-        else{
-            List<ItemDefinition> items = itemDefinitionGroup.getItems();
-            assertEquals(2, items.size());
-            
-            // ClCompile
-            ItemDefinition item = items.get(0);
-            List<ItemMetadata> metadataList = item.getMetadataList();
-            assertEquals(6, metadataList.size());
-            
-            // Link
-            item = items.get(1);
-            metadataList = item.getMetadataList();
-            assertEquals(4, metadataList.size());
-        }
-    }
-
-    private void testItemGroupClCompile(ItemGroup itemGroup) {
-        List<Item> items = itemGroup.getItems();
-        assertEquals(1, items.size());
+        ProjectReader reader = new ProjectReader();
+        ItemGroup itemGroup = (ItemGroup)reader.readElement(parse(xml), ItemGroup.class);
         
-        // PrecompiledHeader
-        Item item = items.get(0);
-        
-        List<ItemMetadata> metadataList = item.getMetadataList();
-        assertEquals(2, metadataList.size());
+        assertEquals("ProjectConfigurations", itemGroup.getLabel());
+        assertEquals(2, itemGroup.getChildren().size());
+        assertEquals(2, itemGroup.getItems().size());
     }
     
+    @Test
+    public void testItem() throws ProjectIOException, JDOMException, IOException{
+        String xml =
+                "<ProjectConfiguration Include=\"Debug|Win32\">\n" +
+                "   <Configuration>Debug</Configuration>\n" +
+                "   <Platform>Win32</Platform>\n" +
+                "</ProjectConfiguration>";
+        
+        ProjectReader reader = new ProjectReader();
+        Item item = (Item)reader.readElement(parse(xml), Item.class);
+        
+        assertEquals("Debug|Win32", item.getInclude());
+        assertEquals(2, item.getChildren().size());
+        assertEquals(2, item.getMetadataList().size());
+    }
+    
+    @Test
+    public void testPropertyGroup() throws ProjectIOException, JDOMException, IOException{
+        String xml =
+                "<PropertyGroup Label=\"Globals\">\n" +
+                "   <ProjectGuid>{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}</ProjectGuid>\n" +
+                "   <Keyword>Win32Proj</Keyword>\n" +
+                "   <RootNamespace>SomeStaticLib</RootNamespace>\n" +
+                "</PropertyGroup>";
+        
+        ProjectReader reader = new ProjectReader();
+        PropertyGroup propertyGroup = (PropertyGroup)reader.readElement(parse(xml), PropertyGroup.class);
+        
+        assertEquals("Globals", propertyGroup.getLabel());
+        assertEquals(3, propertyGroup.getChildren().size());
+        assertEquals(3, propertyGroup.getProperties().size());
+    }
+    
+    @Test
+    public void testProperty() throws ProjectIOException, JDOMException, IOException{
+        String xml =
+                "<ProjectGuid>{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}</ProjectGuid>";
+        
+        ProjectReader reader = new ProjectReader();
+        Property property = (Property)reader.readElement(parse(xml), Property.class);
+        
+        assertEquals("{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}", property.getValue());
+        assertEquals("ProjectGuid", property.getElementName());
+        assertEquals("ProjectGuid", property.getName());
+    }
+    
+    @Test
+    public void testImportGroup() throws ProjectIOException, JDOMException, IOException{
+        String xml =
+                "<ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">\n" +
+                "   <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />\n" +
+                "</ImportGroup>";
+        
+        ProjectReader reader = new ProjectReader();
+        ImportGroup importGroup = (ImportGroup)reader.readElement(parse(xml), ImportGroup.class);
+        
+        assertEquals(false, importGroup.getCondition().isEmpty());
+        assertEquals("'$(Configuration)|$(Platform)'=='Debug|Win32'", importGroup.getCondition().toString());
+        assertEquals("PropertySheets", importGroup.getLabel());
+        assertEquals(1, importGroup.getChildren().size());
+        assertEquals(1, importGroup.getImports().size());
+    }
+    
+    @Test
+    public void testImport() throws ProjectIOException, JDOMException, IOException{
+        String xml =
+                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />";
+        
+        ProjectReader reader = new ProjectReader();
+        Import _import = (Import)reader.readElement(parse(xml), Import.class);
+        
+        assertEquals("$(VCTargetsPath)\\Microsoft.Cpp.Default.props", _import.getProject());
+    }
+    
+    @Test
+    public void testItemDefinitionGroup() throws ProjectIOException, JDOMException, IOException{
+        String xml =
+                "<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">\n" +
+                "   <ClCompile/>\n" +
+                "   <Link/>\n" +
+                "</ItemDefinitionGroup>";
+        
+        ProjectReader reader = new ProjectReader();
+        ItemDefinitionGroup itemDefinitionGroup = (ItemDefinitionGroup)reader.readElement(parse(xml), ItemDefinitionGroup.class);
+        
+        assertEquals(false, itemDefinitionGroup.getCondition().isEmpty());
+        assertEquals("'$(Configuration)|$(Platform)'=='Debug|Win32'", itemDefinitionGroup.getCondition().toString());
+        assertEquals(2, itemDefinitionGroup.getChildren().size());
+        assertEquals(2, itemDefinitionGroup.getItems().size());
+    }
 }

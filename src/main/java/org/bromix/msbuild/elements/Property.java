@@ -42,4 +42,8 @@ public class Property extends Element implements Conditionable{
     public Condition getCondition() {
         return condition;
     }
+
+    public Object getName() {
+        return this.elementName;
+    }
 }

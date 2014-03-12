@@ -93,7 +93,7 @@ public class ProjectReader {
         throw new ProjectIOException("Something went really wrong!");
     }
     
-    private Object readElement(LocatedElement element) throws ProjectIOException{
+    private org.bromix.msbuild.elements.Element readElement(LocatedElement element) throws ProjectIOException{
         Class elementClass = ReflectionHelper.findClassForElement(element.getName());
         if(elementClass==null){
             throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", element.getName(), element.getLine()));
@@ -101,7 +101,7 @@ public class ProjectReader {
         return readElement(element, elementClass);
     }
     
-    private Object readElement(LocatedElement element, Class elementClass) throws ProjectIOException{
+    public org.bromix.msbuild.elements.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
         Object elementObject;
         try {
             elementObject = elementClass.newInstance();
@@ -117,7 +117,7 @@ public class ProjectReader {
         
         readChildren(elementObject, element);
         
-        return elementObject;
+        return (org.bromix.msbuild.elements.Element)elementObject;
     }
     
     private void readElementName(Object elementObject, LocatedElement element) throws ProjectIOException{
