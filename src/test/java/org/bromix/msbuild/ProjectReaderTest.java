@@ -6,6 +6,7 @@
 
 package org.bromix.msbuild;
 
+import com.sun.org.apache.xml.internal.serializer.ToHTMLStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +88,8 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         Project project = reader.read(StringToInputStream(xml));
         
+        assertEquals(Element.Type.Project, project.getElementType());
+        assertEquals("Project", project.getElementName());
         assertEquals("Build", project.getDefaultTargets());
         assertEquals("4.0", project.getToolsVersion());
         assertEquals(1, project.getChildren().size());
@@ -103,6 +106,8 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         ItemGroup itemGroup = (ItemGroup)reader.readElement(parse(xml), ItemGroup.class);
         
+        assertEquals(Element.Type.ItemGroup, itemGroup.getElementType());
+        assertEquals("ItemGroup", itemGroup.getElementName());
         assertEquals("ProjectConfigurations", itemGroup.getLabel());
         assertEquals(2, itemGroup.getChildren().size());
         assertEquals(2, itemGroup.getItems().size());
@@ -119,6 +124,9 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         Item item = (Item)reader.readElement(parse(xml), Item.class);
         
+        assertEquals(Element.Type.Item, item.getElementType());
+        assertEquals("ProjectConfiguration", item.getElementName());
+        assertEquals("ProjectConfiguration", item.getName());
         assertEquals("Debug|Win32", item.getInclude());
         assertEquals(2, item.getChildren().size());
         assertEquals(2, item.getMetadataList().size());
@@ -136,6 +144,8 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         PropertyGroup propertyGroup = (PropertyGroup)reader.readElement(parse(xml), PropertyGroup.class);
         
+        assertEquals(Element.Type.PropertyGroup, propertyGroup.getElementType());
+        assertEquals("PropertyGroup", propertyGroup.getElementName());
         assertEquals("Globals", propertyGroup.getLabel());
         assertEquals(3, propertyGroup.getChildren().size());
         assertEquals(3, propertyGroup.getProperties().size());
@@ -149,8 +159,9 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         Property property = (Property)reader.readElement(parse(xml), Property.class);
         
-        assertEquals("{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}", property.getValue());
+        assertEquals(Element.Type.Property, property.getElementType());
         assertEquals("ProjectGuid", property.getElementName());
+        assertEquals("{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}", property.getValue());
         assertEquals("ProjectGuid", property.getName());
     }
     
@@ -164,6 +175,8 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         ImportGroup importGroup = (ImportGroup)reader.readElement(parse(xml), ImportGroup.class);
         
+        assertEquals(Element.Type.ImportGroup, importGroup.getElementType());
+        assertEquals("ImportGroup", importGroup.getElementName());
         assertEquals(false, importGroup.getCondition().isEmpty());
         assertEquals("'$(Configuration)|$(Platform)'=='Debug|Win32'", importGroup.getCondition().toString());
         assertEquals("PropertySheets", importGroup.getLabel());
@@ -179,6 +192,8 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         Import _import = (Import)reader.readElement(parse(xml), Import.class);
         
+        assertEquals(Element.Type.Import, _import.getElementType());
+        assertEquals("Import", _import.getElementName());
         assertEquals("$(VCTargetsPath)\\Microsoft.Cpp.Default.props", _import.getProject());
     }
     
@@ -193,6 +208,8 @@ public class ProjectReaderTest {
         ProjectReader reader = new ProjectReader();
         ItemDefinitionGroup itemDefinitionGroup = (ItemDefinitionGroup)reader.readElement(parse(xml), ItemDefinitionGroup.class);
         
+        assertEquals(Element.Type.ItemDefinitionGroup, itemDefinitionGroup.getElementType());
+        assertEquals("ItemDefinitionGroup", itemDefinitionGroup.getElementName());
         assertEquals(false, itemDefinitionGroup.getCondition().isEmpty());
         assertEquals("'$(Configuration)|$(Platform)'=='Debug|Win32'", itemDefinitionGroup.getCondition().toString());
         assertEquals(2, itemDefinitionGroup.getChildren().size());
