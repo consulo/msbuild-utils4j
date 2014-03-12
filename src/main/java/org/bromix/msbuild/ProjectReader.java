@@ -101,6 +101,13 @@ public class ProjectReader {
         return readElement(element, elementClass);
     }
     
+    /**
+     * Tries to read the MSBuild Element from the given xml-element.
+     * @param element xml-element.
+     * @param elementClass MSBuild Element Class.
+     * @return instance of a MSBuild Element.
+     * @throws ProjectIOException 
+     */
     public org.bromix.msbuild.elements.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
         Object elementObject;
         try {
