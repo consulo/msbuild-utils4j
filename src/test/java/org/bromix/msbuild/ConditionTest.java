@@ -8,31 +8,32 @@ package org.bromix.msbuild;
 
 import java.io.File;
 import java.net.URI;
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
- * @author Matthias Bromisch
+ * @author braincrusher
  */
-public class ConditionTest extends TestCase {
+public class ConditionTest {
     
-    public ConditionTest(String testName) {
-        super(testName);
+    public ConditionTest() {
     }
     
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUpClass() {
     }
     
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @AfterClass
+    public static void tearDownClass() {
     }
 
     /**
      * Test of evaluate method, of class Condition.
      */
+    @Test
     public void testEvaluateString() throws Exception {
         System.out.println("'|'=='Debug|Win32' (false)");
         Condition instance1 = new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'");
@@ -59,6 +60,7 @@ public class ConditionTest extends TestCase {
         assertEquals(expResult3, result3);
     }
     
+    @Test
     public void testEvaluateNumberic() throws Exception {
         System.out.println("1>2 (false)");
         Condition instance1 = new Condition("1>2");
@@ -85,6 +87,7 @@ public class ConditionTest extends TestCase {
         assertEquals(expResult4, result4);
     }
     
+    @Test
     public void testEvaluateHasTrailingSlash() throws Exception {
         System.out.println("HasTrailingSlash('stringA') (false)");
         Condition instance1 = new Condition("HasTrailingSlash('stringA')");
@@ -123,6 +126,7 @@ public class ConditionTest extends TestCase {
         assertEquals(expResult6, result6);
     }
     
+    @Test
     public void testEvaluateExists() throws Exception {
         URI fileUri = this.getClass().getResource("/vs2010/SomeStaticLib/SomeStaticLib.vcxproj").toURI();
         String file = new File(fileUri).toString();
@@ -155,6 +159,7 @@ public class ConditionTest extends TestCase {
         assertEquals(expResult4, result4);
     }
     
+    @Test
     public void testEvaluateAndOr() throws Exception {
         System.out.println("'$(Configuration)'=='Debug' AND '$(Platform)'=='Win32' (true)");
         Condition instance1 = new Condition("'$(Configuration)'=='Debug' and '$(Platform)'=='Win32'");
@@ -187,6 +192,7 @@ public class ConditionTest extends TestCase {
     /**
      * Test of isEmpty method, of class Condition.
      */
+    @Test
     public void testIsEmpty() {
         System.out.println("isEmpty (true)");
         Condition instance1 = new Condition();
@@ -204,6 +210,7 @@ public class ConditionTest extends TestCase {
     /**
      * Test of toString method, of class Condition.
      */
+    @Test
     public void testToString() {
         System.out.println("toString");
         Condition instance = new Condition("'A'=='B'");

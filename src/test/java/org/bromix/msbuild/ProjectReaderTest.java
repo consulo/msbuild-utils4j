@@ -8,48 +8,49 @@ package org.bromix.msbuild;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
 import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
-import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.Item;
 import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.ItemGroup;
 import org.bromix.msbuild.elements.ItemMetadata;
 import org.bromix.msbuild.elements.Property;
 import org.bromix.msbuild.elements.PropertyGroup;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
- * @author Matthias Bromisch
+ * @author braincrusher
  */
-public class ProjectReaderTest extends TestCase {
+public class ProjectReaderTest {
     File projectFile = null;
     
-    public ProjectReaderTest(String testName) {
-        super(testName);
-    }
-    
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+    public ProjectReaderTest() throws URISyntaxException {
         URI uri = this.getClass().getResource("/vs2010/SomeStaticLib/SomeStaticLib.vcxproj").toURI();
         //URI uri = this.getClass().getResource("/vs2010/CsStaticLib/CsStaticLib.csproj").toURI();
         projectFile = new File(uri);
     }
     
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @BeforeClass
+    public static void setUpClass() {
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
     }
 
     /**
      * Test of read method, of class ProjectReader.
      * @throws java.lang.Exception
      */
+    @Test
     public void testBasicStructureOfElements() throws Exception {
         System.out.println("read and test the basic structure");
         ProjectReader instance = new ProjectReader();
@@ -221,4 +222,5 @@ public class ProjectReaderTest extends TestCase {
         List<ItemMetadata> metadataList = item.getMetadataList();
         assertEquals(2, metadataList.size());
     }
+    
 }
