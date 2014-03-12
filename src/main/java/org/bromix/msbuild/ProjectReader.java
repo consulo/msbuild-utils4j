@@ -1,11 +1,13 @@
 package org.bromix.msbuild;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.bromix.msbuild.reflection.ElementValue;
@@ -93,6 +95,23 @@ public class ProjectReader {
         throw new ProjectIOException("Something went really wrong!");
     }
     
+    public org.bromix.msbuild.elements.Element readElement(String xml, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
+        SAXBuilder builder = new SAXBuilder();
+        builder.setJDOMFactory(new LocatedJDOMFactory());
+        
+        Document document;
+        try {
+            document = builder.build(new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8"))));
+        } catch (JDOMException ex) {
+            throw new ProjectIOException(ex);
+        } catch (IOException ex) {
+            throw new ProjectIOException(ex);
+        }
+        
+        LocatedElement element = (LocatedElement)document.getRootElement();
+        return readElement(element, elementClass);
+    }
+    
     private org.bromix.msbuild.elements.Element readElement(LocatedElement element) throws ProjectIOException{
         Class elementClass = ReflectionHelper.findClassForElement(element.getName());
         if(elementClass==null){
@@ -108,7 +127,7 @@ public class ProjectReader {
      * @return instance of a MSBuild Element.
      * @throws ProjectIOException 
      */
-    public org.bromix.msbuild.elements.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
+    private org.bromix.msbuild.elements.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
         Object elementObject;
         try {
             elementObject = elementClass.newInstance();

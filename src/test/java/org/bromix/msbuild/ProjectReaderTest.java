@@ -6,7 +6,6 @@
 
 package org.bromix.msbuild;
 
-import com.sun.org.apache.xml.internal.serializer.ToHTMLStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,23 +13,16 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.Item;
-import org.bromix.msbuild.elements.ItemDefinition;
 import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.ItemGroup;
-import org.bromix.msbuild.elements.ItemMetadata;
 import org.bromix.msbuild.elements.Property;
 import org.bromix.msbuild.elements.PropertyGroup;
-import org.jdom2.Document;
 import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.located.LocatedElement;
-import org.jdom2.located.LocatedJDOMFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,15 +57,6 @@ public class ProjectReaderTest {
         return new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8")));
     }
     
-    private org.jdom2.located.LocatedElement parse(String xml) throws JDOMException, IOException{
-        SAXBuilder builder = new SAXBuilder();
-        builder.setJDOMFactory(new LocatedJDOMFactory());
-        
-        Document document = builder.build(StringToInputStream(xml));
-        
-        return (LocatedElement)document.getRootElement();
-    }
-    
     /**
      * Test for reading a Project Element (with only one child element).
      * @throws ProjectIOException 
@@ -104,7 +87,7 @@ public class ProjectReaderTest {
                 "</ItemGroup>";
         
         ProjectReader reader = new ProjectReader();
-        ItemGroup itemGroup = (ItemGroup)reader.readElement(parse(xml), ItemGroup.class);
+        ItemGroup itemGroup = (ItemGroup)reader.readElement(xml, ItemGroup.class);
         
         assertEquals(Element.Type.ItemGroup, itemGroup.getElementType());
         assertEquals("ItemGroup", itemGroup.getElementName());
@@ -122,7 +105,7 @@ public class ProjectReaderTest {
                 "</ProjectConfiguration>";
         
         ProjectReader reader = new ProjectReader();
-        Item item = (Item)reader.readElement(parse(xml), Item.class);
+        Item item = (Item)reader.readElement(xml, Item.class);
         
         assertEquals(Element.Type.Item, item.getElementType());
         assertEquals("ProjectConfiguration", item.getElementName());
@@ -142,7 +125,7 @@ public class ProjectReaderTest {
                 "</PropertyGroup>";
         
         ProjectReader reader = new ProjectReader();
-        PropertyGroup propertyGroup = (PropertyGroup)reader.readElement(parse(xml), PropertyGroup.class);
+        PropertyGroup propertyGroup = (PropertyGroup)reader.readElement(xml, PropertyGroup.class);
         
         assertEquals(Element.Type.PropertyGroup, propertyGroup.getElementType());
         assertEquals("PropertyGroup", propertyGroup.getElementName());
@@ -157,7 +140,7 @@ public class ProjectReaderTest {
                 "<ProjectGuid>{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}</ProjectGuid>";
         
         ProjectReader reader = new ProjectReader();
-        Property property = (Property)reader.readElement(parse(xml), Property.class);
+        Property property = (Property)reader.readElement(xml, Property.class);
         
         assertEquals(Element.Type.Property, property.getElementType());
         assertEquals("ProjectGuid", property.getElementName());
@@ -173,7 +156,7 @@ public class ProjectReaderTest {
                 "</ImportGroup>";
         
         ProjectReader reader = new ProjectReader();
-        ImportGroup importGroup = (ImportGroup)reader.readElement(parse(xml), ImportGroup.class);
+        ImportGroup importGroup = (ImportGroup)reader.readElement(xml, ImportGroup.class);
         
         assertEquals(Element.Type.ImportGroup, importGroup.getElementType());
         assertEquals("ImportGroup", importGroup.getElementName());
@@ -190,7 +173,7 @@ public class ProjectReaderTest {
                 "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />";
         
         ProjectReader reader = new ProjectReader();
-        Import _import = (Import)reader.readElement(parse(xml), Import.class);
+        Import _import = (Import)reader.readElement(xml, Import.class);
         
         assertEquals(Element.Type.Import, _import.getElementType());
         assertEquals("Import", _import.getElementName());
@@ -206,7 +189,7 @@ public class ProjectReaderTest {
                 "</ItemDefinitionGroup>";
         
         ProjectReader reader = new ProjectReader();
-        ItemDefinitionGroup itemDefinitionGroup = (ItemDefinitionGroup)reader.readElement(parse(xml), ItemDefinitionGroup.class);
+        ItemDefinitionGroup itemDefinitionGroup = (ItemDefinitionGroup)reader.readElement(xml, ItemDefinitionGroup.class);
         
         assertEquals(Element.Type.ItemDefinitionGroup, itemDefinitionGroup.getElementType());
         assertEquals("ItemDefinitionGroup", itemDefinitionGroup.getElementName());
