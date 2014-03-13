@@ -15,7 +15,7 @@ import org.junit.Test;
 
 /**
  *
- * @author braincrusher
+ * @author Matthias Bromisch
  */
 public class ConditionTest {
     

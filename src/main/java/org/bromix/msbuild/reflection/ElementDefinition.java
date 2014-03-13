@@ -28,8 +28,9 @@ public @interface ElementDefinition {
          */
         VARIABLE
     };
+    
     /**
-     * The name of the element of the file.
+     * The name of the element.
      * <p>
      * If the binding is not defined the {@link ProjectReader} will create a binding
      * based on the class name.

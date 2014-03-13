@@ -16,7 +16,7 @@ public @interface ElementValue {
         /**
          * Bind field with an attribute.
          */
-        ATTRIBUTE,
+        ELEMENT_ATTRIBUTE,
         
         /**
          * Bind field with the value of an element.
@@ -38,7 +38,7 @@ public @interface ElementValue {
      * @see ValueType
      * @return 
      */
-    ValueType valueType() default ValueType.ATTRIBUTE;
+    ValueType valueType() default ValueType.ELEMENT_ATTRIBUTE;
     
     /**
      * Defines if the attribute if required.
