@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Matthias Bromisch
  */
 public class ConditionContext{
-    private final Map<String, String> map = new HashMap<String, String>();
+    private final Map<String, String> map = new HashMap<>();
     
     public void set(String name, String value){
         map.put(name, value);
@@ -32,7 +32,7 @@ public class ConditionContext{
     }
     
     public List<String> getNames(){
-        List<String> vars = new ArrayList<String>(map.keySet());
+        List<String> vars = new ArrayList<>(map.keySet());
         return Collections.unmodifiableList(vars);
     }
 }

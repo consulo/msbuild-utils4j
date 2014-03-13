@@ -130,7 +130,7 @@ public class Condition{
             jexlEngine = new JexlEngine();
             jexlEngine.setStrict(true);
             
-            Map<String, Object> functions = new HashMap<String, Object>();
+            Map<String, Object> functions = new HashMap<>();
             functions.put(null, new MSBuildFunctions());
             jexlEngine.setFunctions(functions);
         }

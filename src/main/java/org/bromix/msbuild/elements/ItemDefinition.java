@@ -42,7 +42,7 @@ public class ItemDefinition extends AbstractParentElement implements Conditionab
     }
     
     public List<ItemMetadata> getMetadataList(){
-        List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
+        List<ItemMetadata> metadataList = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.ItemMetadata){
@@ -53,6 +53,7 @@ public class ItemDefinition extends AbstractParentElement implements Conditionab
         return Collections.unmodifiableList(metadataList);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

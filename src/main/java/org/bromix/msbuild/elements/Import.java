@@ -36,6 +36,7 @@ public class Import extends Element implements Conditionable{
         return project;
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

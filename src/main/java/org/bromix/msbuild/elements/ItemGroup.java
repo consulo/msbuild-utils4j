@@ -36,7 +36,7 @@ public class ItemGroup extends AbstractParentElement implements Conditionable{
     }
     
     public List<Item> getItems(){
-        List<Item> items = new ArrayList<Item>();
+        List<Item> items = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Item){
@@ -47,6 +47,7 @@ public class ItemGroup extends AbstractParentElement implements Conditionable{
         return Collections.unmodifiableList(items);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

@@ -57,9 +57,7 @@ public class ProjectReader {
         Document document = null;
         try {
             document = builder.build(inStream);
-        } catch (JDOMException ex) {
-            throw new ProjectIOException(ex);
-        } catch (IOException ex) {
+        } catch (JDOMException | IOException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -102,9 +100,7 @@ public class ProjectReader {
         Document document;
         try {
             document = builder.build(new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8"))));
-        } catch (JDOMException ex) {
-            throw new ProjectIOException(ex);
-        } catch (IOException ex) {
+        } catch (JDOMException | IOException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -131,9 +127,7 @@ public class ProjectReader {
         Object elementObject;
         try {
             elementObject = elementClass.newInstance();
-        } catch (InstantiationException ex) {
-            throw new ProjectIOException(ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -162,9 +156,7 @@ public class ProjectReader {
 
             try {
                 field.set(elementObject, valueObject);
-            } catch (IllegalArgumentException ex) {
-                throw new ProjectIOException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             
@@ -183,7 +175,7 @@ public class ProjectReader {
             boolean isAccessible = field.isAccessible();
             field.setAccessible(true);
             
-            String value = null;
+            String value;
             if(elementValue.valueType()==ElementValue.ValueType.ELEMENT_TEXT){
                  value = element.getValue();
                  // is the attribute required?
@@ -225,9 +217,7 @@ public class ProjectReader {
 
             try {
                 field.set(elementObject, valueObject);
-            } catch (IllegalArgumentException ex) {
-                throw new ProjectIOException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             
@@ -247,9 +237,7 @@ public class ProjectReader {
             Object obj=null;
             try {
                 obj = fieldList.get(parentObject);
-            } catch (IllegalArgumentException ex) {
-                throw new ProjectIOException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             fieldList.setAccessible(isAccessible);
@@ -268,8 +256,8 @@ public class ProjectReader {
             ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
             
             // collect all strict and variable children
-            List<String> childNames = new ArrayList<String>();
-            List<Class> childClasses = new ArrayList<Class>();
+            List<String> childNames = new ArrayList<>();
+            List<Class> childClasses = new ArrayList<>();
             for(Class cls : parentDefinition.children()){
                 ElementDefinition childDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
                 if(childDefinition!=null){

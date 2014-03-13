@@ -41,6 +41,7 @@ public class OnError extends Element implements Conditionable{
         return executeTargets;
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

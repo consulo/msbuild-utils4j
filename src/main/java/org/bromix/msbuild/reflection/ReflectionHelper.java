@@ -56,7 +56,7 @@ final public class ReflectionHelper {
      * @see Field
      */
     public static List<Field> getDeclearedFields(Class cls, boolean includeSuperClass){
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
         
         while(cls!=null){
             fields.addAll(Arrays.asList(cls.getDeclaredFields()));
@@ -80,7 +80,7 @@ final public class ReflectionHelper {
      * @return list of fields with the given annotation.
      */
     public static List<Field> getDeclaredFieldsWithAnnotation(Class cls, boolean includeSuperClass, Class annotationClass){
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
         
         for(Field field : getDeclearedFields(cls, includeSuperClass)){
             if(field.isAnnotationPresent(annotationClass)){

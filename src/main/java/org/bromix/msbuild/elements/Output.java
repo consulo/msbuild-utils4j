@@ -60,6 +60,7 @@ public class Output extends Element implements Conditionable{
         return itemName;
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

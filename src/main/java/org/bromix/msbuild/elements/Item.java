@@ -57,7 +57,7 @@ public class Item extends AbstractParentElement implements Conditionable{
     }
     
     public List<ItemMetadata> getMetadataList(){
-        List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
+        List<ItemMetadata> metadataList = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.ItemMetadata){
@@ -116,6 +116,7 @@ public class Item extends AbstractParentElement implements Conditionable{
         return keepDuplicates;
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

@@ -40,7 +40,7 @@ public class Task extends AbstractParentElement implements Conditionable{
     }
     
     public List<Output> getOutputs(){
-        List<Output> outputs = new ArrayList<Output>();
+        List<Output> outputs = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Output){
@@ -51,6 +51,7 @@ public class Task extends AbstractParentElement implements Conditionable{
         return Collections.unmodifiableList(outputs);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }
