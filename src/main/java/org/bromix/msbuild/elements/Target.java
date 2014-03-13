@@ -137,6 +137,7 @@ public class Target extends AbstractParentElement implements Conditionable{
         children.add(onError);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

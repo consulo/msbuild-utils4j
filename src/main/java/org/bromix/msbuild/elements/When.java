@@ -45,6 +45,7 @@ public class When extends AbstractParentElement implements Conditionable{
         children.add(propertyGroup);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

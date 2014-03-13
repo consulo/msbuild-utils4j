@@ -14,7 +14,7 @@ import org.bromix.msbuild.reflection.ElementList;
  */
 public abstract class AbstractParentElement extends Element{
     @ElementList
-    protected List<Element> children = new ArrayList<Element>();
+    protected List<Element> children = new ArrayList<>();
     
     /**
      * Default constructor for a derived element class.

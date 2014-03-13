@@ -35,7 +35,7 @@ public class ImportGroup extends AbstractParentElement implements Conditionable{
     }
     
     public List<Import> getImports(){
-        List<Import> imports = new ArrayList<Import>();
+        List<Import> imports = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Import){
@@ -46,6 +46,7 @@ public class ImportGroup extends AbstractParentElement implements Conditionable{
         return Collections.unmodifiableList(imports);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

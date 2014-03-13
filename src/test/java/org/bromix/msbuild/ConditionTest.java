@@ -32,6 +32,7 @@ public class ConditionTest {
 
     /**
      * Test of evaluate method, of class Condition.
+     * @throws java.lang.Exception
      */
     @Test
     public void testEvaluateString() throws Exception {

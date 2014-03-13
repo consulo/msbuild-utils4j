@@ -44,6 +44,7 @@ public class TaskBody extends AbstractParentElement implements Conditionable{
         return evaluate;
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

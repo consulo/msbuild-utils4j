@@ -57,9 +57,7 @@ public class ProjectReader {
         Document document = null;
         try {
             document = builder.build(inStream);
-        } catch (JDOMException ex) {
-            throw new ProjectIOException(ex);
-        } catch (IOException ex) {
+        } catch (JDOMException | IOException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -95,6 +93,13 @@ public class ProjectReader {
         throw new ProjectIOException("Something went really wrong!");
     }
     
+    /**
+     * Reads an MSBuild Element from the given xml-string.
+     * @param xml
+     * @param elementClass expected class.
+     * @return instance of an MSBuild Element.
+     * @throws ProjectIOException 
+     */
     public org.bromix.msbuild.elements.Element readElement(String xml, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
         SAXBuilder builder = new SAXBuilder();
         builder.setJDOMFactory(new LocatedJDOMFactory());
@@ -102,9 +107,7 @@ public class ProjectReader {
         Document document;
         try {
             document = builder.build(new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8"))));
-        } catch (JDOMException ex) {
-            throw new ProjectIOException(ex);
-        } catch (IOException ex) {
+        } catch (JDOMException | IOException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -112,6 +115,13 @@ public class ProjectReader {
         return readElement(element, elementClass);
     }
     
+    /**
+     * Internal raw method to read from the given element.
+     * This methods tries to detect the correct class based on the name of the elment.
+     * @param element
+     * @return instance of an MSBuild Element.
+     * @throws ProjectIOException 
+     */
     private org.bromix.msbuild.elements.Element readElement(LocatedElement element) throws ProjectIOException{
         Class elementClass = ReflectionHelper.findClassForElement(element.getName());
         if(elementClass==null){
@@ -128,12 +138,10 @@ public class ProjectReader {
      * @throws ProjectIOException 
      */
     private org.bromix.msbuild.elements.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
-        Object elementObject;
+        org.bromix.msbuild.elements.Element elementObject;
         try {
-            elementObject = elementClass.newInstance();
-        } catch (InstantiationException ex) {
-            throw new ProjectIOException(ex);
-        } catch (IllegalAccessException ex) {
+            elementObject = (org.bromix.msbuild.elements.Element)elementClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -146,7 +154,16 @@ public class ProjectReader {
         return (org.bromix.msbuild.elements.Element)elementObject;
     }
     
-    private void readElementName(Object elementObject, LocatedElement element) throws ProjectIOException{
+    /**
+     * Internal method to read the correct name of the given element.
+     * This method tries to find the <code>Field</code> with the
+     * annotation {@link ElementName} to set the name.
+     * @param elementObject
+     * @param element
+     * @throws ProjectIOException 
+     * @see ElementName
+     */
+    private void readElementName(org.bromix.msbuild.elements.Element elementObject, LocatedElement element) throws ProjectIOException{
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementName.class);
         if(!fields.isEmpty()){
             Field field = fields.get(0);
@@ -162,9 +179,7 @@ public class ProjectReader {
 
             try {
                 field.set(elementObject, valueObject);
-            } catch (IllegalArgumentException ex) {
-                throw new ProjectIOException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             
@@ -175,7 +190,16 @@ public class ProjectReader {
         }
     }
 
-    private void readElementAttributes(Object elementObject, LocatedElement element) throws ProjectIOException {
+    /**
+     * Internal method to read the attributes of the given element.
+     * This method will only read the attributes defined by the annotation
+     * {@link ElementValue}.
+     * @param elementObject
+     * @param element
+     * @throws ProjectIOException 
+     * @see ElementValue
+     */
+    private void readElementAttributes(org.bromix.msbuild.elements.Element elementObject, LocatedElement element) throws ProjectIOException {
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementValue.class);
         for(Field field : fields){
             // enter the field :)
@@ -183,7 +207,7 @@ public class ProjectReader {
             boolean isAccessible = field.isAccessible();
             field.setAccessible(true);
             
-            String value = null;
+            String value;
             if(elementValue.valueType()==ElementValue.ValueType.ELEMENT_TEXT){
                  value = element.getValue();
                  // is the attribute required?
@@ -225,9 +249,7 @@ public class ProjectReader {
 
             try {
                 field.set(elementObject, valueObject);
-            } catch (IllegalArgumentException ex) {
-                throw new ProjectIOException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             
@@ -235,7 +257,15 @@ public class ProjectReader {
         }
     }
     
-    private List<org.bromix.msbuild.elements.Element> getChildrenList(Object parentObject) throws ProjectIOException{
+    /**
+     * Internal method to find the <code>Field</code> for the children of an
+     * element.
+     * @param parentObject
+     * @return
+     * @throws ProjectIOException 
+     * @see ElementList
+     */
+    private List<org.bromix.msbuild.elements.Element> getChildrenList(org.bromix.msbuild.elements.Element parentObject) throws ProjectIOException{
         List<org.bromix.msbuild.elements.Element> list = null;
         
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(parentObject.getClass(), true, ElementList.class);
@@ -247,9 +277,7 @@ public class ProjectReader {
             Object obj=null;
             try {
                 obj = fieldList.get(parentObject);
-            } catch (IllegalArgumentException ex) {
-                throw new ProjectIOException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             fieldList.setAccessible(isAccessible);
@@ -263,13 +291,19 @@ public class ProjectReader {
         return list;
     }
 
-    private void readChildren(Object parentObject, LocatedElement parentElement) throws ProjectIOException {
+    /**
+     * Internal method to read the children of an given element.
+     * @param parentObject
+     * @param parentElement
+     * @throws ProjectIOException 
+     */
+    private void readChildren(org.bromix.msbuild.elements.Element parentObject, LocatedElement parentElement) throws ProjectIOException {
         if(!parentElement.getChildren().isEmpty()){
             ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
             
             // collect all strict and variable children
-            List<String> childNames = new ArrayList<String>();
-            List<Class> childClasses = new ArrayList<Class>();
+            List<String> childNames = new ArrayList<>();
+            List<Class> childClasses = new ArrayList<>();
             for(Class cls : parentDefinition.children()){
                 ElementDefinition childDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
                 if(childDefinition!=null){

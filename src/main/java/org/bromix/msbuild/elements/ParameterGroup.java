@@ -21,7 +21,7 @@ public class ParameterGroup extends AbstractParentElement{
     }
     
     public List<Parameter> getParameter(){
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Parameter){

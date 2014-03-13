@@ -36,7 +36,7 @@ public class PropertyGroup extends AbstractParentElement implements Conditionabl
     }
     
     public List<Property> getProperties(){
-        List<Property> properties = new ArrayList<Property>();
+        List<Property> properties = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Property){
@@ -47,6 +47,7 @@ public class PropertyGroup extends AbstractParentElement implements Conditionabl
         return Collections.unmodifiableList(properties);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

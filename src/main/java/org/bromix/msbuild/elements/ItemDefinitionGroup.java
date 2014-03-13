@@ -35,7 +35,7 @@ public class ItemDefinitionGroup extends AbstractParentElement implements Condit
     }
     
     public List<ItemDefinition> getItems(){
-        List<ItemDefinition> items = new ArrayList<ItemDefinition>();
+        List<ItemDefinition> items = new ArrayList<>();
         
         for(Element element : children){
             if(element.getElementType()==Type.ItemDefinition){
@@ -46,6 +46,7 @@ public class ItemDefinitionGroup extends AbstractParentElement implements Condit
         return Collections.unmodifiableList(items);
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }

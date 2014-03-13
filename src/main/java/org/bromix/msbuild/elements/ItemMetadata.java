@@ -43,6 +43,7 @@ public class ItemMetadata extends Element implements Conditionable{
         return value;
     }
 
+    @Override
     public Condition getCondition() {
         return condition;
     }
