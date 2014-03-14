@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
@@ -23,15 +24,29 @@ public class Otherwise extends AbstractParentElement{
         super("Otherwise", Type.Otherwise);
     }
     
-    public void add(Choose choose){
+    public Choose addChoose(){
+        Choose choose = new Choose();
         children.add(choose);
+        return choose;
     }
     
-    public void add(ItemGroup itemGroup){
-        children.add(itemGroup);
+    public ImportGroup addImportGroup(){
+        return addImportGroup(new Condition());
     }
     
-    public void add(PropertyGroup propertyGroup){
+    public ImportGroup addImportGroup(Condition condition){
+        ImportGroup importGroup = new ImportGroup(condition);
+        children.add(importGroup);
+        return importGroup;
+    }
+    
+    public PropertyGroup addPropertyGroup(){
+        return addPropertyGroup(new Condition());
+    }
+    
+    public PropertyGroup addPropertyGroup(Condition condition){
+        PropertyGroup propertyGroup = new PropertyGroup(condition);
         children.add(propertyGroup);
+        return propertyGroup;
     }
 }

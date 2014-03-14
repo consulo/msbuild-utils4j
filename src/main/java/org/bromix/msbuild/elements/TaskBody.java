@@ -28,12 +28,20 @@ public class TaskBody extends AbstractParentElement implements Conditionable{
         this.condition = condition;
     }
     
-    public void add(ParameterGroup parameterGroup){
+    public ParameterGroup addParameterGroup(){
+        ParameterGroup parameterGroup = new ParameterGroup();
         children.add(parameterGroup);
+        return parameterGroup;
     }
     
-    public void add(TaskBody taskBody){
+    public TaskBody addTaskBody(){
+        return addTaskBody(new Condition());
+    }
+    
+    public TaskBody addTaskBody(Condition condition){
+        TaskBody taskBody = new TaskBody(condition);
         children.add(taskBody);
+        return taskBody;
     }
     
     public void setEvaluate(boolean enabled){

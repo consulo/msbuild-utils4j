@@ -35,8 +35,14 @@ public class Task extends AbstractParentElement implements Conditionable{
         this.condition = condition;
     }
     
-    public void add(Output output){
+    public Output addOutput(String taskParameter){
+        return addOutput(taskParameter, new Condition());
+    }
+    
+    public Output addOutput(String taskParameter, Condition condition){
+        Output output = new Output(taskParameter, condition);
         children.add(output);
+        return output;
     }
     
     public List<Output> getOutputs(){

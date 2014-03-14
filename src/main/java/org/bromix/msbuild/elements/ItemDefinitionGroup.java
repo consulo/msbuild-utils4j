@@ -30,8 +30,14 @@ public class ItemDefinitionGroup extends AbstractParentElement implements Condit
         this.condition = condition;
     }
     
-    public void add(ItemDefinition item){
-        children.add(item);
+    public ItemDefinition addItemDefinition(String name){
+        return addItemDefinition(name, new Condition());
+    }
+    
+    public ItemDefinition addItemDefinition(String name, Condition condition){
+        ItemDefinition itemDefinition = new ItemDefinition(name, condition);
+        children.add(itemDefinition);
+        return itemDefinition;
     }
     
     public List<ItemDefinition> getItems(){

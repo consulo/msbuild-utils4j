@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
@@ -21,11 +22,15 @@ public class Choose extends AbstractParentElement{
         super("Choose", Type.Choose);
     }
     
-    public void add(Otherwise otherwise){
+    public Otherwise addOtherwise(){
+        Otherwise otherwise = new Otherwise();
         children.add(otherwise);
+        return otherwise;
     }
     
-    public void add(When when){
+    public When addWhen(Condition condition){
+        When when = new When(condition);
         children.add(when);
+        return when;
     }
 }

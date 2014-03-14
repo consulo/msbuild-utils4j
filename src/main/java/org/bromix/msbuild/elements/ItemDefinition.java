@@ -37,8 +37,14 @@ public class ItemDefinition extends AbstractParentElement implements Conditionab
         this.condition = condition;
     }
     
-    public void add(ItemMetadata metadata){
-        children.add(metadata);
+    public ItemMetadata addMetadata(String name, String value){
+        return addMetadata(name, value, new Condition());
+    }
+    
+    public ItemMetadata addMetadata(String name, String value, Condition condition){
+        ItemMetadata itemMetadata = new ItemMetadata(name, value, condition);
+        children.add(itemMetadata);
+        return itemMetadata;
     }
     
     public List<ItemMetadata> getMetadataList(){

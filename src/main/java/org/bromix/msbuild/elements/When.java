@@ -33,16 +33,30 @@ public class When extends AbstractParentElement implements Conditionable{
         this.condition = condition;
     }
     
-    public void add(Choose choose){
+    public Choose addChoose(){
+        Choose choose = new Choose();
         children.add(choose);
+        return choose;
     }
     
-    public void add(ItemGroup itemGroup){
+    public ItemGroup addItemGroup(){
+        return addItemGroup(new Condition());
+    }
+    
+    public ItemGroup addItemGroup(Condition condition){
+        ItemGroup itemGroup = new ItemGroup(condition);
         children.add(itemGroup);
+        return itemGroup;
     }
     
-    public void add(PropertyGroup propertyGroup){
+    public PropertyGroup addPropertyGroup(){
+        return addPropertyGroup(new Condition());
+    }
+    
+    public PropertyGroup addPropertyGroup(Condition condition){
+        PropertyGroup propertyGroup = new PropertyGroup(condition);
         children.add(propertyGroup);
+        return propertyGroup;
     }
 
     @Override

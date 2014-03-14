@@ -31,8 +31,14 @@ public class PropertyGroup extends AbstractParentElement implements Conditionabl
         this.condition = condition;
     }
     
-    public void add(Property property){
+    public Property addProperty(String name, String value){
+        return addProperty(name, value, new Condition());
+    }
+    
+    public Property addProperty(String name, String value, Condition condition){
+        Property property = new Property(name, value, condition);
         children.add(property);
+        return property;
     }
     
     public List<Property> getProperties(){

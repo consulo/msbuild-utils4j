@@ -30,8 +30,14 @@ public class ImportGroup extends AbstractParentElement implements Conditionable{
         this.condition = condition;
     }
     
-    public void add(Import _import){
+    public Import addImport(String project){
+        return addImport(project, new Condition());
+    }
+    
+    public Import addImport(String project, Condition condition){
+        Import _import = new Import(project, condition);
         children.add(_import);
+        return _import;
     }
     
     public List<Import> getImports(){

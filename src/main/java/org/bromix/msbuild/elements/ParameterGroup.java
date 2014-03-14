@@ -20,6 +20,12 @@ public class ParameterGroup extends AbstractParentElement{
         super("ParameterGroup", Type.ParameterGroup);
     }
     
+    public Parameter addParameter(String name){
+        Parameter parameter = new Parameter(name);
+        children.add(parameter);
+        return parameter;
+    }
+    
     public List<Parameter> getParameter(){
         List<Parameter> parameters = new ArrayList<>();
         
@@ -30,9 +36,5 @@ public class ParameterGroup extends AbstractParentElement{
         }
         
         return Collections.unmodifiableList(parameters);
-    }
-    
-    public void add(Parameter parameter){
-        children.add(parameter);
     }
 }

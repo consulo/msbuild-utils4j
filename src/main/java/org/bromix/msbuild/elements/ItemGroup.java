@@ -31,8 +31,14 @@ public class ItemGroup extends AbstractParentElement implements Conditionable{
         this.condition = condition;
     }
     
-    public void add(Item item){
+    public Item addItem(String name, String value){
+        return addItem(name, value, new Condition());
+    }
+    
+    public Item addItem(String name, String value, Condition condition){
+        Item item = new Item(name, name, condition);
         children.add(item);
+        return item;
     }
     
     public List<Item> getItems(){

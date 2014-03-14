@@ -8,9 +8,13 @@ package org.bromix.msbuild;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import static junit.framework.Assert.assertEquals;
+import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.Item;
+import org.bromix.msbuild.elements.ItemDefinition;
+import org.bromix.msbuild.elements.ItemDefinitionGroup;
 import org.bromix.msbuild.elements.ItemGroup;
-import org.bromix.msbuild.elements.ItemMetadata;
+import org.bromix.msbuild.elements.PropertyGroup;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,13 +24,23 @@ import org.junit.Test;
  * @author Matthias Bromisch
  */
 public class ProjectWriterTest {
-    
+    /**
+     * Dummy class to present the xml output.
+     */
     public class XmlOutputStream extends OutputStream{
         private String xml = "";
         
         @Override
         public void write(int b) throws IOException {    
             xml+=Character.toString((char)b);
+        }
+        
+        /**
+         * Returns the xml as string.
+         * @return xml content as string.
+         */
+        public String getXml(){
+            return xml;
         }
     };
     
@@ -42,21 +56,42 @@ public class ProjectWriterTest {
     }
     
     @Test
-    public void testWrite() throws ProjectIOException{
+    public void testProject() throws ProjectIOException{
         Project project = new Project();
         project.setToolsVersion("4.0");
         project.setDefaultTargets("Build");
         
-        ItemGroup itemGroup = new ItemGroup();
+        ItemGroup itemGroup = project.addItemGroup();
         itemGroup.setLabel("ProjectConfigurations");
-        project.add(itemGroup);
         
-        Item item = new Item("ProjectConfiguration", "Debug|Win32", new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'"));
-        itemGroup.add(item);
+        Item item = itemGroup.addItem("ProjectConfiguration", "Debug|Win32", new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'"));
+        
+        item.addMetadata("Configuration", "Debug");
+        item.addMetadata("Platform", "Win32");
+        
+        PropertyGroup propertyGroup = project.addPropertyGroup();
+        propertyGroup.setLabel("Globals");
+        propertyGroup.addProperty("ProjectGuid", "{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}");
+        
+        project.addImport("$(VCTargetsPath)\\Microsoft.Cpp.Default.props");
+        
+        propertyGroup = project.addPropertyGroup(new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'"));
+        propertyGroup.setLabel("Configuration");
+        propertyGroup.addProperty("ConfigurationType", "StaticLibrary");
+        
+        ImportGroup importGroup = project.addImportGroup();
+        importGroup.addImport("$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props");
+        
+        ItemDefinitionGroup itemDefinitionGroup = project.addItemDefinitionGroup(new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'"));
+        ItemDefinition itemDefinition = itemDefinitionGroup.addItemDefinition("ClCompile");
+        itemDefinition.addMetadata("WarningLevel", "Level3");
         
         ProjectWriter writer = new ProjectWriter();
-        OutputStream stream = new XmlOutputStream();
+        XmlOutputStream stream = new XmlOutputStream();
         writer.write(project, stream);
-        int x=0;
+        
+        String xml = stream.getXml();
+        
+        assertEquals(false, xml.isEmpty());
     }
 }

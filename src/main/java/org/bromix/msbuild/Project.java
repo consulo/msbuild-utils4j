@@ -89,39 +89,85 @@ public class Project extends AbstractParentElement{
         return treatAsLocalProperty;
     }
     
-    public void add(Choose choose){
-        children.add(choose);
+    public ItemGroup addItemGroup(){
+        return addItemGroup(new Condition());
     }
     
-    public void add(Import _import){
-        children.add(_import);
-    }
-    
-    public void add(ImportGroup importGroup){
-        children.add(importGroup);
-    }
-    
-    public void add(ItemGroup itemGroup){
+    public ItemGroup addItemGroup(Condition condition){
+        ItemGroup itemGroup = new ItemGroup(condition);
         children.add(itemGroup);
+        return itemGroup;
     }
     
-    public void add(ItemDefinitionGroup itemDefinitionGroup){
+    public Choose addChoose(){
+        Choose choose = new Choose();
+        children.add(choose);
+        return choose;
+    }
+    
+    public Import addImport(String project){
+        return addImport(project, new Condition());
+    }
+    
+    public Import addImport(String project, Condition condition){
+        Import _import = new Import(project, condition);
+        children.add(_import);
+        return _import;
+    }
+    
+    public ImportGroup addImportGroup(){
+        return addImportGroup(new Condition());
+    }
+    
+    public ImportGroup addImportGroup(Condition condition){
+        ImportGroup importGroup = new ImportGroup(condition);
+        children.add(importGroup);
+        return importGroup;
+    }
+    
+    public ItemDefinitionGroup addItemDefinitionGroup(){
+        return addItemDefinitionGroup(new Condition());
+    }
+    
+    public ItemDefinitionGroup addItemDefinitionGroup(Condition condition){
+        ItemDefinitionGroup itemDefinitionGroup = new ItemDefinitionGroup(condition);
         children.add(itemDefinitionGroup);
+        return itemDefinitionGroup;
     }
     
-    public void add(ProjectExtensions projectExtensions){
+    public ProjectExtensions addProjectExtensions(){
+        ProjectExtensions projectExtensions = new ProjectExtensions();
         children.add(projectExtensions);
+        return projectExtensions;
     }
     
-    public void add(PropertyGroup propertyGroup){
+    public PropertyGroup addPropertyGroup(){
+        return addPropertyGroup(new Condition());
+    }
+    
+    public PropertyGroup addPropertyGroup(Condition condition){
+        PropertyGroup propertyGroup = new PropertyGroup(condition);
         children.add(propertyGroup);
+        return propertyGroup;
     }
     
-    public void add(Target target){
+    public Target addTarget(String name){
+        return addTarget(name, new Condition());
+    }
+    
+    public Target addTarget(String name, Condition condition){
+        Target target = new Target(name, condition);
         children.add(target);
+        return target;
     }
     
-    public void add(UsingTask usingTask){
+    public UsingTask addUsingTask(String taskName){
+        return addUsingTask(taskName, new Condition());
+    }
+    
+    public UsingTask addUsingTask(String taskName, Condition condition){
+        UsingTask usingTask = new UsingTask(taskName, condition);
         children.add(usingTask);
+        return usingTask;
     }
 }
