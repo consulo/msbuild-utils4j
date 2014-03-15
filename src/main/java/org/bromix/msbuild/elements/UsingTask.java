@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.ParentElement;
 import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
@@ -18,7 +19,7 @@ import org.bromix.msbuild.reflection.ElementValue;
             TaskBody.class
         }
 )
-public class UsingTask extends AbstractParentElement implements Conditionable{
+public class UsingTask extends ParentElement implements Conditionable{
     @ElementValue
     private Condition condition = new Condition();
     @ElementValue

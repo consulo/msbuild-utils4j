@@ -46,16 +46,19 @@ public class ProjectWriter {
         }
     }
 
-    private Element createXmlElement(org.bromix.msbuild.elements.Element msbuildElement, Namespace namespace) throws ProjectIOException {
+    private Element createXmlElement(org.bromix.msbuild.Element msbuildElement, Namespace namespace) throws ProjectIOException {
         Element xmlElement = new Element(msbuildElement.getElementName(), namespace);
         
         writeXmlElementAttributes(xmlElement, msbuildElement);
-        writeChildren(xmlElement, msbuildElement, namespace);
+        
+        if(msbuildElement instanceof ParentElement){
+            writeChildren(xmlElement, (ParentElement)msbuildElement, namespace);
+        }
         
         return xmlElement;
     }
 
-    private void writeXmlElementAttributes(Element xmlElement, org.bromix.msbuild.elements.Element msbuildElement) throws ProjectIOException {
+    private void writeXmlElementAttributes(Element xmlElement, org.bromix.msbuild.Element msbuildElement) throws ProjectIOException {
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(msbuildElement.getClass(), true, ElementValue.class);
         for(Field field : fields){
             ElementValue elementValue = (ElementValue)field.getAnnotation(ElementValue.class);
@@ -110,26 +113,10 @@ public class ProjectWriter {
         }
     }
 
-    private void writeChildren(Element xmlElement, org.bromix.msbuild.elements.Element msbuildElement, Namespace namespace) throws ProjectIOException {
-        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(msbuildElement.getClass(), true, ElementList.class);
-        if(!fields.isEmpty()){
-            Field fieldList = fields.get(0);
-            boolean isAccessible = fieldList.isAccessible();
-            fieldList.setAccessible(true);
-            
-            try {
-                Object obj = fieldList.get(msbuildElement);
-                List<org.bromix.msbuild.elements.Element> children = (List<org.bromix.msbuild.elements.Element>)obj;
-                
-                for(org.bromix.msbuild.elements.Element element : children){
-                    Element child = createXmlElement(element, namespace);
-                    xmlElement.addContent(child);
-                }
-                
-            } catch (    IllegalArgumentException | IllegalAccessException ex) {
-                throw new ProjectIOException(ex);
-            }
-            fieldList.setAccessible(isAccessible);
+    private void writeChildren(Element xmlElement, org.bromix.msbuild.ParentElement msbuildElement, Namespace namespace) throws ProjectIOException {
+        for(org.bromix.msbuild.Element element : msbuildElement.getChildren()){
+            Element child = createXmlElement(element, namespace);
+            xmlElement.addContent(child);
         }
     }
 }

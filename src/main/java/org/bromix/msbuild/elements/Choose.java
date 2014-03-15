@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.ParentElement;
 import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
@@ -17,7 +18,7 @@ import org.bromix.msbuild.reflection.ElementDefinition;
             When.class
         }
 )
-public class Choose extends AbstractParentElement{
+public class Choose extends ParentElement{
     public Choose(){
         super("Choose", Type.Choose);
     }

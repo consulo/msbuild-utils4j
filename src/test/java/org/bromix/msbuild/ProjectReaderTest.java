@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import static junit.framework.Assert.assertEquals;
-import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.Item;

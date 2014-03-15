@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.ParentElement;
 import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
@@ -19,7 +20,7 @@ import org.bromix.msbuild.reflection.ElementDefinition;
             PropertyGroup.class
         }
 )
-public class Otherwise extends AbstractParentElement{
+public class Otherwise extends ParentElement{
     public Otherwise(){
         super("Otherwise", Type.Otherwise);
     }

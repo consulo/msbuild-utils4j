@@ -1,5 +1,7 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.ParentElement;
+import org.bromix.msbuild.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +20,7 @@ import org.bromix.msbuild.reflection.ElementValue;
         nameMatching = NameMatching.VARIABLE,
         children = {Output.class}
 )
-public class Task extends AbstractParentElement implements Conditionable{
+public class Task extends ParentElement implements Conditionable{
     @ElementValue
     private Condition condition = new Condition();
     

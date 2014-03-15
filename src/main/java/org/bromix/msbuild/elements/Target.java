@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.ParentElement;
 import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
@@ -22,7 +23,7 @@ import org.bromix.msbuild.reflection.ElementValue;
             OnError.class
         }
 )
-public class Target extends AbstractParentElement implements Conditionable{
+public class Target extends ParentElement implements Conditionable{
     @ElementValue
     private Condition condition = new Condition();
     @ElementValue( required =  true )

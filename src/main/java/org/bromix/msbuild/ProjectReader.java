@@ -100,7 +100,7 @@ public class ProjectReader {
      * @return instance of an MSBuild Element.
      * @throws ProjectIOException 
      */
-    public org.bromix.msbuild.elements.Element readElement(String xml, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
+    public org.bromix.msbuild.Element readElement(String xml, Class<? extends org.bromix.msbuild.Element> elementClass) throws ProjectIOException{
         SAXBuilder builder = new SAXBuilder();
         builder.setJDOMFactory(new LocatedJDOMFactory());
         
@@ -122,7 +122,7 @@ public class ProjectReader {
      * @return instance of an MSBuild Element.
      * @throws ProjectIOException 
      */
-    private org.bromix.msbuild.elements.Element readElement(LocatedElement element) throws ProjectIOException{
+    private org.bromix.msbuild.Element readElement(LocatedElement element) throws ProjectIOException{
         Class elementClass = ReflectionHelper.findClassForElement(element.getName());
         if(elementClass==null){
             throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", element.getName(), element.getLine()));
@@ -137,10 +137,10 @@ public class ProjectReader {
      * @return instance of a MSBuild Element.
      * @throws ProjectIOException 
      */
-    private org.bromix.msbuild.elements.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.elements.Element> elementClass) throws ProjectIOException{
-        org.bromix.msbuild.elements.Element elementObject;
+    private org.bromix.msbuild.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.Element> elementClass) throws ProjectIOException{
+        org.bromix.msbuild.Element elementObject;
         try {
-            elementObject = (org.bromix.msbuild.elements.Element)elementClass.newInstance();
+            elementObject = (org.bromix.msbuild.Element)elementClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new ProjectIOException(ex);
         }
@@ -151,7 +151,7 @@ public class ProjectReader {
         
         readChildren(elementObject, element);
         
-        return (org.bromix.msbuild.elements.Element)elementObject;
+        return (org.bromix.msbuild.Element)elementObject;
     }
     
     /**
@@ -163,7 +163,7 @@ public class ProjectReader {
      * @throws ProjectIOException 
      * @see ElementName
      */
-    private void readElementName(org.bromix.msbuild.elements.Element elementObject, LocatedElement element) throws ProjectIOException{
+    private void readElementName(org.bromix.msbuild.Element elementObject, LocatedElement element) throws ProjectIOException{
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementName.class);
         if(!fields.isEmpty()){
             Field field = fields.get(0);
@@ -199,7 +199,7 @@ public class ProjectReader {
      * @throws ProjectIOException 
      * @see ElementValue
      */
-    private void readElementAttributes(org.bromix.msbuild.elements.Element elementObject, LocatedElement element) throws ProjectIOException {
+    private void readElementAttributes(org.bromix.msbuild.Element elementObject, LocatedElement element) throws ProjectIOException {
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementValue.class);
         for(Field field : fields){
             // enter the field :)
@@ -265,8 +265,8 @@ public class ProjectReader {
      * @throws ProjectIOException 
      * @see ElementList
      */
-    private List<org.bromix.msbuild.elements.Element> getChildrenList(org.bromix.msbuild.elements.Element parentObject) throws ProjectIOException{
-        List<org.bromix.msbuild.elements.Element> list = null;
+    private List<org.bromix.msbuild.Element> getChildrenList(org.bromix.msbuild.Element parentObject) throws ProjectIOException{
+        List<org.bromix.msbuild.Element> list = null;
         
         List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(parentObject.getClass(), true, ElementList.class);
         if(!fields.isEmpty()){
@@ -281,7 +281,7 @@ public class ProjectReader {
                 throw new ProjectIOException(ex);
             }
             fieldList.setAccessible(isAccessible);
-            list = (List<org.bromix.msbuild.elements.Element>)obj;
+            list = (List<org.bromix.msbuild.Element>)obj;
         }
         
         if(list==null){
@@ -297,7 +297,7 @@ public class ProjectReader {
      * @param parentElement
      * @throws ProjectIOException 
      */
-    private void readChildren(org.bromix.msbuild.elements.Element parentObject, LocatedElement parentElement) throws ProjectIOException {
+    private void readChildren(org.bromix.msbuild.Element parentObject, LocatedElement parentElement) throws ProjectIOException {
         if(!parentElement.getChildren().isEmpty()){
             ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
             
@@ -321,7 +321,7 @@ public class ProjectReader {
                 }
             }
             
-            List<org.bromix.msbuild.elements.Element> childrenList = getChildrenList(parentObject);
+            List<org.bromix.msbuild.Element> childrenList = getChildrenList(parentObject);
             
             // try to read the children
             for(Element _element : parentElement.getChildren()){
@@ -344,7 +344,7 @@ public class ProjectReader {
                 }
                 
                 if(childObject!=null){
-                    childrenList.add((org.bromix.msbuild.elements.Element)childObject);
+                    childrenList.add((org.bromix.msbuild.Element)childObject);
                 }
                 else{
                     throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));

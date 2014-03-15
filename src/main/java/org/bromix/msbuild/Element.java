@@ -1,4 +1,4 @@
-package org.bromix.msbuild.elements;
+package org.bromix.msbuild;
 
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementName;

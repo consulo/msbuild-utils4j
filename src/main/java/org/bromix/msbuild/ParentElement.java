@@ -1,5 +1,6 @@
-package org.bromix.msbuild.elements;
+package org.bromix.msbuild;
 
+import org.bromix.msbuild.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,7 @@ import org.bromix.msbuild.reflection.ElementList;
  * @see Element
  * @author Matthias Bromisch
  */
-public abstract class AbstractParentElement extends Element{
+public abstract class ParentElement extends Element{
     @ElementList
     protected List<Element> children = new ArrayList<>();
     
@@ -21,13 +22,12 @@ public abstract class AbstractParentElement extends Element{
      * @param elementName internal name of the element.
      * @param elementType internal type of the element.
      */
-    protected AbstractParentElement(String elementName, Element.Type elementType){
+    protected ParentElement(String elementName, Element.Type elementType){
         super(elementName, elementType);
     }
     
     /**
      * Returns a list of all children.
-     * @remark the list unmodifiable
      * @return list of all children.
      * @see Element
      */

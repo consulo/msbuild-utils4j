@@ -1,8 +1,6 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.elements.AbstractParentElement;
 import org.bromix.msbuild.elements.Choose;
-import org.bromix.msbuild.elements.Element;
 import org.bromix.msbuild.elements.Import;
 import org.bromix.msbuild.elements.ImportGroup;
 import org.bromix.msbuild.elements.ItemDefinitionGroup;
@@ -43,7 +41,7 @@ import org.bromix.msbuild.reflection.ElementDefinition;
             UsingTask.class
         }
 )
-public class Project extends AbstractParentElement{
+public class Project extends ParentElement{
     @ElementValue
     private String defaultTargets = ""; // optional
     @ElementValue

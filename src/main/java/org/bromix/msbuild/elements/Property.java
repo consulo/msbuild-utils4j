@@ -1,5 +1,6 @@
 package org.bromix.msbuild.elements;
 
+import org.bromix.msbuild.Element;
 import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
