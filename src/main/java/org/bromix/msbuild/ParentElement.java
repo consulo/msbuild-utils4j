@@ -1,10 +1,9 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.bromix.msbuild.reflection.ElementList;
+import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Derived abstract class of {@link Element}
@@ -14,7 +13,6 @@ import org.bromix.msbuild.reflection.ElementList;
  * @author Matthias Bromisch
  */
 public abstract class ParentElement extends Element{
-    @ElementList
     protected List<Element> children = new ArrayList<>();
     
     /**
@@ -24,6 +22,42 @@ public abstract class ParentElement extends Element{
      */
     protected ParentElement(String elementName, Element.Type elementType){
         super(elementName, elementType);
+    }
+    
+    /**
+     * Will add an <code>Element</code> to this <code>Element</code>.
+     * This method validates each <code>Element</code> based on the <code>ElementDefinition</code>
+     * annotation.
+     * @param element <code>Element</code> to add.
+     * @see ElementDefinition
+     * @throws IllegalArgumentException if the implementation of the <code>Element</code> is not supported.
+     * @throws RuntimeException if the <code>ElementDefinition</code> is missing.
+     */
+    public void addChild(Element element){
+        /*
+        Get the annotation and validate the given element against each supported
+        child class.
+        */
+        ElementDefinition elementDefinition = this.getClass().getAnnotation(ElementDefinition.class);
+        if(elementDefinition!=null){
+            boolean isOk = false;
+            for(Class cls : elementDefinition.children()){
+                if(element.getClass().isAssignableFrom(cls)){
+                    isOk = true;
+                    break;
+                }
+            }
+            
+            if(!isOk){
+                throw new IllegalArgumentException(String.format("Child element of class '%s' not supported for elemnt '%s'", element.getClass().getSimpleName(), this.getClass().getSimpleName()));
+            }
+        }
+        else{
+            // we need the annotation to validate the class of the children.
+            throw new RuntimeException(String.format("Missing annotation '%s' for class '%s'", ElementDefinition.class.getSimpleName(), this.getClass().getSimpleName()));
+        }
+        
+        children.add(element);
     }
     
     /**

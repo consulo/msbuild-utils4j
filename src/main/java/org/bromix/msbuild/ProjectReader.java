@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
-import org.bromix.msbuild.reflection.ElementList;
 import org.bromix.msbuild.reflection.ElementName;
 import org.bromix.msbuild.reflection.ReflectionHelper;
 import org.jdom2.Document;
@@ -148,8 +147,10 @@ public class ProjectReader {
         readElementName(elementObject, element);
         
         readElementAttributes(elementObject, element);
-        
-        readChildren(elementObject, element);
+
+        if(elementObject instanceof ParentElement){
+            readChildren((ParentElement)elementObject, element);
+        }
         
         return (org.bromix.msbuild.Element)elementObject;
     }
@@ -256,40 +257,6 @@ public class ProjectReader {
             field.setAccessible(isAccessible);
         }
     }
-    
-    /**
-     * Internal method to find the <code>Field</code> for the children of an
-     * element.
-     * @param parentObject
-     * @return
-     * @throws ProjectIOException 
-     * @see ElementList
-     */
-    private List<org.bromix.msbuild.Element> getChildrenList(org.bromix.msbuild.Element parentObject) throws ProjectIOException{
-        List<org.bromix.msbuild.Element> list = null;
-        
-        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(parentObject.getClass(), true, ElementList.class);
-        if(!fields.isEmpty()){
-            Field fieldList = fields.get(0);
-            boolean isAccessible = fieldList.isAccessible();
-            fieldList.setAccessible(true);
-            
-            Object obj=null;
-            try {
-                obj = fieldList.get(parentObject);
-            } catch (    IllegalArgumentException | IllegalAccessException ex) {
-                throw new ProjectIOException(ex);
-            }
-            fieldList.setAccessible(isAccessible);
-            list = (List<org.bromix.msbuild.Element>)obj;
-        }
-        
-        if(list==null){
-            throw new ProjectIOException(String.format("Missing '%s' annotation in '%s'", ElementList.class.getSimpleName(), parentObject.getClass().getSimpleName()));
-        }
-        
-        return list;
-    }
 
     /**
      * Internal method to read the children of an given element.
@@ -297,7 +264,7 @@ public class ProjectReader {
      * @param parentElement
      * @throws ProjectIOException 
      */
-    private void readChildren(org.bromix.msbuild.Element parentObject, LocatedElement parentElement) throws ProjectIOException {
+    private void readChildren(org.bromix.msbuild.ParentElement parentObject, LocatedElement parentElement) throws ProjectIOException {
         if(!parentElement.getChildren().isEmpty()){
             ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
             
@@ -321,12 +288,10 @@ public class ProjectReader {
                 }
             }
             
-            List<org.bromix.msbuild.Element> childrenList = getChildrenList(parentObject);
-            
             // try to read the children
             for(Element _element : parentElement.getChildren()){
                 LocatedElement childElement = (LocatedElement)_element;
-                Object childObject = null;
+                org.bromix.msbuild.Element childObject = null;
                 
                 if(!childNames.isEmpty() && childClasses.isEmpty() && childNames.indexOf(childElement.getName())!=-1){
                     Class childClass = ReflectionHelper.findClassForElement(childElement.getName());
@@ -344,7 +309,7 @@ public class ProjectReader {
                 }
                 
                 if(childObject!=null){
-                    childrenList.add((org.bromix.msbuild.Element)childObject);
+                    parentObject.addChild(childObject);
                 }
                 else{
                     throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));

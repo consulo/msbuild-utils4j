@@ -94,4 +94,13 @@ public class ProjectWriterTest {
         
         assertEquals(false, xml.isEmpty());
     }
+    
+    @Test
+    public void testIllegalChildElement(){
+        Project project = new Project();
+        project.setToolsVersion("4.0");
+        project.setDefaultTargets("Build");
+        
+        project.addChild(new Item());
+    }
 }

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import org.bromix.msbuild.reflection.ElementList;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ReflectionHelper;
 import org.jdom2.Document;
