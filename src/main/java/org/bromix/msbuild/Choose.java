@@ -1,7 +1,5 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.ParentElement;
-import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**

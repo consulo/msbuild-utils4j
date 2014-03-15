@@ -1,7 +1,5 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.Condition;
-
 /**
  * Interface to describe an element conditionable.
  * <p>

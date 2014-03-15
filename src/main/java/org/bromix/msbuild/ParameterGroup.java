@@ -1,7 +1,5 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.ParentElement;
-import org.bromix.msbuild.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
