@@ -25,36 +25,36 @@ import org.jdom2.located.LocatedJDOMFactory;
  *
  * @author Matthias Bromisch
  */
-public class ProjectReader {
+public class MSBuildReader {
     /**
      * Reads the project from the given file.
-     * @param file
+     * @param projectFilename
      * @return instance of the project
      * @throws ProjectIOException 
      */
-    public Project read(File file) throws ProjectIOException{
+    public Project readProject(File projectFilename) throws ProjectIOException{
         InputStream inStream = null;
         try {
-            inStream = new FileInputStream(file);
+            inStream = new FileInputStream(projectFilename);
         } catch (FileNotFoundException ex) {
             throw new ProjectIOException(ex);
         }
         
-        return read(inStream);
+        return readProject(inStream);
     }
     
     /**
      * Reads the project from the given stream.
-     * @param inStream
+     * @param inputStream
      * @return instance of the project.
      * @throws ProjectIOException 
      */
-    public Project read(InputStream inStream) throws ProjectIOException{
-        SAXBuilder builder = new SAXBuilder();
-        builder.setJDOMFactory(new LocatedJDOMFactory());
+    public Project readProject(InputStream inputStream) throws ProjectIOException{
+        SAXBuilder saxBuilder = new SAXBuilder();
+        saxBuilder.setJDOMFactory(new LocatedJDOMFactory());
         Document document = null;
         try {
-            document = builder.build(inStream);
+            document = saxBuilder.build(inputStream);
         } catch (JDOMException | IOException ex) {
             throw new ProjectIOException(ex);
         }
@@ -83,9 +83,9 @@ public class ProjectReader {
             throw new ProjectIOException(String.format("'Project' expected at line '%d'", root.getLine()));
         }
         
-        Object obj = readElement(root);
-        if(obj.getClass().isAssignableFrom(Project.class)){
-            return (Project)obj;
+        org.bromix.msbuild.Element msBuildElement = readElement(root, Project.class);
+        if(msBuildElement.getClass().isAssignableFrom(Project.class)){
+            return (Project)msBuildElement;
         }
         
         throw new ProjectIOException("Something went really wrong!");
@@ -110,21 +110,6 @@ public class ProjectReader {
         }
         
         LocatedElement element = (LocatedElement)document.getRootElement();
-        return readElement(element, elementClass);
-    }
-    
-    /**
-     * Internal raw method to read from the given element.
-     * This methods tries to detect the correct class based on the name of the elment.
-     * @param element
-     * @return instance of an MSBuild Element.
-     * @throws ProjectIOException 
-     */
-    private org.bromix.msbuild.Element readElement(LocatedElement element) throws ProjectIOException{
-        Class elementClass = ReflectionHelper.findClassForElement(element.getName());
-        if(elementClass==null){
-            throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", element.getName(), element.getLine()));
-        }
         return readElement(element, elementClass);
     }
     
@@ -158,13 +143,13 @@ public class ProjectReader {
      * Internal method to read the attributes of the given element.
      * This method will only read the attributes defined by the annotation
      * {@link ElementValue}.
-     * @param elementObject
-     * @param element
+     * @param msBuildElement
+     * @param xmlElement
      * @throws ProjectIOException 
      * @see ElementValue
      */
-    private void readElementAttributes(org.bromix.msbuild.Element elementObject, LocatedElement element) throws ProjectIOException {
-        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementValue.class);
+    private void readElementAttributes(org.bromix.msbuild.Element msBuildElement, LocatedElement xmlElement) throws ProjectIOException {
+        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(msBuildElement.getClass(), true, ElementValue.class);
         for(Field field : fields){
             // enter the field :)
             ElementValue elementValue = (ElementValue)field.getAnnotation(ElementValue.class);
@@ -173,10 +158,10 @@ public class ProjectReader {
             
             String value;
             if(elementValue.valueType()==ElementValue.ValueType.ELEMENT_TEXT){
-                 value = element.getValue();
+                 value = xmlElement.getValue();
                  // is the attribute required?
                 if(elementValue.required() && value.isEmpty()){
-                    throw new ProjectIOException(String.format("Missing value for element '%s' at line '%d'", element.getName(), element.getLine()));
+                    throw new ProjectIOException(String.format("Missing value for element '%s' at line '%d'", xmlElement.getName(), xmlElement.getLine()));
                 }
             }
             else{
@@ -188,11 +173,11 @@ public class ProjectReader {
                 if(elementValue.bind()!=null && !elementValue.bind().isEmpty()){
                     attributeName = elementValue.bind();
                 }
-                value = element.getAttributeValue(attributeName, "");
+                value = xmlElement.getAttributeValue(attributeName, "");
                 
                 // is the attribute required?
                 if(elementValue.required() && value.isEmpty()){
-                    throw new ProjectIOException(String.format("Missing value '%s' for element '%s' at line '%d'", attributeName, element.getName(), element.getLine()));
+                    throw new ProjectIOException(String.format("Missing value '%s' for element '%s' at line '%d'", attributeName, xmlElement.getName(), xmlElement.getLine()));
                 }
             }
 
@@ -212,7 +197,7 @@ public class ProjectReader {
             }
 
             try {
-                field.set(elementObject, valueObject);
+                field.set(msBuildElement, valueObject);
             } catch (    IllegalArgumentException | IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
@@ -223,13 +208,13 @@ public class ProjectReader {
 
     /**
      * Internal method to read the children of an given element.
-     * @param parentObject
-     * @param parentElement
+     * @param msBuildElement
+     * @param xmlElement
      * @throws ProjectIOException 
      */
-    private void readChildren(org.bromix.msbuild.ParentElement parentObject, LocatedElement parentElement) throws ProjectIOException {
-        if(!parentElement.getChildren().isEmpty()){
-            ElementDefinition parentDefinition = (ElementDefinition)parentObject.getClass().getAnnotation(ElementDefinition.class);
+    private void readChildren(org.bromix.msbuild.ParentElement msBuildElement, LocatedElement xmlElement) throws ProjectIOException {
+        if(!xmlElement.getChildren().isEmpty()){
+            ElementDefinition parentDefinition = (ElementDefinition)msBuildElement.getClass().getAnnotation(ElementDefinition.class);
             
             // collect all strict and variable children
             List<String> childNames = new ArrayList<>();
@@ -252,7 +237,7 @@ public class ProjectReader {
             }
             
             // try to read the children
-            for(Element _element : parentElement.getChildren()){
+            for(Element _element : xmlElement.getChildren()){
                 LocatedElement childElement = (LocatedElement)_element;
                 org.bromix.msbuild.Element childObject = null;
                 
@@ -272,7 +257,7 @@ public class ProjectReader {
                 }
                 
                 if(childObject!=null){
-                    parentObject.addChild(childObject);
+                    msBuildElement.addChild(childObject);
                 }
                 else{
                     throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));

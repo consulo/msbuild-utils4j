@@ -19,52 +19,61 @@ import org.jdom2.output.XMLOutputter;
  *
  * @author Matthias Bromisch
  */
-public class ProjectWriter {
-    public void write(Project project, File file) throws ProjectIOException{
+public class MSBuildWriter {
+    public void writeProject(Project project, File projectFilename) throws ProjectIOException{
         OutputStream stream;
         try {
-            stream = new FileOutputStream(file);
+            stream = new FileOutputStream(projectFilename);
         } catch (FileNotFoundException ex) {
             throw new ProjectIOException(ex);
         }
-        write(project, stream);
+        writeProject(project, stream);
     }
     
-    public void write(Project project, OutputStream stream) throws ProjectIOException{
+    public void writeProject(Project project, OutputStream outputStream) throws ProjectIOException{
         Namespace ns = Namespace.getNamespace("http://schemas.microsoft.com/developer/msbuild/2003");
-        Element root = createXmlElement(project, ns);
+        writeElement(project, outputStream, ns);
+    }
+    
+    public void writeElement(org.bromix.msbuild.Element msbuildElement, OutputStream outputStream) throws ProjectIOException{
+        writeElement(msbuildElement, outputStream, Namespace.NO_NAMESPACE);
+    }
+    
+    private void writeElement(org.bromix.msbuild.Element msbuildElement, OutputStream outputStream, Namespace ns) throws ProjectIOException{
+        
+        Element root = createXmlElement(msbuildElement, ns);
         Document document = new Document(root);
         
         XMLOutputter xmlOutput = new XMLOutputter();
         // display nice nice
         xmlOutput.setFormat(Format.getPrettyFormat());
         try {
-            xmlOutput.output(document, stream);
+            xmlOutput.output(document, outputStream);
         } catch (IOException ex) {
             throw new ProjectIOException(ex);
         }
     }
 
-    private Element createXmlElement(org.bromix.msbuild.Element msbuildElement, Namespace namespace) throws ProjectIOException {
-        Element xmlElement = new Element(msbuildElement.getElementName(), namespace);
+    private Element createXmlElement(org.bromix.msbuild.Element msBuildElement, Namespace namespace) throws ProjectIOException {
+        Element xmlElement = new Element(msBuildElement.getElementName(), namespace);
         
-        writeXmlElementAttributes(xmlElement, msbuildElement);
+        writeXmlElementAttributes(xmlElement, msBuildElement);
         
-        if(msbuildElement instanceof ParentElement){
-            writeChildren(xmlElement, (ParentElement)msbuildElement, namespace);
+        if(msBuildElement instanceof ParentElement){
+            writeChildren(xmlElement, (ParentElement)msBuildElement, namespace);
         }
         
         return xmlElement;
     }
 
-    private void writeXmlElementAttributes(Element xmlElement, org.bromix.msbuild.Element msbuildElement) throws ProjectIOException {
-        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(msbuildElement.getClass(), true, ElementValue.class);
+    private void writeXmlElementAttributes(Element xmlElement, org.bromix.msbuild.Element msBuildElement) throws ProjectIOException {
+        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(msBuildElement.getClass(), true, ElementValue.class);
         for(Field field : fields){
             ElementValue elementValue = (ElementValue)field.getAnnotation(ElementValue.class);
             try {
                 boolean isAccessible = field.isAccessible();
                 field.setAccessible(true);
-                Object fieldValueObject = field.get(msbuildElement);
+                Object fieldValueObject = field.get(msBuildElement);
                 
                 if(elementValue.valueType()==ElementValue.ValueType.ELEMENT_ATTRIBUTE){
                     // build the name of the attribute (based on the field name)
@@ -85,7 +94,7 @@ public class ProjectWriter {
                     }
                     
                     if(elementValue.required() && (value==null || value.isEmpty())){
-                        throw new ProjectIOException(String.format("Value '%s' for element '%s' is required", attributeName, msbuildElement.getElementName()));
+                        throw new ProjectIOException(String.format("Value '%s' for element '%s' is required", attributeName, msBuildElement.getElementName()));
                     }
                     
                     if(value!=null && !value.isEmpty()){
@@ -98,7 +107,7 @@ public class ProjectWriter {
                     }
                     
                     if(elementValue.required() && (value==null || value.isEmpty())){
-                        throw new ProjectIOException(String.format("Value for element '%s' is required", msbuildElement.getElementName()));
+                        throw new ProjectIOException(String.format("Value for element '%s' is required", msBuildElement.getElementName()));
                     }
                     
                     xmlElement.setText(value);
@@ -112,8 +121,8 @@ public class ProjectWriter {
         }
     }
 
-    private void writeChildren(Element xmlElement, org.bromix.msbuild.ParentElement msbuildElement, Namespace namespace) throws ProjectIOException {
-        for(org.bromix.msbuild.Element element : msbuildElement.getChildren()){
+    private void writeChildren(Element xmlElement, org.bromix.msbuild.ParentElement msBuildElement, Namespace namespace) throws ProjectIOException {
+        for(org.bromix.msbuild.Element element : msBuildElement.getChildren()){
             Element child = createXmlElement(element, namespace);
             xmlElement.addContent(child);
         }

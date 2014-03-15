@@ -4,14 +4,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.bromix.msbuild.ProjectReader;
+import org.bromix.msbuild.MSBuildReader;
 
 /**
  * Annotations to describe the element.
  * <p>
- * The {@link ProjectReader} will use the annotations to understand the hierarchy
+ * The {@link MSBuildReader} will use the annotations to understand the hierarchy
  * of a project file and which children are allowed.
- * @see ProjectReader
+ * @see MSBuildReader
  * @author Matthias Bromisch
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface ElementDefinition {
     /**
      * The name of the element.
      * <p>
-     * If the binding is not defined the {@link ProjectReader} will create a binding
+     * If the binding is not defined the {@link MSBuildReader} will create a binding
      * based on the class name.
      * @return name of the element name.
      */

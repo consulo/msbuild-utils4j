@@ -33,12 +33,12 @@ public class ItemGroup extends ParentElement implements Conditionable{
         this.condition = condition;
     }
     
-    public Item addItem(String name, String value){
-        return addItem(name, value, new Condition());
+    public Item addItem(String name, String include){
+        return addItem(name, include, new Condition());
     }
     
-    public Item addItem(String name, String value, Condition condition){
-        Item item = new Item(name, name, condition);
+    public Item addItem(String name, String include, Condition condition){
+        Item item = new Item(name, include, condition);
         children.add(item);
         return item;
     }

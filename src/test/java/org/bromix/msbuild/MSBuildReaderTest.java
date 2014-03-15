@@ -23,10 +23,10 @@ import org.junit.Test;
  *
  * @author Matthias Bromisch
  */
-public class ProjectReaderTest {
+public class MSBuildReaderTest {
     File projectFile = null;
     
-    public ProjectReaderTest() throws URISyntaxException {
+    public MSBuildReaderTest() throws URISyntaxException {
         URI uri = this.getClass().getResource("/vs2010/SomeStaticLib/SomeStaticLib.vcxproj").toURI();
         //URI uri = this.getClass().getResource("/vs2010/CsStaticLib/CsStaticLib.csproj").toURI();
         projectFile = new File(uri);
@@ -60,8 +60,8 @@ public class ProjectReaderTest {
                 "   <ItemGroup Label=\"ProjectConfigurations\"/>" +
                 "</Project>";
         
-        ProjectReader reader = new ProjectReader();
-        Project project = reader.read(StringToInputStream(xml));
+        MSBuildReader reader = new MSBuildReader();
+        Project project = reader.readProject(StringToInputStream(xml));
         
         assertEquals(Element.Type.Project, project.getElementType());
         assertEquals("Project", project.getElementName());
@@ -78,7 +78,7 @@ public class ProjectReaderTest {
                 "    <ProjectConfiguration Include=\"Release|Win32\"/>\n" +
                 "</ItemGroup>";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         ItemGroup itemGroup = (ItemGroup)reader.readElement(xml, ItemGroup.class);
         
         assertEquals(Element.Type.ItemGroup, itemGroup.getElementType());
@@ -96,7 +96,7 @@ public class ProjectReaderTest {
                 "   <Platform>Win32</Platform>\n" +
                 "</ProjectConfiguration>";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         Item item = (Item)reader.readElement(xml, Item.class);
         
         assertEquals(Element.Type.Item, item.getElementType());
@@ -116,7 +116,7 @@ public class ProjectReaderTest {
                 "   <RootNamespace>SomeStaticLib</RootNamespace>\n" +
                 "</PropertyGroup>";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         PropertyGroup propertyGroup = (PropertyGroup)reader.readElement(xml, PropertyGroup.class);
         
         assertEquals(Element.Type.PropertyGroup, propertyGroup.getElementType());
@@ -131,7 +131,7 @@ public class ProjectReaderTest {
         String xml =
                 "<ProjectGuid>{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}</ProjectGuid>";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         Property property = (Property)reader.readElement(xml, Property.class);
         
         assertEquals(Element.Type.Property, property.getElementType());
@@ -147,7 +147,7 @@ public class ProjectReaderTest {
                 "   <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />\n" +
                 "</ImportGroup>";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         ImportGroup importGroup = (ImportGroup)reader.readElement(xml, ImportGroup.class);
         
         assertEquals(Element.Type.ImportGroup, importGroup.getElementType());
@@ -164,7 +164,7 @@ public class ProjectReaderTest {
         String xml =
                 "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         Import _import = (Import)reader.readElement(xml, Import.class);
         
         assertEquals(Element.Type.Import, _import.getElementType());
@@ -180,7 +180,7 @@ public class ProjectReaderTest {
                 "   <Link/>\n" +
                 "</ItemDefinitionGroup>";
         
-        ProjectReader reader = new ProjectReader();
+        MSBuildReader reader = new MSBuildReader();
         ItemDefinitionGroup itemDefinitionGroup = (ItemDefinitionGroup)reader.readElement(xml, ItemDefinitionGroup.class);
         
         assertEquals(Element.Type.ItemDefinitionGroup, itemDefinitionGroup.getElementType());
