@@ -40,7 +40,6 @@ public class MSBuildWriter {
     }
     
     private void writeElement(org.bromix.msbuild.Element msbuildElement, OutputStream outputStream, Namespace ns) throws ProjectIOException{
-        
         Element root = createXmlElement(msbuildElement, ns);
         Document document = new Document(root);
         

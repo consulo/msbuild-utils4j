@@ -79,7 +79,7 @@ public class MSBuildReaderTest {
                 "</ItemGroup>";
         
         MSBuildReader reader = new MSBuildReader();
-        ItemGroup itemGroup = (ItemGroup)reader.readElement(xml, ItemGroup.class);
+        ItemGroup itemGroup = reader.readElement(xml, ItemGroup.class);
         
         assertEquals(Element.Type.ItemGroup, itemGroup.getElementType());
         assertEquals("ItemGroup", itemGroup.getElementName());
@@ -97,7 +97,7 @@ public class MSBuildReaderTest {
                 "</ProjectConfiguration>";
         
         MSBuildReader reader = new MSBuildReader();
-        Item item = (Item)reader.readElement(xml, Item.class);
+        Item item = reader.readElement(xml, Item.class);
         
         assertEquals(Element.Type.Item, item.getElementType());
         assertEquals("ProjectConfiguration", item.getElementName());
@@ -117,7 +117,7 @@ public class MSBuildReaderTest {
                 "</PropertyGroup>";
         
         MSBuildReader reader = new MSBuildReader();
-        PropertyGroup propertyGroup = (PropertyGroup)reader.readElement(xml, PropertyGroup.class);
+        PropertyGroup propertyGroup = reader.readElement(xml, PropertyGroup.class);
         
         assertEquals(Element.Type.PropertyGroup, propertyGroup.getElementType());
         assertEquals("PropertyGroup", propertyGroup.getElementName());
@@ -132,7 +132,7 @@ public class MSBuildReaderTest {
                 "<ProjectGuid>{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}</ProjectGuid>";
         
         MSBuildReader reader = new MSBuildReader();
-        Property property = (Property)reader.readElement(xml, Property.class);
+        Property property = reader.readElement(xml, Property.class);
         
         assertEquals(Element.Type.Property, property.getElementType());
         assertEquals("ProjectGuid", property.getElementName());
@@ -148,7 +148,7 @@ public class MSBuildReaderTest {
                 "</ImportGroup>";
         
         MSBuildReader reader = new MSBuildReader();
-        ImportGroup importGroup = (ImportGroup)reader.readElement(xml, ImportGroup.class);
+        ImportGroup importGroup = reader.readElement(xml, ImportGroup.class);
         
         assertEquals(Element.Type.ImportGroup, importGroup.getElementType());
         assertEquals("ImportGroup", importGroup.getElementName());
@@ -165,7 +165,7 @@ public class MSBuildReaderTest {
                 "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />";
         
         MSBuildReader reader = new MSBuildReader();
-        Import _import = (Import)reader.readElement(xml, Import.class);
+        Import _import = reader.readElement(xml, Import.class);
         
         assertEquals(Element.Type.Import, _import.getElementType());
         assertEquals("Import", _import.getElementName());
@@ -181,7 +181,7 @@ public class MSBuildReaderTest {
                 "</ItemDefinitionGroup>";
         
         MSBuildReader reader = new MSBuildReader();
-        ItemDefinitionGroup itemDefinitionGroup = (ItemDefinitionGroup)reader.readElement(xml, ItemDefinitionGroup.class);
+        ItemDefinitionGroup itemDefinitionGroup = reader.readElement(xml, ItemDefinitionGroup.class);
         
         assertEquals(Element.Type.ItemDefinitionGroup, itemDefinitionGroup.getElementType());
         assertEquals("ItemDefinitionGroup", itemDefinitionGroup.getElementName());

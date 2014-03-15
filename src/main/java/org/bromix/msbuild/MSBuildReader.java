@@ -119,7 +119,7 @@ public class MSBuildReader {
      * @return instance of an MSBuild Element.
      * @throws ProjectIOException 
      */
-    public org.bromix.msbuild.Element readElement(String xml, Class<? extends org.bromix.msbuild.Element> elementClass) throws ProjectIOException{
+    public <T extends org.bromix.msbuild.Element> T readElement(String xml, Class<? extends org.bromix.msbuild.Element> elementClass) throws ProjectIOException{
         SAXBuilder builder = new SAXBuilder();
         builder.setJDOMFactory(new LocatedJDOMFactory());
         
@@ -141,10 +141,10 @@ public class MSBuildReader {
      * @return instance of a MSBuild Element.
      * @throws ProjectIOException 
      */
-    private org.bromix.msbuild.Element readElement(LocatedElement xmlElement, Class<? extends org.bromix.msbuild.Element> msBuildElementClass) throws ProjectIOException{
-        org.bromix.msbuild.Element msBuildElement;
+    private <T extends org.bromix.msbuild.Element> T readElement(LocatedElement xmlElement, Class<? extends org.bromix.msbuild.Element> msBuildElementClass) throws ProjectIOException{
+        T msBuildElement;
         try {
-            msBuildElement = (org.bromix.msbuild.Element)msBuildElementClass.newInstance();
+            msBuildElement = (T)msBuildElementClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new ProjectIOException(ex);
         }
@@ -157,7 +157,7 @@ public class MSBuildReader {
             readChildren((ParentElement)msBuildElement, xmlElement);
         }
         
-        return (org.bromix.msbuild.Element)msBuildElement;
+        return msBuildElement;
     }
 
     /**

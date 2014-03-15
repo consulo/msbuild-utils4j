@@ -1,11 +1,8 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.ParentElement;
-import org.bromix.msbuild.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.bromix.msbuild.Condition;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementDefinition.NameMatching;
