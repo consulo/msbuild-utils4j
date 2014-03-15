@@ -1,14 +1,5 @@
 package org.bromix.msbuild;
 
-import org.bromix.msbuild.elements.Choose;
-import org.bromix.msbuild.elements.Import;
-import org.bromix.msbuild.elements.ImportGroup;
-import org.bromix.msbuild.elements.ItemDefinitionGroup;
-import org.bromix.msbuild.elements.ItemGroup;
-import org.bromix.msbuild.elements.ProjectExtensions;
-import org.bromix.msbuild.elements.PropertyGroup;
-import org.bromix.msbuild.elements.Target;
-import org.bromix.msbuild.elements.UsingTask;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 

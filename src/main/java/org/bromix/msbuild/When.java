@@ -1,4 +1,4 @@
-package org.bromix.msbuild.elements;
+package org.bromix.msbuild;
 
 import org.bromix.msbuild.ParentElement;
 import org.bromix.msbuild.Condition;
