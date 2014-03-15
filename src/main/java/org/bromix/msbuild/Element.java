@@ -1,7 +1,7 @@
 package org.bromix.msbuild;
 
+import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ElementValue;
-import org.bromix.msbuild.reflection.ElementName;
 
 /**
  * Superclass for all elements.
@@ -46,15 +46,7 @@ public abstract class Element {
     @ElementValue
     protected String label = "";
     
-    /**
-     * The internal name of the element.
-     */
-    @ElementName
     protected String elementName;
-    
-    /**
-     * The internal type of the element.
-     */
     protected Element.Type elementType; 
     
     /**
@@ -73,6 +65,30 @@ public abstract class Element {
      */
     public String getElementName(){
         return elementName;
+    }
+    
+    public void setElementName(String elementName){
+        ElementDefinition elementDefinition = this.getClass().getAnnotation(ElementDefinition.class);
+        if(elementDefinition!=null){
+            // the name must match
+            if(elementDefinition.nameMatching()==ElementDefinition.NameMatching.EQUALS){   
+                /*
+                Create a name to match. First we use the name of the class and
+                if we have an binding through the annotation, we use the binding.
+                */
+                String name = this.getClass().getSimpleName();
+                if(elementDefinition.bind()!=null && !elementDefinition.bind().isEmpty()){
+                    name = elementDefinition.bind();
+                }
+                
+                if(!name.equals(elementName)){
+                    throw new IllegalArgumentException(String.format("Element name '%s' for class '%s' invalid", elementName, this.getClass().getSimpleName()));
+                }
+            }
+        }else{
+            throw new RuntimeException(String.format("Missing annotation '%s' for class '%s'", ElementDefinition.class.getSimpleName(), this.getClass().getSimpleName()));
+        }
+        this.elementName = elementName;
     }
     
     /**

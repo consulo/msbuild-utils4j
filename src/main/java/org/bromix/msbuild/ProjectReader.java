@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
-import org.bromix.msbuild.reflection.ElementName;
 import org.bromix.msbuild.reflection.ReflectionHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -131,64 +130,28 @@ public class ProjectReader {
     
     /**
      * Tries to read the MSBuild Element from the given xml-element.
-     * @param element xml-element.
-     * @param elementClass MSBuild Element Class.
+     * @param xmlElement xml-element.
+     * @param msBuildElementClass MSBuild Element Class.
      * @return instance of a MSBuild Element.
      * @throws ProjectIOException 
      */
-    private org.bromix.msbuild.Element readElement(LocatedElement element, Class<? extends org.bromix.msbuild.Element> elementClass) throws ProjectIOException{
-        org.bromix.msbuild.Element elementObject;
+    private org.bromix.msbuild.Element readElement(LocatedElement xmlElement, Class<? extends org.bromix.msbuild.Element> msBuildElementClass) throws ProjectIOException{
+        org.bromix.msbuild.Element msBuildElement;
         try {
-            elementObject = (org.bromix.msbuild.Element)elementClass.newInstance();
+            msBuildElement = (org.bromix.msbuild.Element)msBuildElementClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new ProjectIOException(ex);
         }
         
-        readElementName(elementObject, element);
+        msBuildElement.setElementName(xmlElement.getName());
         
-        readElementAttributes(elementObject, element);
+        readElementAttributes(msBuildElement, xmlElement);
 
-        if(elementObject instanceof ParentElement){
-            readChildren((ParentElement)elementObject, element);
+        if(msBuildElement instanceof ParentElement){
+            readChildren((ParentElement)msBuildElement, xmlElement);
         }
         
-        return (org.bromix.msbuild.Element)elementObject;
-    }
-    
-    /**
-     * Internal method to read the correct name of the given element.
-     * This method tries to find the <code>Field</code> with the
-     * annotation {@link ElementName} to set the name.
-     * @param elementObject
-     * @param element
-     * @throws ProjectIOException 
-     * @see ElementName
-     */
-    private void readElementName(org.bromix.msbuild.Element elementObject, LocatedElement element) throws ProjectIOException{
-        List<Field> fields = ReflectionHelper.getDeclaredFieldsWithAnnotation(elementObject.getClass(), true, ElementName.class);
-        if(!fields.isEmpty()){
-            Field field = fields.get(0);
-            
-            boolean isAccessible = field.isAccessible();
-            field.setAccessible(true);
-
-            // we use an object for the value and validate each type we know and need
-            Object valueObject = null;
-            if(field.getType().isAssignableFrom(String.class)){
-                valueObject = element.getName();
-            }
-
-            try {
-                field.set(elementObject, valueObject);
-            } catch (    IllegalArgumentException | IllegalAccessException ex) {
-                throw new ProjectIOException(ex);
-            }
-            
-            field.setAccessible(isAccessible);
-        }
-        else{
-            throw new ProjectIOException(String.format("Missing '%s' annotation in '%s'", ElementName.class.getSimpleName(), elementObject.getClass().getSimpleName()));
-        }
+        return (org.bromix.msbuild.Element)msBuildElement;
     }
 
     /**
