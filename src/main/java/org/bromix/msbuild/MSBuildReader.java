@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
 import org.bromix.msbuild.reflection.ReflectionHelper;
@@ -20,12 +21,32 @@ import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.located.LocatedElement;
 import org.jdom2.located.LocatedJDOMFactory;
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.MethodParameterScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 /**
  *
  * @author Matthias Bromisch
  */
 public class MSBuildReader {
+    private static Set<Class<?>> elementDefinitions = null;
+    
+    public MSBuildReader(){
+        if(elementDefinitions==null){
+            Reflections reflections = new Reflections(new ConfigurationBuilder()
+                    .filterInputsBy(new FilterBuilder().includePackage("org.bromix.msbuild"))
+                    .setUrls(ClasspathHelper.forPackage("org.bromix.msbuild"))
+                    .setScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner())
+            );
+            elementDefinitions = reflections.getTypesAnnotatedWith(ElementDefinition.class);
+        }
+    }
+    
     /**
      * Reads the project from the given file.
      * @param projectFilename
@@ -242,7 +263,7 @@ public class MSBuildReader {
                 org.bromix.msbuild.Element childObject = null;
                 
                 if(!childNames.isEmpty() && childClasses.isEmpty() && childNames.indexOf(childElement.getName())!=-1){
-                    Class childClass = ReflectionHelper.findClassForElement(childElement.getName());
+                    Class childClass = findClassForElement(childElement.getName());
                     if(childClass==null){
                         throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
                     }
@@ -264,5 +285,31 @@ public class MSBuildReader {
                 }
             }
         }
+    }
+    
+    /**
+     * Based on the {@link ElementDefinition} annotation this method tries to return
+     * the corresponding class for the given name of the element.
+     * @param elementName name of the element
+     * @return class corresponding to the element
+     */
+    private Class<? extends org.bromix.msbuild.Element> findClassForElement(String elementName){
+        for(Class cls : elementDefinitions){
+            ElementDefinition elementDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
+            
+            if(elementDefinition!=null){
+                String className = cls.getSimpleName();
+                className = className.substring(0, 1).toUpperCase()+className.substring(1);
+                if(elementDefinition.bind()!=null &&  !elementDefinition.bind().isEmpty()){
+                    className =  elementDefinition.bind();
+                }
+                
+                if(elementName.equals(className)){
+                    return cls;
+                }
+            }
+        }
+        
+        return null;
     }
 }
