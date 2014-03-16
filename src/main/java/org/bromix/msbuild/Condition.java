@@ -16,7 +16,7 @@ import org.apache.commons.jexl2.MapContext;
  */
 public class Condition{
     public class MSBuildFunctions{
-        public Boolean HasTrailingSlash(String text){
+        public Boolean hasTrailingSlash(String text){
             if(text.endsWith("\\")){
                 return true;
             }
@@ -24,7 +24,7 @@ public class Condition{
             return text.endsWith("/");
         }
         
-        public Boolean Exists(String path){
+        public Boolean exists(String path){
             File file = new File(path);
             return file.exists();
         }
@@ -82,10 +82,7 @@ public class Condition{
         Jexl can not handle variables in strings. So we make a copy of the
         original condition and replace all defined variables.
         */
-        String _condition = condition;
-        _condition = _condition.replace("\\", "/");
-        _condition = _condition.replace("Or", "or");
-        _condition = _condition.replace("And", "and");
+        String _condition = normalizeCondition(condition);
         for(String var : context.getNames()){
             _condition = _condition.replace(var, context.get(var, ""));
         }
@@ -122,6 +119,27 @@ public class Condition{
         return condition;
     }
     
+    private String normalizeCondition(String _condition) {
+        String result = _condition;
+        
+        // Normalize methods of 'exists' and 'hastrailingslash'
+        result = result.replaceAll("(?i)Exists\\(", "msbuild:exists(");
+        result = result.replaceAll("(?i)HasTrailingSlash\\(", "msbuild:hasTrailingSlash(");
+        
+        // normalize 'and' and 'or'
+        result = result.replaceAll("(?i)and", "and");
+        result = result.replaceAll("(?i)or", "or");
+        
+        // normalize backslashes
+        result = result.replace("\\", "/");
+        
+        // normalize property functions
+//        result = result.replaceAll("('\\$\\()(\\w*)(\\)')", "Properties.get('$2')");
+//        result = result.replaceAll("(\\$\\()(\\w*)(\\))", "Properties.get('$2')");
+        
+        return result;
+    }
+    
     /**
      * Initializes the engine for jexl only once
      */
@@ -131,7 +149,7 @@ public class Condition{
             jexlEngine.setStrict(true);
             
             Map<String, Object> functions = new HashMap<>();
-            functions.put(null, new MSBuildFunctions());
+            functions.put("msbuild", new MSBuildFunctions());
             jexlEngine.setFunctions(functions);
         }
     }
