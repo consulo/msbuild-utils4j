@@ -8,6 +8,8 @@ package org.bromix.msbuild;
 
 import java.io.File;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import static junit.framework.Assert.assertEquals;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,19 +47,19 @@ public class ConditionTest {
         System.out.println("'Debug|Win32'=='Debug|Win32' (true)");
         Condition instance2 = new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'");
         boolean expResult2 = true;
-        ConditionContext conditionContext2 = new ConditionContext();
-        conditionContext2.set("$(Configuration)", "Debug");
-        conditionContext2.set("$(Platform)", "Win32");
-        boolean result2 = instance2.evaluate(conditionContext2);
+        Map<String, String> properties = new HashMap<>();
+        properties.put("Configuration", "Debug");
+        properties.put("Platform", "Win32");
+        boolean result2 = instance2.evaluate(properties);
         assertEquals(expResult2, result2);
         
         System.out.println("'Release|Win32'!='Debug|Win32' (true)");
         Condition instance3 = new Condition("'$(Configuration)|$(Platform)'!='Debug|Win32'");
         boolean expResult3 = true;
-        ConditionContext conditionContext3 = new ConditionContext();
-        conditionContext3.set("$(Configuration)", "Release");
-        conditionContext3.set("$(Platform)", "Win32");
-        boolean result3 = instance3.evaluate(conditionContext3);
+        Map<String, String> properties2 = new HashMap<>();
+        properties2.put("Configuration", "Release");
+        properties2.put("Platform", "Win32");
+        boolean result3 = instance3.evaluate(properties2);
         assertEquals(expResult3, result3);
     }
     
@@ -165,28 +167,28 @@ public class ConditionTest {
         System.out.println("'$(Configuration)'=='Debug' AND '$(Platform)'=='Win32' (true)");
         Condition instance1 = new Condition("'$(Configuration)'=='Debug' and '$(Platform)'=='Win32'");
         boolean expResult1 = true;
-        ConditionContext conditionContext1 = new ConditionContext();
-        conditionContext1.set("$(Configuration)", "Debug");
-        conditionContext1.set("$(Platform)", "Win32");
-        boolean result1 = instance1.evaluate(conditionContext1);
+        Map<String, String> properties1 = new HashMap<>();
+        properties1.put("Configuration", "Debug");
+        properties1.put("Platform", "Win32");
+        boolean result1 = instance1.evaluate(properties1);
         assertEquals(expResult1, result1);
         
         System.out.println("'$(Configuration)'=='Debug' OR '$(Platform)'=='Win32' (true)");
         Condition instance2 = new Condition("'$(Configuration)'=='Debug' or '$(Platform)'=='Win32'");
         boolean expResult2 = true;
-        ConditionContext conditionContext2 = new ConditionContext();
-        conditionContext2.set("$(Configuration)", "Release");
-        conditionContext2.set("$(Platform)", "Win32");
-        boolean result2 = instance2.evaluate(conditionContext2);
+        Map<String, String> properties2 = new HashMap<>();
+        properties2.put("Configuration", "Release");
+        properties2.put("Platform", "Win32");
+        boolean result2 = instance2.evaluate(properties2);
         assertEquals(expResult2, result2);
         
         System.out.println("'$(Configuration)'=='Debug' OR '$(Platform)'=='Win32' (false)");
         Condition instance3 = new Condition("'$(Configuration)'=='Debug' or '$(Platform)'=='Win32'");
         boolean expResult3 = false;
-        ConditionContext conditionContext3 = new ConditionContext();
-        conditionContext3.set("$(Configuration)", "Release");
-        conditionContext3.set("$(Platform)", "x64");
-        boolean result3 = instance3.evaluate(conditionContext3);
+        Map<String, String> properties3 = new HashMap<>();
+        properties3.put("Configuration", "Release");
+        properties3.put("Platform", "x64");
+        boolean result3 = instance3.evaluate(properties3);
         assertEquals(expResult3, result3);
     }
 

@@ -24,6 +24,10 @@ public class Condition{
             return text.endsWith("/");
         }
         
+        public Boolean exists(String path){
+            return Exists(path);
+        }
+        
         public Boolean Exists(String path){
             File file = new File(path);
             return file.exists();
@@ -59,17 +63,18 @@ public class Condition{
      * @throws ConditionException
      */
     public boolean evaluate() throws ConditionException{
-        return evaluate(new ConditionContext());
+        Map<String, String> properties = new HashMap<>();
+        return evaluate(properties);
     }
     
     /**
      * Evaluates this condition based on the given context.
-     * @param context current context
+     * @param properties
      * @return <code>true</code> or <code>false</code> based on the condition.
      * @throws ConditionException 
      * @see ConditionContext
      */
-    public boolean evaluate(ConditionContext context) throws ConditionException{
+    public boolean evaluate(Map<String, String> properties) throws ConditionException{
         // allways return true if the condition is empty
         if(condition.isEmpty()){
             return true;
@@ -86,8 +91,10 @@ public class Condition{
         _condition = _condition.replace("\\", "/");
         _condition = _condition.replace("Or", "or");
         _condition = _condition.replace("And", "and");
-        for(String var : context.getNames()){
-            _condition = _condition.replace(var, context.get(var, ""));
+        
+        for(String key : properties.keySet()){
+            String name = String.format("$(%s)", key);
+            _condition = _condition.replace(name, properties.get(key));
         }
         Expression expression = jexlEngine.createExpression(_condition);
         

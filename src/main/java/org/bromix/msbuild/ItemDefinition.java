@@ -36,6 +36,10 @@ public class ItemDefinition extends ParentElement implements Conditionable{
         this.condition = condition;
     }
     
+    public String getName(){
+        return elementName;
+    }
+    
     public ItemMetadata addMetadata(String name, String value){
         return addMetadata(name, value, new Condition());
     }

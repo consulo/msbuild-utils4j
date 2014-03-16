@@ -43,7 +43,7 @@ public class Property extends Element implements Conditionable{
         return condition;
     }
 
-    public Object getName() {
+    public String getName() {
         return this.elementName;
     }
 }
