@@ -6,8 +6,6 @@
 
 package org.bromix.msbuild;
 
-import java.util.List;
-import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,10 +14,10 @@ import org.junit.Test;
  *
  * @author braincrusher
  */
-public class ElementQueryTest {
+public class ProjectQueryTest {
     Project project;
     
-    public ElementQueryTest() throws ProjectIOException {
+    public ProjectQueryTest() throws ProjectIOException {
         String xml = 
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<Project DefaultTargets=\"Build\" ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n" +
