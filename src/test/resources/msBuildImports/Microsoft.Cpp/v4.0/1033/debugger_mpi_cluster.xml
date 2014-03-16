@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Rule Name="MpiClusterDebugger" 
+      DisplayName="MPI Cluster Debugger" 
+      Description="MPI Cluster Debugger options" 
+      PageTemplate="debugger" 
+      xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.DataSource>
+    <DataSource Persistence="UserFile">
+    </DataSource>
+  </Rule.DataSource>
+  <StringProperty Name="MpiDebuggerSchedulerNode" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerSchedulerNode" DisplayName="Run Environment" Description="String that includes the head node, number of processes, and the allocation of processes to machines, if specified." Subtype="HpcNode">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Edit Hpc Node...&gt;" EditorType="HpcNodeEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerDeploymentDirectory" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerDeploymentDirectory" DisplayName="Deployment Directory" Description="Directory where the project output files will be placed to facilitate debugger startup. This should be a network share." Subtype="folder" />
+  <StringProperty Name="MpiDebuggerWorkingDirectory" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerWorkingDirectory" DisplayName="Working Directory" Description="Working directory used by each process. If not specified the default is the project output directory (for local debugging); %tmp% (for cluster debugging)." Subtype="folder" />
+  <StringProperty Name="MpiDebuggerApplicationCommand" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerApplicationCommand" DisplayName="Application Command" Description="Application name or the application path on the local machine." Default="$(TargetFileName)">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Edit...&gt;" EditorType="DefaultStringPropertyEditor" />
+      <ValueEditor DisplayName="&lt;Browse...&gt;" EditorType="DefaultFilePropertyEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerApplicationArguments" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerApplicationArguments" DisplayName="Application Arguments" Description="Arguments to be passed to the application." />
+  <StringProperty Name="MpiDebuggerShimLocation" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerShimLocation" DisplayName="MPIShim Location" Description="Location of MPIShim executable on local machine.">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Browse...&gt;" EditorType="DefaultFilePropertyEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerMpiExecCommand" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerMpiExecCommand" DisplayName="MPIExec Command" Description="Application used to launch the MPI processes (typically named MPIExec).">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Browse...&gt;" EditorType="DefaultFilePropertyEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerAdditionalMpiExecArguments" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerAdditionalMpiExecArguments" DisplayName="Additional MPIExec Arguments" Description="Additional arguments to the MPIExec command." />
+  <EnumProperty Name="MpiDebuggerNetworkSecurityMode" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerNetworkSecurityMode" DisplayName="MPI Network Security Mode" Description="IP addresses allowed to connect to the current instance of the Visual Studio IDE.">
+    <EnumValue Name="LocalSubnet" DisplayName="Accept connections from a local subnet only" Description="Accept connections from a local subnet only" />
+    <EnumValue Name="SpecifiedRange" DisplayName="Accept connections from a specified range of addresses" Description="Accept connections from a specified range of addresses" />
+    <EnumValue Name="AnyAddress" DisplayName="Accept connections from any address" Description="Accept connections from any address" />
+  </EnumProperty>
+  <StringProperty Name="MpiDebuggerNetworkFilter" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerNetworkFilter" DisplayName="MPI Network Filter" Description="IP address mask from which to accept connections (if MPI Network Security Mode is set to 'Accept connections from a specified range of addresses' above)." />
+  <EnumProperty Name="MpiDebuggerDebuggerType" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerDebuggerType" DisplayName="Debugger Type" Description="Specifies the debugger type to use. When set to Auto, the debugger type will be selected based on contents of the exe file.">
+    <EnumValue Name="NativeOnly" DisplayName="Native Only" Description="Native Only" />
+    <EnumValue Name="ManagedOnly" DisplayName="Managed Only" Description="Managed Only" />
+    <EnumValue Name="Mixed" DisplayName="Mixed" Description="Mixed" />
+    <EnumValue Name="Auto" DisplayName="Auto" Description="Auto" />
+    <EnumValue Name="Script" DisplayName="Script" Description="Script" />
+  </EnumProperty>
+  <StringProperty Name="MpiDebuggerJobDescriptionFile" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerJobDescriptionFile" DisplayName="Job Description File" Description="Job description file containing tasks for the job submitted to the cluster.">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Edit...&gt;" EditorType="DefaultStringPropertyEditor" />
+      <ValueEditor DisplayName="&lt;Browse...&gt;" EditorType="DefaultFilePropertyEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerAdditionalFileToDeploy" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerAdditionalFileToDeploy" DisplayName="Additional Files to Deploy" Description="Files and directories to be copied to the deployment directory, in addition to those required by the project and its dependencies.">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Edit File...&gt;" EditorType="HpcFileEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <IntProperty Name="MpiDebuggerSchedulerTimeout" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerSchedulerTimeout" DisplayName="Scheduler Timeout (ms)" Description="Timeout limit in milliseconds after which Visual Studio will  /stop attempting to contact a head node." Default="5000" />
+  <BoolProperty Name="MpiDebuggerDeployCommonRuntime" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerDeployCommonRuntime" DisplayName="Deploy CRT" Description="Whether Visual Studio will deploy the CRT assemblies." Default="true" />
+  <BoolProperty Name="MpiDebuggerCleanupDeployment" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerCleanupDeployment" DisplayName="Cleanup Deployment" Description="Whether Visual Studio will delete deployed files and directories after debugging terminates." Default="true" />
+  <StringProperty Name="MpiDebuggerPreDebugScript" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerPreDebugScript" DisplayName="Pre-Debug Script" Description="Script that will run (on the same machine as Visual Studio), before debugging starts.">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Edit...&gt;" EditorType="DefaultStringPropertyEditor" />
+      <ValueEditor DisplayName="&lt;Browse...&gt;" EditorType="DefaultFilePropertyEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerPreDebugScriptArguments" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerPreDebugScriptArguments" DisplayName="Pre-Debug Script Arguments" Description="Argument string that is passed to the Pre-Debug Script." />
+  <StringProperty Name="MpiDebuggerPostDebugScript" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerPostDebugScript" DisplayName="Post-Debug Script" Description="Script that will run (on the same machine as Visual Studio), after debugging stops.">
+    <StringProperty.ValueEditors>
+      <ValueEditor DisplayName="&lt;Edit...&gt;" EditorType="DefaultStringPropertyEditor" />
+      <ValueEditor DisplayName="&lt;Browse...&gt;" EditorType="DefaultFilePropertyEditor" />
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="MpiDebuggerPostDebugScriptArguments" F1Keyword="VC.Project.IVCMPIClusterDebuggerPageObject.MpiDebuggerPostDebugScriptArguments" DisplayName="Post-Debug Script Arguments" Description="Argument string that is passed to the Post-Debug Script." />
+</Rule>
