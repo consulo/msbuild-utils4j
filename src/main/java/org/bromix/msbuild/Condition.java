@@ -1,6 +1,8 @@
 package org.bromix.msbuild;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.jexl2.Expression;
@@ -51,6 +53,41 @@ public class Condition{
      */
     public Condition(String condition){
         this.condition = condition;
+        correct();
+    }
+    
+    /**
+     * A simple routine to fix the issue with not correct declared strings in
+     * conditions.
+     */
+    private void correct(){
+        String _condition = "";
+        
+        boolean isString = false;
+        boolean isProperty = false;
+        byte[] bytes = condition.getBytes(StandardCharsets.UTF_8);
+        for(byte b : bytes){
+            if(b=='$' && !isString){
+                _condition+="'$";
+            }
+            else if(b=='('){
+                isProperty = true;
+                _condition+=(char)b;
+            }
+            else if(b=='\''){
+                isString = true;
+                _condition+=(char)b;
+            }
+            else if(b==')' && !isString && isProperty){
+                _condition+=")'";
+                isProperty = false;
+            }
+            else{
+                _condition+=(char)b;
+            }
+        }
+        
+        this.condition = _condition;
     }
     
     /**
