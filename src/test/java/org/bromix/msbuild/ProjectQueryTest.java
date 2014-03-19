@@ -6,6 +6,7 @@
 
 package org.bromix.msbuild;
 
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -121,13 +122,20 @@ public class ProjectQueryTest {
     public void testProjectGuid() throws ConditionException{
         ProjectQuery query = new ProjectQuery(project);
         
-        ProjectQuery.Context context = new ProjectQuery.Context();
-        query.query(context);
+        ProjectContext context = new ProjectContext();
+        ProjectContext result = query.query(context);
         
-        context = new ProjectQuery.Context();
+        context = new ProjectContext();
         context.getProperties().put("Configuration", "Release");
         context.getProperties().put("Platform", "Win32");
-        query.query(context);
-        int x=0;
+        result = query.query(context);
+        String ProjectGuid = result.getProperties().get("ProjectGuid");
+        
+        List<ProjectContext.PropertyMap> configs = result.getItems().get("ProjectConfiguration");
+        for(ProjectContext.PropertyMap map : configs){
+            String config = map.get("Configuration");
+            String platform = map.get("Platform");
+            int x=0;
+        }
     }
 }
