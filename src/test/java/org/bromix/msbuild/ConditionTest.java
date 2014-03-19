@@ -6,16 +6,10 @@
 
 package org.bromix.msbuild;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import static junit.framework.Assert.assertEquals;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -42,14 +36,21 @@ public class ConditionTest {
      * Microsoft writes some false conditions.
      * Some conditions are missing ''' to be recognized as strings. The condition
      * implementation should fix this issue.
+     * @throws org.bromix.msbuild.ConditionException
      */
     @Test
-    public void someScannerTest(){
-        Condition condition = new Condition("$(EnableManagedIncrementalBuild)=='' and '$(CLRSupport)'!='' and '$(CLRSupport)'!='false'\"");
-        
-        String fixedCondition = condition.toString();
-        
+    public void testConditionFix() throws ConditionException{
+        Condition.ConditionFix fix = new Condition.ConditionFix("$(EnableManagedIncrementalBuild)=='' and '$(CLRSupport)'!='' and '$(CLRSupport)'!='false'\"");
+        String fixedCondition = fix.getFixedCondition();
         assertEquals("'$(EnableManagedIncrementalBuild)'=='' and '$(CLRSupport)'!='' and '$(CLRSupport)'!='false'\"", fixedCondition);
+        
+        Condition.ConditionFix fix2 = new Condition.ConditionFix("'$(CLRSupport)'!='' and $(CLRSupport)!='false'\"");
+        String fixedCondition2 = fix2.getFixedCondition();
+        assertEquals("'$(CLRSupport)'!='' and '$(CLRSupport)'!='false'\"", fixedCondition2);
+        
+        Condition.ConditionFix fix3 = new Condition.ConditionFix("'$(Configuration)|$(Platform)'=='Debug|Win32'");
+        String fixedCondition3 = fix3.getFixedCondition();
+        assertEquals("'$(Configuration)|$(Platform)'=='Debug|Win32'", fixedCondition3);
     }
 
     /**
