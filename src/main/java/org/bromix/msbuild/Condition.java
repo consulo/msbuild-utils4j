@@ -1,7 +1,9 @@
 package org.bromix.msbuild;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,21 +19,6 @@ import org.apache.commons.jexl2.MapContext;
  * @author Matthias Bromisch
  */
 public class Condition{
-    public class MSBuildFunctions{
-        public Boolean hasTrailingSlash(String text){
-            if(text.endsWith("\\")){
-                return true;
-            }
-            
-            return text.endsWith("/");
-        }
-        
-        public Boolean exists(String path){
-            File file = new File(path);
-            return file.exists();
-        }
-    };
-    
     static JexlEngine jexlEngine = null;
     
     private String condition = "";
@@ -53,41 +40,6 @@ public class Condition{
      */
     public Condition(String condition){
         this.condition = condition;
-        correct();
-    }
-    
-    /**
-     * A simple routine to fix the issue with not correct declared strings in
-     * conditions.
-     */
-    private void correct(){
-        String _condition = "";
-        
-        boolean isString = false;
-        boolean isProperty = false;
-        byte[] bytes = condition.getBytes(StandardCharsets.UTF_8);
-        for(byte b : bytes){
-            if(b=='$' && !isString){
-                _condition+="'$";
-            }
-            else if(b=='('){
-                isProperty = true;
-                _condition+=(char)b;
-            }
-            else if(b=='\''){
-                isString = true;
-                _condition+=(char)b;
-            }
-            else if(b==')' && !isString && isProperty){
-                _condition+=")'";
-                isProperty = false;
-            }
-            else{
-                _condition+=(char)b;
-            }
-        }
-        
-        this.condition = _condition;
     }
     
     /**
@@ -108,7 +60,7 @@ public class Condition{
      * @see ConditionContext
      */
     public boolean evaluate(Map<String, String> properties) throws ConditionException{
-        // allways return true if the condition is empty
+        // always return true if the condition is empty
         if(condition.isEmpty()){
             return true;
         }
@@ -117,16 +69,25 @@ public class Condition{
         initEngine();
         
         /*
-        Jexl can not handle variables in strings. So we make a copy of the
-        original condition and replace all defined variables.
+        first we have to fix the condition for possibles errors made by
+        Microsoft Visual Studio.
         */
-        String _condition = normalizeCondition(condition);
+        ConditionFix fix = new ConditionFix(condition);
+        String _condition = fix.getFixedCondition();
+        
+        // normalize the condition for JEXL
+        _condition = normalizeCondition(_condition);
+        
+        // replace all properties
         for(String key : properties.keySet()){
             String name = String.format("$(%s)", key);
             _condition = _condition.replace(name, properties.get(key));
         }
+        
+        // create an expression of the condition
         Expression expression = jexlEngine.createExpression(_condition);
         
+        // evaluate
         JexlContext dummyContext = new MapContext();
         try{
             Object obj = expression.evaluate(dummyContext);
@@ -158,10 +119,15 @@ public class Condition{
         return condition;
     }
     
+    /**
+     * Normalize the condition to work properly with JEXL.
+     * @param _condition
+     * @return normalized condition for JEXL.
+     */
     private String normalizeCondition(String _condition) {
         String result = _condition;
         
-        // Normalize methods of 'exists' and 'hastrailingslash'
+        // Normalize methods of 'exists' and 'hasTrailingSlash'
         result = result.replaceAll("(?i)Exists\\(", "msbuild:exists(");
         result = result.replaceAll("(?i)HasTrailingSlash\\(", "msbuild:hasTrailingSlash(");
         
@@ -171,10 +137,6 @@ public class Condition{
         
         // normalize backslashes
         result = result.replace("\\", "/");
-        
-        // normalize property functions
-//        result = result.replaceAll("('\\$\\()(\\w*)(\\)')", "Properties.get('$2')");
-//        result = result.replaceAll("(\\$\\()(\\w*)(\\))", "Properties.get('$2')");
         
         return result;
     }
@@ -192,4 +154,123 @@ public class Condition{
             jexlEngine.setFunctions(functions);
         }
     }
+    
+    /**
+     * Class to implement methods for MSBuild Conditions.
+     * This class provides the functions <code>hasTrailingSlash</code> and
+     * <code>exists</code>
+     */
+    public class MSBuildFunctions{
+        public Boolean hasTrailingSlash(String text){
+            if(text.endsWith("\\")){
+                return true;
+            }
+            
+            return text.endsWith("/");
+        }
+        
+        public Boolean exists(String path){
+            File file = new File(path);
+            return file.exists();
+        }
+    };
+    
+    /**
+     * Class to correct some mistakes of Microsoft Visual Studio.
+     * Microsoft Visual Studio provides some import projects which have false
+     * conditions. Some conditions haven't correct declared strings to be
+     * validated.
+     * <p>
+     * For example:
+     * <p>
+     * <code>$(EnableManagedIncrementalBuild)==''</code>
+     * The property <code>$(EnableManagedIncrementalBuild)</code> isn't enclosed
+     * in '''. This class tries to correct them.
+     */
+    public static class ConditionFix{
+        private final String condition;
+        private InputStream stream;
+        
+        public ConditionFix(String condition){
+            this.condition = condition;
+        }
+        
+        /**
+         * Returns a corrected condition.
+         * Fixes only incorrect string declarations.
+         * @return
+         * @throws ConditionException 
+         */
+        public String getFixedCondition() throws ConditionException{
+            String result = "";
+            
+            stream = new ByteArrayInputStream(condition.getBytes(StandardCharsets.UTF_8));
+            int ch;
+            try {
+                while( (ch = stream.read()) > -1){
+                    if(ch=='$'){
+                        result+=parseProperty();
+                    }
+                    else if(ch=='\''){
+                        result+=parseString();
+                    }
+                    else{
+                        result+=(char)ch;
+                    }
+                }
+            } catch (IOException ex) {
+                throw new ConditionException(ex);
+            }
+            
+            return result;
+        }
+        
+        /**
+         * Returns the property enclosed in '''.
+         * @return
+         * @throws ConditionException 
+         */
+        private String parseProperty() throws ConditionException{
+            String property = "'$(";
+            
+            int ch;
+            try {
+                ch = stream.read();
+                if(ch!='('){
+                    throw new ConditionException("'(' expected for property");
+                }
+                while( ((ch = stream.read()) > -1) && ch!=')' ){
+                    property+=(char)ch;
+                }
+            } catch (IOException ex) {
+                throw new ConditionException(ex);
+            }
+            
+            property+=")'";
+            return property;
+        }
+        
+        /**
+         * Returns the complete String.
+         * This method is for completion, so we don't parse properties enclosed
+         * in '''.
+         * @return
+         * @throws ConditionException 
+         */
+        private String parseString() throws ConditionException{
+            String string = "'";
+            
+            int ch;
+            try {
+                while( ((ch = stream.read()) > -1) && ch!='\'' ){
+                    string+=(char)ch;
+                }
+            } catch (IOException ex) {
+                throw new ConditionException(ex);
+            }
+            
+            string+='\'';
+            return string;
+        }
+    };
 }
