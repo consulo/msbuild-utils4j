@@ -138,10 +138,19 @@ public class ProjectQueryTest {
         assertEquals("Win32Proj", Keyword);
         
         List<ProjectContext.PropertyMap> configs = result.getItems().get("ProjectConfiguration");
+        int index = 0;
         for(ProjectContext.PropertyMap map : configs){
             String config = map.get("Configuration");
             String platform = map.get("Platform");
-            int x=0;
+            if(index==0){
+                assertEquals("Debug", config);
+                assertEquals("Win32", platform);
+            }
+            else if(index==1){
+                assertEquals("Release", config);
+                assertEquals("Win32", platform);
+            }
+            index++;
         }
     }
 }
