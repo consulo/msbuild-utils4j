@@ -1,5 +1,6 @@
 package org.bromix.msbuild;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +14,18 @@ import org.bromix.msbuild.reflection.ReflectionHelper;
  */
 public class ProjectQuery {    
     private final Project project;
+    private boolean loadImports = false;
+    private MSBuildReader reader = new MSBuildReader();
     
     /**
      * Default constructor.
      * Creates a query for the given project.
      * @param project 
+     * @param loadImports 
      */
-    public ProjectQuery(Project project){
+    public ProjectQuery(Project project, boolean loadImports){
         this.project = project;
+        this.loadImports = loadImports;
     }
     
     /**
@@ -94,7 +99,20 @@ public class ProjectQuery {
             }
             else if(msBuildElement.getClass()==Import.class){
                 Import _import = (Import)msBuildElement;
-                result.getImports().add(_import.getProject());
+                String importFilename = _import.getProject();
+                result.getImports().add(importFilename);
+                
+                if(loadImports){
+                    TextExtender extender = new TextExtender(result);
+                    importFilename = extender.extend(importFilename);
+                    File importProjectFile = new File(importFilename);
+                    if(!importProjectFile.exists()){
+                        throw new ProjectIOException(String.format("Could not find '%s'", importFilename));
+                    }
+                    Project importedProject = reader.readProject(importProjectFile);
+
+                    collectFromElement(importedProject, result, itemDefinitions);
+                }
             }
 
             // collect children

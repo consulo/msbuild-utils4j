@@ -15,10 +15,10 @@ import org.bromix.msbuild.reflection.ElementValue;
  */
 @ElementDefinition(
         children = {
-            //Task.class,
             PropertyGroup.class,
             ItemGroup.class,
-            OnError.class
+            OnError.class,
+            Task.class
         }
 )
 public class Target extends ParentElement implements Conditionable{

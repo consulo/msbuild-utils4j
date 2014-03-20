@@ -84,12 +84,12 @@ public class Condition{
             _condition = _condition.replace(name, properties.get(key));
         }
         
+        try{
         // create an expression of the condition
         Expression expression = jexlEngine.createExpression(_condition);
         
         // evaluate
         JexlContext dummyContext = new MapContext();
-        try{
             Object obj = expression.evaluate(dummyContext);
             if(obj instanceof Boolean){
                 return (Boolean)obj;

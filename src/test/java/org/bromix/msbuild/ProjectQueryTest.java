@@ -6,6 +6,8 @@
 
 package org.bromix.msbuild;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.List;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -18,8 +20,9 @@ import org.junit.Test;
  */
 public class ProjectQueryTest {
     Project project;
+    String VCTargetsPath = "";
     
-    public ProjectQueryTest() throws ProjectIOException {
+    public ProjectQueryTest() throws ProjectIOException, URISyntaxException {
         String xml = 
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<Project DefaultTargets=\"Build\" ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n" +
@@ -109,6 +112,9 @@ public class ProjectQueryTest {
         
         MSBuildReader reader = new MSBuildReader();
         project = (Project)reader.readElement(xml, Project.class);
+        
+        File vCTargetsPathFile = new File(getClass().getResource("/msBuildImports/").toURI());
+        VCTargetsPath = vCTargetsPathFile.toString()+"\\Microsoft.Cpp\\v4.0";
     }
     
     @BeforeClass
@@ -120,8 +126,21 @@ public class ProjectQueryTest {
     }
     
     @Test
+    public void testImports() throws ConditionException, ProjectIOException{
+        ProjectQuery query = new ProjectQuery(project, true);
+        ProjectContext context = new ProjectContext();
+        context.getProperties().put("VCTargetsPath", VCTargetsPath);
+        context.getProperties().put("Configuration", "Debug");
+        context.getProperties().put("Platform", "Win32");
+        context.getProperties().put("MSBuildToolsPath", "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\");
+        ProjectContext result = query.query(context);
+        
+        int x=0;
+    }
+    
+    @Test
     public void testFromMemory() throws ConditionException, ProjectIOException{
-        ProjectQuery query = new ProjectQuery(project);
+        ProjectQuery query = new ProjectQuery(project, false);
         
         ProjectContext result = query.query(new ProjectContext());
         

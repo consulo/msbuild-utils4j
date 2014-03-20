@@ -22,7 +22,7 @@ public class Item extends ParentElement implements Conditionable{
     @ElementValue
     private Condition condition = new Condition();
     
-    @ElementValue(required = true)
+    @ElementValue(required = false)
     private String include = ""; // required
     @ElementValue
     private String exclude = ""; // optional

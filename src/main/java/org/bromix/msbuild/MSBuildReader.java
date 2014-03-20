@@ -262,14 +262,15 @@ public class MSBuildReader {
                 LocatedElement childElement = (LocatedElement)_element;
                 org.bromix.msbuild.Element childObject = null;
                 
-                if(!childNames.isEmpty() && childClasses.isEmpty() && childNames.indexOf(childElement.getName())!=-1){
+                // first try by name
+                if(childNames.indexOf(childElement.getName())!=-1){
                     Class childClass = findClassForElement(childElement.getName());
                     if(childClass==null){
                         throw new ProjectIOException(String.format("Unknown element '%s' in line '%d'", childElement.getName(), childElement.getLine()));
                     }
                     childObject = readElement(childElement, childClass);
                 }
-                else if(childNames.isEmpty() && !childClasses.isEmpty()){
+                else if(!childClasses.isEmpty()){
                     Class childClass = childClasses.get(0);
                     childObject = readElement(childElement, childClass);
                 }
