@@ -6,7 +6,9 @@
 
 package org.bromix.msbuild;
 
+import java.util.List;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -118,16 +120,37 @@ public class ProjectQueryTest {
     }
     
     @Test
-    public void testProjectGuid() throws ConditionException{
+    public void testFromMemory() throws ConditionException, ProjectIOException{
         ProjectQuery query = new ProjectQuery(project);
         
-        ProjectQuery.Context context = new ProjectQuery.Context();
-        query.query(context);
+        ProjectContext result = query.query(new ProjectContext());
         
-        context = new ProjectQuery.Context();
-        context.getProperties().put("Configuration", "Release");
-        context.getProperties().put("Platform", "Win32");
-        query.query(context);
-        int x=0;
+        String DefaultTargets = result.getProperties().get("DefaultTargets");
+        assertEquals("Build", DefaultTargets);
+        
+        String ToolsVersion = result.getProperties().get("ToolsVersion");
+        assertEquals("4.0", ToolsVersion);
+        
+        String ProjectGuid = result.getProperties().get("ProjectGuid");
+        assertEquals("{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}", ProjectGuid);
+        
+        String Keyword = result.getProperties().get("Keyword");
+        assertEquals("Win32Proj", Keyword);
+        
+        List<ProjectContext.PropertyMap> configs = result.getItems().get("ProjectConfiguration");
+        int index = 0;
+        for(ProjectContext.PropertyMap map : configs){
+            String config = map.get("Configuration");
+            String platform = map.get("Platform");
+            if(index==0){
+                assertEquals("Debug", config);
+                assertEquals("Win32", platform);
+            }
+            else if(index==1){
+                assertEquals("Release", config);
+                assertEquals("Win32", platform);
+            }
+            index++;
+        }
     }
 }
