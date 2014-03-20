@@ -91,6 +91,12 @@ public class MSBuildWriter {
                     else if(field.getType().isAssignableFrom(Condition.class)){
                         value = ((Condition)fieldValueObject).toString();
                     }
+                    else if(field.getType().isAssignableFrom(Boolean.class)){
+                        value = ((Boolean)fieldValueObject).toString();
+                    }
+                    else if(field.getType().isAssignableFrom(boolean.class)){
+                        value = ((Boolean)fieldValueObject).toString();
+                    }
                     
                     if(elementValue.required() && (value==null || value.isEmpty())){
                         throw new ProjectIOException(String.format("Value '%s' for element '%s' is required", attributeName, msBuildElement.getElementName()));
