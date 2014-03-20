@@ -8,6 +8,7 @@ package org.bromix.msbuild;
 
 import java.util.List;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -119,17 +120,22 @@ public class ProjectQueryTest {
     }
     
     @Test
-    public void testProjectGuid() throws ConditionException{
+    public void testFromMemory() throws ConditionException, ProjectIOException{
         ProjectQuery query = new ProjectQuery(project);
         
-        ProjectContext context = new ProjectContext();
-        ProjectContext result = query.query(context);
+        ProjectContext result = query.query(new ProjectContext());
         
-        context = new ProjectContext();
-        context.getProperties().put("Configuration", "Release");
-        context.getProperties().put("Platform", "Win32");
-        result = query.query(context);
+        String DefaultTargets = result.getProperties().get("DefaultTargets");
+        assertEquals("Build", DefaultTargets);
+        
+        String ToolsVersion = result.getProperties().get("ToolsVersion");
+        assertEquals("4.0", ToolsVersion);
+        
         String ProjectGuid = result.getProperties().get("ProjectGuid");
+        assertEquals("{9EFDFFFB-0D2A-4A0E-A5C8-B460D0FE413A}", ProjectGuid);
+        
+        String Keyword = result.getProperties().get("Keyword");
+        assertEquals("Win32Proj", Keyword);
         
         List<ProjectContext.PropertyMap> configs = result.getItems().get("ProjectConfiguration");
         for(ProjectContext.PropertyMap map : configs){

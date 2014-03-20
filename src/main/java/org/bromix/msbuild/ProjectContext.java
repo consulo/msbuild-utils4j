@@ -14,6 +14,7 @@ import java.util.Set;
 public class ProjectContext{
     private PropertyMap properties = new PropertyMap();
     private ItemMap items = new ItemMap();
+    private List<String> imports = new ArrayList<>();
     
     public ProjectContext(){
     }
@@ -21,6 +22,7 @@ public class ProjectContext{
     public ProjectContext(ProjectContext projectContext){
         properties = new PropertyMap(projectContext.getProperties());
         items = new ItemMap(projectContext.getItems());
+        imports.addAll(projectContext.getImports());
     }
     
     public PropertyMap getProperties(){
@@ -30,7 +32,10 @@ public class ProjectContext{
     public ItemMap getItems(){
         return items;
     }
-
+    
+    public List<String> getImports(){
+        return imports;
+    }
     
     public class ItemMap implements Map<String, List<PropertyMap>>{
         private final Map<String, List<PropertyMap>> map = new HashMap<>();
