@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact name="dist">
+    <output-path>$PROJECT_DIR$/out/artifacts/dist</output-path>
+    <root id="root">
+      <element id="file-copy" path="$PROJECT_DIR$/lib/commons-jexl-2.1.1.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/lib/commons-logging-1.1.1.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/lib/jdom.jar" />
+      <element id="zip-archive" name="msbuild-utils4j.jar">
+        <element id="module-output" name="msbuild-utils4j" />
+      </element>
+    </root>
+  </artifact>
+</component>
