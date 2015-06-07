@@ -8,36 +8,46 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
-import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
-import org.reflections.scanners.MethodParameterScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
  * @author Matthias Bromisch
  */
 public class MSBuildReader {
-    private static Set<Class<?>> elementDefinitions = null;
+    private static Class<?>[] elementDefinitions = null;
     
     public MSBuildReader(){
         if(elementDefinitions==null){
-            Reflections reflections = new Reflections(new ConfigurationBuilder()
-                    .filterInputsBy(new FilterBuilder().includePackage("org.bromix.msbuild"))
-                    .setUrls(ClasspathHelper.forPackage("org.bromix.msbuild"))
-                    .setScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner())
-            );
-            elementDefinitions = reflections.getTypesAnnotatedWith(ElementDefinition.class);
+            elementDefinitions = new Class[] {
+                    org.bromix.msbuild.Output.class,
+                    org.bromix.msbuild.Parameter.class,
+                    org.bromix.msbuild.OnError.class,
+                    org.bromix.msbuild.ParameterGroup.class,
+                    org.bromix.msbuild.ItemGroup.class,
+                    org.bromix.msbuild.Item.class,
+                    org.bromix.msbuild.Choose.class,
+                    org.bromix.msbuild.ItemDefinitionGroup.class,
+                    org.bromix.msbuild.Property.class,
+                    org.bromix.msbuild.When.class,
+                    org.bromix.msbuild.UsingTask.class,
+                    org.bromix.msbuild.ItemDefinition.class,
+                    org.bromix.msbuild.Task.class,
+                    org.bromix.msbuild.Otherwise.class,
+                    org.bromix.msbuild.ImportGroup.class,
+                    org.bromix.msbuild.Target.class,
+                    org.bromix.msbuild.Project.class,
+                    org.bromix.msbuild.PropertyGroup.class,
+                    org.bromix.msbuild.Import.class,
+                    org.bromix.msbuild.ItemMetadata.class,
+                    org.bromix.msbuild.TaskBody.class,
+                    org.bromix.msbuild.ProjectExtensions.class,
+            };
         }
     }
     
