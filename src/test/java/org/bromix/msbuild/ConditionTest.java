@@ -6,14 +6,16 @@
 
 package org.bromix.msbuild;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
 import static junit.framework.Assert.assertEquals;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  *
@@ -68,7 +70,7 @@ public class ConditionTest {
         System.out.println("'Debug|Win32'=='Debug|Win32' (true)");
         Condition instance2 = new Condition("'$(Configuration)|$(Platform)'=='Debug|Win32'");
         boolean expResult2 = true;
-        Map<String, String> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<String, String>();
         properties.put("Configuration", "Debug");
         properties.put("Platform", "Win32");
         boolean result2 = instance2.evaluate(properties);
@@ -77,7 +79,7 @@ public class ConditionTest {
         System.out.println("'Release|Win32'!='Debug|Win32' (true)");
         Condition instance3 = new Condition("'$(Configuration)|$(Platform)'!='Debug|Win32'");
         boolean expResult3 = true;
-        Map<String, String> properties2 = new HashMap<>();
+        Map<String, String> properties2 = new HashMap<String, String>();
         properties2.put("Configuration", "Release");
         properties2.put("Platform", "Win32");
         boolean result3 = instance3.evaluate(properties2);
@@ -188,7 +190,7 @@ public class ConditionTest {
         System.out.println("'$(Configuration)'=='Debug' AND '$(Platform)'=='Win32' (true)");
         Condition instance1 = new Condition("'$(Configuration)'=='Debug' and '$(Platform)'=='Win32'");
         boolean expResult1 = true;
-        Map<String, String> properties1 = new HashMap<>();
+        Map<String, String> properties1 = new HashMap<String, String>();
         properties1.put("Configuration", "Debug");
         properties1.put("Platform", "Win32");
         boolean result1 = instance1.evaluate(properties1);
@@ -197,7 +199,7 @@ public class ConditionTest {
         System.out.println("'$(Configuration)'=='Debug' OR '$(Platform)'=='Win32' (true)");
         Condition instance2 = new Condition("'$(Configuration)'=='Debug' or '$(Platform)'=='Win32'");
         boolean expResult2 = true;
-        Map<String, String> properties2 = new HashMap<>();
+        Map<String, String> properties2 = new HashMap<String, String>();
         properties2.put("Configuration", "Release");
         properties2.put("Platform", "Win32");
         boolean result2 = instance2.evaluate(properties2);
@@ -206,7 +208,7 @@ public class ConditionTest {
         System.out.println("'$(Configuration)'=='Debug' OR '$(Platform)'=='Win32' (false)");
         Condition instance3 = new Condition("'$(Configuration)'=='Debug' or '$(Platform)'=='Win32'");
         boolean expResult3 = false;
-        Map<String, String> properties3 = new HashMap<>();
+        Map<String, String> properties3 = new HashMap<String, String>();
         properties3.put("Configuration", "Release");
         properties3.put("Platform", "x64");
         boolean result3 = instance3.evaluate(properties3);

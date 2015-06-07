@@ -1,9 +1,10 @@
 package org.bromix.msbuild;
 
+import org.bromix.msbuild.reflection.ElementDefinition;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Derived abstract class of {@link Element}
@@ -13,7 +14,7 @@ import org.bromix.msbuild.reflection.ElementDefinition;
  * @author Matthias Bromisch
  */
 public abstract class ParentElement extends Element{
-    protected List<Element> children = new ArrayList<>();
+    protected List<Element> children = new ArrayList<Element>();
     
     /**
      * Default constructor for a derived element class.

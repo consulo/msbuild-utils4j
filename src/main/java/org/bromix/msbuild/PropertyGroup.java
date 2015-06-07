@@ -41,7 +41,7 @@ public class PropertyGroup extends ParentElement implements Conditionable{
     }
     
     public List<Property> getProperties(){
-        List<Property> properties = new ArrayList<>();
+        List<Property> properties = new ArrayList<Property>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Property){

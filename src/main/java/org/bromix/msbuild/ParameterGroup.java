@@ -27,7 +27,7 @@ public class ParameterGroup extends ParentElement{
     }
     
     public List<Parameter> getParameter(){
-        List<Parameter> parameters = new ArrayList<>();
+        List<Parameter> parameters = new ArrayList<Parameter>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Parameter){

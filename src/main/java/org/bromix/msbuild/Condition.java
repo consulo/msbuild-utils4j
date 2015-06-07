@@ -48,7 +48,7 @@ public class Condition{
      * @throws ConditionException
      */
     public boolean evaluate() throws ConditionException{
-        Map<String, String> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<String, String>();
         return evaluate(properties);
     }
     
@@ -57,7 +57,6 @@ public class Condition{
      * @param properties
      * @return <code>true</code> or <code>false</code> based on the condition.
      * @throws ConditionException 
-     * @see ConditionContext
      */
     public boolean evaluate(Map<String, String> properties) throws ConditionException{
         // always return true if the condition is empty
@@ -149,7 +148,7 @@ public class Condition{
             jexlEngine = new JexlEngine();
             jexlEngine.setStrict(true);
             
-            Map<String, Object> functions = new HashMap<>();
+            Map<String, Object> functions = new HashMap<String, Object>();
             functions.put("msbuild", new MSBuildFunctions());
             jexlEngine.setFunctions(functions);
         }

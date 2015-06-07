@@ -1,10 +1,11 @@
 package org.bromix.msbuild;
 
+import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementValue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.bromix.msbuild.reflection.ElementValue;
-import org.bromix.msbuild.reflection.ElementDefinition;
 
 /**
  * Implementation of ImportGroup Element.
@@ -40,7 +41,7 @@ public class ImportGroup extends ParentElement implements Conditionable{
     }
     
     public List<Import> getImports(){
-        List<Import> imports = new ArrayList<>();
+        List<Import> imports = new ArrayList<Import>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Import){

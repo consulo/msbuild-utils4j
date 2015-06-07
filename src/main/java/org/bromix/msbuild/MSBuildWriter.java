@@ -1,12 +1,5 @@
 package org.bromix.msbuild;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.List;
 import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ReflectionHelper;
 import org.jdom2.Document;
@@ -14,6 +7,10 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+
+import java.io.*;
+import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  *
@@ -120,7 +117,11 @@ public class MSBuildWriter {
                 
                 field.setAccessible(isAccessible);
                 
-            } catch (    IllegalArgumentException | IllegalAccessException ex) {
+            }
+            catch (IllegalArgumentException ex) {
+                throw new ProjectIOException(ex);
+            }
+            catch (IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
         }

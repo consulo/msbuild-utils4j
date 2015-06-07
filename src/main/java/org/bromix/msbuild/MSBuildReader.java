@@ -1,18 +1,7 @@
 package org.bromix.msbuild;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ElementDefinition;
+import org.bromix.msbuild.reflection.ElementValue;
 import org.bromix.msbuild.reflection.ReflectionHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -28,6 +17,13 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+
+import java.io.*;
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -76,7 +72,9 @@ public class MSBuildReader {
         Document document = null;
         try {
             document = saxBuilder.build(inputStream);
-        } catch (JDOMException | IOException ex) {
+        } catch (JDOMException ex) {
+            throw new ProjectIOException(ex);
+        } catch (IOException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -126,7 +124,11 @@ public class MSBuildReader {
         Document document;
         try {
             document = builder.build(new ByteArrayInputStream(xml.getBytes(Charset.forName("UTF-8"))));
-        } catch (JDOMException | IOException ex) {
+        }
+        catch (IOException ex) {
+            throw new ProjectIOException(ex);
+        }
+        catch (JDOMException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -145,7 +147,9 @@ public class MSBuildReader {
         T msBuildElement;
         try {
             msBuildElement = (T)msBuildElementClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+        } catch (IllegalAccessException ex) {
+            throw new ProjectIOException(ex);
+        } catch (InstantiationException ex) {
             throw new ProjectIOException(ex);
         }
         
@@ -219,7 +223,9 @@ public class MSBuildReader {
 
             try {
                 field.set(msBuildElement, valueObject);
-            } catch (    IllegalArgumentException | IllegalAccessException ex) {
+            } catch (IllegalArgumentException ex) {
+                throw new ProjectIOException(ex);
+            } catch (IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
             
@@ -238,8 +244,8 @@ public class MSBuildReader {
             ElementDefinition parentDefinition = (ElementDefinition)msBuildElement.getClass().getAnnotation(ElementDefinition.class);
             
             // collect all strict and variable children
-            List<String> childNames = new ArrayList<>();
-            List<Class> childClasses = new ArrayList<>();
+            List<String> childNames = new ArrayList<String>();
+            List<Class> childClasses = new ArrayList<Class>();
             for(Class cls : parentDefinition.children()){
                 ElementDefinition childDefinition = (ElementDefinition)cls.getAnnotation(ElementDefinition.class);
                 if(childDefinition!=null){

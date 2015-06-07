@@ -40,7 +40,7 @@ public class ItemDefinitionGroup extends ParentElement implements Conditionable{
     }
     
     public List<ItemDefinition> getItems(){
-        List<ItemDefinition> items = new ArrayList<>();
+        List<ItemDefinition> items = new ArrayList<ItemDefinition>();
         
         for(Element element : children){
             if(element.getElementType()==Type.ItemDefinition){

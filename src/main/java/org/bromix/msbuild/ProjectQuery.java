@@ -1,10 +1,11 @@
 package org.bromix.msbuild;
 
+import org.bromix.msbuild.reflection.ElementValue;
+import org.bromix.msbuild.reflection.ReflectionHelper;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import org.bromix.msbuild.reflection.ElementValue;
-import org.bromix.msbuild.reflection.ReflectionHelper;
 
 /**
  * Class to query the current properties under a given {@link ProjectContext}.
@@ -151,7 +152,9 @@ public class ProjectQuery {
                 
                 field.setAccessible(isAccessible);
                 
-            } catch ( IllegalArgumentException | IllegalAccessException ex) {
+            } catch ( IllegalArgumentException  ex) {
+                throw new ProjectIOException(ex);
+            } catch (IllegalAccessException ex) {
                 throw new ProjectIOException(ex);
             }
         }

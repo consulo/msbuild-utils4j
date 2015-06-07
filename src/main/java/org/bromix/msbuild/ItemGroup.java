@@ -41,7 +41,7 @@ public class ItemGroup extends ParentElement implements Conditionable{
     }
     
     public List<Item> getItems(){
-        List<Item> items = new ArrayList<>();
+        List<Item> items = new ArrayList<Item>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Item){

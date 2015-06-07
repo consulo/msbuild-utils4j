@@ -45,7 +45,7 @@ public class Task extends ParentElement implements Conditionable{
     }
     
     public List<Output> getOutputs(){
-        List<Output> outputs = new ArrayList<>();
+        List<Output> outputs = new ArrayList<Output>();
         
         for(Element element : children){
             if(element.getElementType()==Type.Output){

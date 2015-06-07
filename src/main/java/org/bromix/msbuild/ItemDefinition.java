@@ -51,7 +51,7 @@ public class ItemDefinition extends ParentElement implements Conditionable{
     }
     
     public List<ItemMetadata> getMetadataList(){
-        List<ItemMetadata> metadataList = new ArrayList<>();
+        List<ItemMetadata> metadataList = new ArrayList<ItemMetadata>();
         
         for(Element element : children){
             if(element.getElementType()==Type.ItemMetadata){

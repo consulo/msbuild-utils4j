@@ -14,7 +14,7 @@ import java.util.Set;
 public class ProjectContext{
     private PropertyMap properties = new PropertyMap();
     private ItemMap items = new ItemMap();
-    private List<String> imports = new ArrayList<>();
+    private List<String> imports = new ArrayList<String>();
     
     public ProjectContext(){
     }
@@ -38,14 +38,14 @@ public class ProjectContext{
     }
     
     public class ItemMap implements Map<String, List<PropertyMap>>{
-        private final Map<String, List<PropertyMap>> map = new HashMap<>();
+        private final Map<String, List<PropertyMap>> map = new HashMap<String, List<PropertyMap>>();
         
         public ItemMap(){
         }
         
         public ItemMap(ItemMap itemMap){
             for(String key : itemMap.keySet()){
-                List<PropertyMap> list = new ArrayList<>();
+                List<PropertyMap> list = new ArrayList<PropertyMap>();
                 map.put(key, list);
                 
                 for(PropertyMap property : itemMap.get(key)){    
@@ -119,7 +119,7 @@ public class ProjectContext{
     };
     
     public static class PropertyMap implements Map<String, String>{
-        private final Map<String, String> map = new HashMap<>();
+        private final Map<String, String> map = new HashMap<String, String>();
         
         public PropertyMap(){
         }
