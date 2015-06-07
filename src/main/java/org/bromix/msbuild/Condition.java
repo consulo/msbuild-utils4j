@@ -1,16 +1,16 @@
 package org.bromix.msbuild;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementation of the Condition attribute of MSBuild.
@@ -202,10 +202,9 @@ public class Condition{
          */
         public String getFixedCondition() throws ConditionException{
             String result = "";
-            
-            stream = new ByteArrayInputStream(condition.getBytes(StandardCharsets.UTF_8));
-            int ch;
             try {
+                stream = new ByteArrayInputStream(condition.getBytes("UTF-8"));
+                int ch;
                 while( (ch = stream.read()) > -1){
                     if(ch=='$'){
                         result+=parseProperty();
