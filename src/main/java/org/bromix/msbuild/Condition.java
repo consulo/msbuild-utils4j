@@ -201,26 +201,26 @@ public class Condition{
          * @throws ConditionException 
          */
         public String getFixedCondition() throws ConditionException{
-            String result = "";
+            StringBuilder result = new StringBuilder();
             try {
                 stream = new ByteArrayInputStream(condition.getBytes("UTF-8"));
                 int ch;
                 while( (ch = stream.read()) > -1){
                     if(ch=='$'){
-                        result+=parseProperty();
+                        result.append(parseProperty());
                     }
                     else if(ch=='\''){
-                        result+=parseString();
+                        result.append(parseString());
                     }
                     else{
-                        result+=(char)ch;
+                        result.append((char)ch);
                     }
                 }
             } catch (IOException ex) {
                 throw new ConditionException(ex);
             }
             
-            return result;
+            return result.toString();
         }
         
         /**
@@ -229,7 +229,7 @@ public class Condition{
          * @throws ConditionException 
          */
         private String parseProperty() throws ConditionException{
-            String property = "'$(";
+            StringBuilder property = new StringBuilder("'$(");
             
             int ch;
             try {
@@ -238,14 +238,14 @@ public class Condition{
                     throw new ConditionException("'(' expected for property");
                 }
                 while( ((ch = stream.read()) > -1) && ch!=')' ){
-                    property+=(char)ch;
+                    property.append((char)ch);
                 }
             } catch (IOException ex) {
                 throw new ConditionException(ex);
             }
             
-            property+=")'";
-            return property;
+            property.append(")'");
+            return property.toString();
         }
         
         /**
@@ -256,19 +256,19 @@ public class Condition{
          * @throws ConditionException 
          */
         private String parseString() throws ConditionException{
-            String string = "'";
+            StringBuilder string = new StringBuilder("'");
             
             int ch;
             try {
                 while( ((ch = stream.read()) > -1) && ch!='\'' ){
-                    string+=(char)ch;
+                    string.append((char)ch);
                 }
             } catch (IOException ex) {
                 throw new ConditionException(ex);
             }
             
-            string+='\'';
-            return string;
+            string.append('\'');
+            return string.toString();
         }
     };
 }
